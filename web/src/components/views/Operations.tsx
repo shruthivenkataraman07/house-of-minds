@@ -1,16 +1,18 @@
 "use client";
+import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
 import { compact, n, num, pct, usd } from "@/lib/format";
-import type { BankDetail, BankList, Comps, Demand, Downtime, Players } from "@/lib/types";
+import { TERM } from "@/lib/terms";
+import type { BankDetail, BankList, Comps, Demand, Downtime, EvidenceList, Players } from "@/lib/types";
 import { OFFICIAL, useUI } from "@/lib/ui";
 
-import { ErrorLine, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs } from "../ui";
+import { CalendarHeat, CompositionBar, MatrixHeat } from "../charts";
+import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs } from "../ui";
 
 const AX = { stroke: "var(--muted)", fontSize: 11, tickLine: false, axisLine: false };
 const TT = { contentStyle: { background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, fontSize: 12 } };
-const ZCOL: Record<string, string> = { "Back Forty": "var(--chart-1)" };
 
 export function Operations() {
   const ui = useUI();
@@ -52,6 +54,8 @@ function PeriodControl() {
 
 function DemandTab() {
   const { period } = useUI();
+  const [day, setDay] = useState<string | null>(null);
+  const [zoneSel, setZoneSel] = useState<string | null>(null);
   const ok = period.from <= period.to;
   const { data, error, loading, reload } = useApi<Demand>(ok ? `/operations/demand?start=${period.from}&end=${period.to}` : null);
   if (!ok) return <p className="text-[13px] text-neg">Start date is after end date; adjust the period.</p>;
@@ -60,44 +64,57 @@ function DemandTab() {
   const d = data.data;
   const t = d.totals;
   const months = [...new Set(d.zone_monthly.map((r) => r.month))].sort();
-  const zones = [...new Set(d.zone_monthly.map((r) => r.zone_name))];
-  const zdata = months.map((mo) => Object.fromEntries([["month", mo], ...d.zone_monthly.filter((r) => r.month === mo).map((r) => [r.zone_name, r.theo_per_available_hour])]));
+  const zoneIds = [...new Set(d.zone_monthly.map((r) => r.zone_id))];
+  const zname = (z: string) => d.zone_monthly.find((r) => r.zone_id === z)?.zone_name ?? z;
+  const zval = (z: string, mo: string) => d.zone_monthly.find((r) => r.zone_id === z && r.month === mo)?.theo_per_available_hour ?? null;
   const [e1, e2] = d.explanations;
+  const avgDay = t.days ? t.coin_in_usd / t.days : 0;
+  const dsel = d.daily.find((r) => r.gaming_date === day);
   return (
     <div className={`space-y-4 ${loading ? "opacity-60" : ""}`}>
       <div className="panel grid grid-cols-2 gap-4 p-4 sm:grid-cols-3 lg:grid-cols-5">
-        <Kpi label="Coin-in" value={compact(t.coin_in_usd)} sub={`${t.days} gaming days`} />
-        <Kpi label="Coin-in per day" value={compact(t.coin_in_per_day_usd)} />
-        <Kpi label="Per available machine-hour" value={usd(t.coin_in_per_available_hour_usd, 2)} title="Separates demand from machine count" />
-        <Kpi label="House win" value={compact(t.house_win_usd)} sub={`hold ${pct(t.hold, 2)}`} />
-        <Kpi label="Theoretical win" value={compact(t.theo_usd)} sub={`theo hold ${pct(t.theo_hold, 2)}`} />
+        <Kpi label={TERM.coin_in} value={compact(t.coin_in_usd)} sub={`${t.days} gaming days`} />
+        <Kpi label={`${TERM.coin_in} per day`} value={compact(t.coin_in_per_day_usd)} />
+        <Kpi label="Wagered per available machine-hour" value={usd(t.coin_in_per_available_hour_usd, 2)} title="Separates demand from the number of machines" />
+        <Kpi label={TERM.house_win} value={compact(t.house_win_usd)} sub={`${TERM.hold.toLowerCase()} ${pct(t.hold, 2)}`} />
+        <Kpi label={TERM.theo} value={compact(t.theo_usd)} sub={`expected ${pct(t.theo_hold, 2)}`} />
       </div>
+      <Panel title="When was the floor busy?" note={`Daily amount wagered, ${period.from} → ${period.to}; amber outline = event day. Select a day for detail.`}>
+        <CalendarHeat label="Daily amount wagered calendar" format={(v) => usd(v)} selected={day} onDay={setDay}
+          days={d.daily.map((r) => ({ date: r.gaming_date, value: r.coin_in_usd, flag: !!r.events }))} />
+      </Panel>
+      {dsel && (
+        <Drawer label={`Gaming day ${dsel.gaming_date}`} onClose={() => setDay(null)} title={<><span className="label block">Gaming day (6 a.m.–6 a.m.)</span>{new Date(`${dsel.gaming_date}T00:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}</>}>
+          <div className="grid grid-cols-2 gap-4">
+            <Kpi label={TERM.coin_in} value={usd(dsel.coin_in_usd)} sub={`${dsel.coin_in_usd >= avgDay ? "+" : "−"}${pct(Math.abs(dsel.coin_in_usd / avgDay - 1))} vs period daily average`} />
+            <Kpi label={TERM.house_win} value={usd(dsel.house_win_usd)} sub={`${TERM.hold.toLowerCase()} ${pct(dsel.hold, 2)}`} />
+            <Kpi label={TERM.theo} value={usd(dsel.theo_usd)} />
+            <Kpi label="Machines active" value={num(dsel.active_machines)} sub={`${num(dsel.available_hours)} available machine-hours`} />
+          </div>
+          <p className="mt-4 text-[13px]"><span className="text-muted">Events: </span>{dsel.events ?? "none recorded"}</p>
+          <p className="label mt-2">Source: property_day (sidecar daily grain). Casino win varies with payout luck; expected win does not.</p>
+        </Drawer>
+      )}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title="Weekly coin-in per day" note="Blue: per day · grey: per available machine-hour (right axis).">
+        <Panel title="Is weekly demand trending down?" note={`Average ${TERM.coin_in.toLowerCase()} per gaming day, by week (partial weeks averaged over their own days).`}>
           <div className="h-56" role="img" aria-label="Weekly coin-in per day and per available hour">
             <ResponsiveContainer><LineChart data={d.weekly} margin={{ left: 0, right: 0, top: 4 }}>
               <CartesianGrid stroke="var(--line)" vertical={false} />
               <XAxis dataKey="week_start" {...AX} tickFormatter={(x: string) => x.slice(5)} minTickGap={24} />
               <YAxis yAxisId="a" {...AX} width={52} tickFormatter={(v: number) => compact(v)} />
-              <YAxis yAxisId="b" orientation="right" {...AX} width={40} tickFormatter={(v: number) => `$${v.toFixed(0)}`} />
-              <Tooltip {...TT} formatter={(v, k) => [k === "coin_in_per_day_usd" ? usd(Number(v)) : usd(Number(v), 2), k === "coin_in_per_day_usd" ? "Per day" : "Per avail. hour"]} />
+              <Tooltip {...TT} formatter={(v) => [usd(Number(v)), "Wagered per day"]} labelFormatter={(l) => `Week of ${String(l)}`} />
               <Line isAnimationActive={false} yAxisId="a" dataKey="coin_in_per_day_usd" stroke="var(--chart-1)" dot={false} strokeWidth={2} />
-              <Line isAnimationActive={false} yAxisId="b" dataKey="coin_in_per_available_hour_usd" stroke="var(--chart-2)" dot={false} strokeWidth={1.5} />
             </LineChart></ResponsiveContainer>
           </div>
         </Panel>
-        <Panel title="Theo per available hour by zone" note="Monthly, official window; Back Forty highlighted.">
-          <div className="h-56" role="img" aria-label="Zone theo per available hour by month">
-            <ResponsiveContainer><LineChart data={zdata} margin={{ left: 0, right: 8, top: 4 }}>
-              <CartesianGrid stroke="var(--line)" vertical={false} />
-              <XAxis dataKey="month" {...AX} /><YAxis {...AX} width={36} tickFormatter={(v: number) => `$${v}`} />
-              <Tooltip {...TT} formatter={(v, k) => [usd(Number(v), 2), String(k)]} />
-              {zones.map((z) => <Line isAnimationActive={false} key={z} dataKey={z} stroke={ZCOL[z] ?? "var(--chart-2)"} strokeOpacity={ZCOL[z] ? 1 : 0.55} dot={false} strokeWidth={ZCOL[z] ? 2.5 : 1.25} />)}
-            </LineChart></ResponsiveContainer>
-          </div>
+        <Panel title="Which zones lost demand, and when?" note={`${TERM.theo_per_hour} by zone and month (official window). Select a zone.`}>
+          <MatrixHeat label="Expected win per available hour by zone and month" format={(v) => `$${v.toFixed(1)}`} selectedRow={zoneSel}
+            rows={zoneIds.map((z) => ({ key: z, label: zname(z) }))} cols={months.map((m) => ({ key: m, label: new Date(`${m}-01T00:00:00Z`).toLocaleString("en-US", { month: "short", timeZone: "UTC" }) }))}
+            value={zval} onCell={(z) => setZoneSel(z)} />
         </Panel>
       </div>
-      <Panel title="What changed and why" flush>
+      {zoneSel && <ZoneDrawer zone={zoneSel} name={zname(zoneSel)} months={months} value={zval} explanations={d.explanations} onClose={() => setZoneSel(null)} />}
+      <Panel title="What changed and why" note="Observed change first; the tested explanation is shown separately." flush>
         <Scroll><table className="tbl min-w-[620px]"><thead><tr><th>Change</th><th className="text-right">Observed</th><th>Alternative tested</th><th>Result</th></tr></thead>
           <tbody>{[e1, e2].filter(Boolean).map((e, i) => (
             <tr key={i}><td>{String(e.change)}</td><td className="num text-right">{n(e.observed_pct).toFixed(1)}%</td>
@@ -162,22 +179,42 @@ function BanksTab() {
 }
 
 function DowntimeTab() {
+  const [zsel, setZsel] = useState<string | null>(null);
   const { data, error, reload } = useApi<Downtime>("/operations/downtime");
   if (error) return <ErrorLine error={error} retry={reload} />;
   if (!data) return <Loading rows={5} />;
   const d = data.data;
   const t = d.totals;
   const hours = d.by_hour.map((r) => ({ hour: `${String(r.local_hour).padStart(2, "0")}`, h: n(r.downtime_hours) }));
+  const zm = d.by_zone_month;
+  const zones = [...new Set(zm.map((r) => String(r.zone_id)))];
+  const zn = (z: string) => String(zm.find((r) => r.zone_id === z)?.zone_name ?? z);
+  const mos = [...new Set(zm.map((r) => String(r.month)))].sort();
+  const cell = (z: string, mo: string) => {
+    const rs = zm.filter((r) => r.zone_id === z && r.month === mo);
+    return rs.length ? rs.reduce((s2, r) => s2 + n(r.downtime_hours), 0) : null;
+  };
+  const zRows = zsel ? zm.filter((r) => r.zone_id === zsel) : [];
+  const byMfr = Object.values(zRows.reduce<Record<string, { m: string; h: number; risk: number; contrib: number; faults: number }>>((a, r) => {
+    const k = String(r.manufacturer); const e = a[k] ?? { m: k, h: 0, risk: 0, contrib: 0, faults: 0 };
+    e.h += n(r.downtime_hours); e.risk += n(r.theo_at_risk_usd); e.contrib += n(r.contribution_at_risk_usd); e.faults += n(r.faults); a[k] = e; return a;
+  }, {})).sort((a, b) => b.h - a.h);
   return (
     <div className="space-y-4">
       <div className="panel grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
-        <Kpi label="Downtime" value={`${num(t.downtime_hours)} h`} sub="machine-hours, Jan–Jun" />
-        <Kpi label="Availability" value={pct(t.availability, 2)} />
-        <Kpi label="Theo at risk" value={usd(t.theo_at_risk_usd)} sub="opportunity, not observed loss" />
+        <Kpi label={`${TERM.downtime} (actual)`} value={`${num(t.downtime_hours)} h`} sub="machine-hours, Jan–Jun" />
+        <Kpi label={TERM.availability} value={pct(t.availability, 2)} />
+        <Kpi label={`${TERM.theo_at_risk} (modeled)`} value={usd(t.theo_at_risk_usd)} sub="opportunity, not observed loss" />
         <Kpi label="Contribution at risk" value={usd(t.contribution_at_risk_usd)} />
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title="Downtime by local hour">
+        <Panel title="Where and when were machines unavailable?" note="Actual downtime hours by zone and month. Select a zone for its breakdown." className="lg:col-span-2">
+          <MatrixHeat label="Downtime hours by zone and month" format={(v) => num(v)} selectedRow={zsel}
+            rows={zones.map((z) => ({ key: z, label: zn(z) }))} cols={mos.map((m) => ({ key: m, label: new Date(`${m}-01T00:00:00Z`).toLocaleString("en-US", { month: "short", timeZone: "UTC" }) }))}
+            value={cell} onCell={(z) => setZsel(z)} />
+          <p className="label mt-1">Downtime is not exported by bank; zone × month is the finest verified grain.</p>
+        </Panel>
+        <Panel title="When in the day are machines down?" note="Actual downtime hours by local hour.">
           <div className="h-52" role="img" aria-label="Downtime hours by local hour"><ResponsiveContainer><BarChart data={hours} margin={{ left: 0 }}>
             <CartesianGrid stroke="var(--line)" vertical={false} /><XAxis dataKey="hour" {...AX} interval={2} /><YAxis {...AX} width={36} />
             <Tooltip {...TT} formatter={(v) => [`${num(Number(v))} h`, "Downtime"]} />
@@ -188,6 +225,17 @@ function DowntimeTab() {
             <tbody>{d.by_manufacturer.map((r) => <tr key={String(r.manufacturer)}><td>{String(r.manufacturer)}</td><td className="num text-right">{num(n(r.downtime_hours))}</td><td className="num text-right">{pct(n(r.downtime_rate), 2)}</td><td className="num text-right">{num(n(r.faults))}</td><td className="num text-right">{usd(n(r.theo_at_risk_usd))}</td></tr>)}</tbody></table></Scroll>
         </Panel>
       </div>
+      {zsel && (
+        <Drawer label={`Downtime in ${zn(zsel)}`} onClose={() => setZsel(null)} title={<><span className="label block">Downtime breakdown · Jan–Jun</span>{zn(zsel)}</>}>
+          <div className="grid grid-cols-2 gap-4">
+            <Kpi label="Actual downtime" value={`${num(byMfr.reduce((a, r) => a + r.h, 0))} h`} sub={`${pct(byMfr.reduce((a, r) => a + r.h, 0) / t.downtime_hours)} of floor downtime`} />
+            <Kpi label={`${TERM.theo_at_risk} (modeled)`} value={usd(byMfr.reduce((a, r) => a + r.risk, 0))} sub="if lost play did not move elsewhere" />
+          </div>
+          <table className="tbl mt-4"><thead><tr><th>Manufacturer</th><th className="text-right">Down h</th><th className="text-right">Faults</th><th className="text-right">Win at risk</th></tr></thead>
+            <tbody>{byMfr.map((r) => <tr key={r.m}><td>{r.m}</td><td className="num text-right">{num(r.h)}</td><td className="num text-right">{num(r.faults)}</td><td className="num text-right">{usd(r.risk)}</td></tr>)}</tbody></table>
+          <p className="label mt-3">Hours are observed meter downtime; win at risk is a modeled opportunity, not realized loss.</p>
+        </Drawer>
+      )}
       <p className="text-[13px]"><span className="font-medium">Action:</span> target preventive maintenance at {String(d.by_manufacturer[0]?.manufacturer)} and technician coverage near {(() => { const pk = [...d.by_hour].sort((a, b) => n(b.downtime_hours) - n(a.downtime_hours))[0]; return pk ? `${String(pk.local_hour).padStart(2, "0")}:00` : "peak hours"; })()}, the worst downtime hour.</p>
     </div>
   );
@@ -210,6 +258,12 @@ function PlayersTab() {
         <Kpi label="Net player outcome" value={compact(n(p.tracked_player_net_usd))} className="text-neg" sub={`${pct(n(p.share_players_ahead))} finished ahead`} />
         <Kpi label="Top 10% share of theo" value={pct(n(p.top10pct_share_of_theo))} sub={`Gini ${n(p.gini_theo).toFixed(2)}`} />
       </div>
+      <Panel title="How concentrated is tracked play?" note="Share of tracked expected win by player group (aggregate shares; no individual records).">
+        <CompositionBar label="Share of tracked expected win by player group" segments={[
+          { key: "top1", label: "Top 1% of players", value: Math.round(n(p.top1pct_share_of_theo) * 1000) / 10, display: pct(n(p.top1pct_share_of_theo)), tone: "accent" },
+          { key: "next9", label: "Next 9%", value: Math.round((n(p.top10pct_share_of_theo) - n(p.top1pct_share_of_theo)) * 1000) / 10, display: pct(n(p.top10pct_share_of_theo) - n(p.top1pct_share_of_theo)), tone: "warn" },
+          { key: "rest", label: "Other 90%", value: Math.round((1 - n(p.top10pct_share_of_theo)) * 1000) / 10, display: pct(1 - n(p.top10pct_share_of_theo)), tone: "muted" }]} />
+      </Panel>
       <Panel title="By loyalty tier" note="Select a tier to drill in." flush>
         <Scroll><table className="tbl min-w-[600px]"><thead><tr><th>Tier</th><th className="text-right">Players</th><th className="text-right">Wagered</th><th className="text-right">Net (player)</th><th className="text-right">Theo</th><th className="text-right">Share of theo</th><th className="text-right">Ahead</th></tr></thead>
           <tbody>{tiers.map((t) => (
@@ -246,5 +300,34 @@ function CompsTab() {
       </Panel>
       <p className="text-[13px]"><span className="font-medium">Action:</span> treat the change as a cost increase until a holdout pilot shows incremental play.</p>
     </div>
+  );
+}
+
+function ZoneDrawer({ zone, name, months, value, explanations, onClose }: {
+  zone: string; name: string; months: string[]; value: (z: string, m: string) => number | null;
+  explanations: Demand["explanations"]; onClose: () => void;
+}) {
+  const ui = useUI();
+  const banks = useApi<BankList>(`/operations/banks?zone=${zone}`);
+  const ev = useApi<EvidenceList>("/evidence?category=zone_demand");
+  const related = explanations.filter((e) => String(e.change).toLowerCase().includes(name.toLowerCase()));
+  const first = value(zone, months[0]), last = value(zone, months[months.length - 1]);
+  const claim = ev.data?.data.claims[0]?.claim_id;
+  return (
+    <Drawer label={`Zone ${name}`} onClose={onClose} title={<><span className="label block">Zone · official window</span>{name}</>}>
+      <div className="grid grid-cols-2 gap-4">
+        <Kpi label={`${TERM.theo_per_hour} · ${months[0]}`} value={first === null ? "—" : usd(first, 2)} />
+        <Kpi label={`… · ${months[months.length - 1]}`} value={last === null ? "—" : usd(last, 2)} sub={first && last ? `${last >= first ? "+" : "−"}${pct(Math.abs(last / first - 1))} over the window` : undefined} />
+      </div>
+      <table className="tbl mt-4"><thead><tr><th>Month</th><th className="text-right">{TERM.theo_per_hour}</th></tr></thead>
+        <tbody>{months.map((m) => <tr key={m}><td>{m}</td><td className="num text-right">{value(zone, m) === null ? "—" : usd(value(zone, m), 2)}</td></tr>)}</tbody></table>
+      {related.map((e, i) => <p key={i} className="mt-3 text-[13px]"><span className="font-medium">{String(e.change)}:</span> {n(e.observed_pct).toFixed(1)}% · {String(e.conclusion)}</p>)}
+      <h3 className="mt-4 text-[12.5px] font-semibold">Banks in this zone</h3>
+      {banks.data ? (
+        <p className="mt-1 flex flex-wrap gap-x-2 text-[12.5px]">{banks.data.data.banks.map((b) => (
+          <button key={b.bank_id} type="button" onClick={() => { onClose(); ui.set({ zoneId: zone, bankId: b.bank_id }); }} className="text-accent hover:underline">{b.bank_id}</button>))}</p>
+      ) : <Loading rows={1} />}
+      <div className="mt-4 border-t border-line pt-3">{claim ? <EvidenceLink id={String(claim)}>Zone demand evidence</EvidenceLink> : <span className="label">No zone evidence record.</span>}</div>
+    </Drawer>
   );
 }

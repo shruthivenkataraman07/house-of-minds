@@ -1,12 +1,14 @@
 "use client";
 import { useState } from "react";
+import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
 import { OPTION, allocation, n, signed, tone, usd } from "@/lib/format";
 import type { Portfolio, Portfolios, Scenarios as ScenarioData } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
-import { ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs } from "../ui";
+import { CompositionBar, ValueBars } from "../charts";
+import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs } from "../ui";
 
 const SCEN: Record<string, string> = { zero_uplift: "Zero", weakest_event: "Weakest event", break_even: "Break-even",
   base_mean: "Base", strongest_event: "Strongest event" };
@@ -18,7 +20,8 @@ export function Scenarios() {
   const tab = ui.tab ?? "compare";
   const sc = useApi<ScenarioData>("/scenarios");
   const pf = useApi<Portfolios>("/portfolios");
-  const [world, setWorld] = useState("base_mean");
+  const [world, setWorld] = useState(ui.scenario ?? "base_mean");
+  const [stressSel, setStressSel] = useState<string | null>(null);
   const err = sc.error ?? pf.error;
   if (err) return <ErrorLine error={err} retry={() => { sc.reload(); pf.reload(); }} />;
   if (!sc.data || !pf.data) return <Loading rows={6} />;
@@ -61,10 +64,45 @@ export function Scenarios() {
                   </tr>);
               })}</tbody></table></Scroll>
           </Panel>
+          <Panel title="At what promotion uplift does the recommendation stop paying?" note="Recommended plan net at each precomputed uplift case; dashed line = break-even. Select a point.">
+            <div className="h-56" role="img" aria-label="Recommended plan net benefit versus promotion uplift">
+              <ResponsiveContainer><LineChart data={[...promo.scenarios].sort((a, b) => a.A08 - b.A08).map((x) => ({ ...x, net: Math.round(x.original_evidence) }))} margin={{ left: 4, right: 16, top: 24, bottom: 8 }}>
+                <CartesianGrid stroke="var(--line)" vertical={false} />
+                <XAxis type="number" dataKey="A08" domain={[0, "dataMax"]} stroke="var(--muted)" fontSize={11} tickLine={false} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}K`} label={{ value: "Extra expected win per promotion day", position: "insideBottom", offset: -4, fontSize: 11, fill: "var(--muted)" }} height={40} />
+                <YAxis stroke="var(--muted)" fontSize={11} tickLine={false} width={56} tickFormatter={(v: number) => `${v < 0 ? "−" : ""}$${Math.abs(v / 1000).toFixed(0)}K`} />
+                <ReferenceLine y={0} stroke="var(--line-strong)" />
+                <ReferenceLine x={promo.break_even_A08} stroke="var(--warn)" strokeDasharray="4 3" label={{ value: `break-even ${usd(promo.break_even_A08)}/day`, fontSize: 11, fill: "var(--warn)", position: "insideTopLeft" }} />
+                <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, fontSize: 12 }} formatter={(v) => [signed(Number(v)), "Recommended plan net"]} labelFormatter={(v) => `${usd(Number(v))}/day uplift`} />
+                <Line isAnimationActive={false} dataKey="net" stroke="var(--accent)" strokeWidth={2}
+                  dot={(props: { cx?: number; cy?: number; payload?: { scenario: string } }) => <circle key={props.payload?.scenario} cx={props.cx} cy={props.cy} r={world === props.payload?.scenario ? 6 : 4} fill={world === props.payload?.scenario ? "var(--text)" : "var(--accent)"} style={{ cursor: "pointer" }} onClick={() => props.payload && setWorld(props.payload.scenario)} />} />
+              </LineChart></ResponsiveContainer>
+            </div>
+            <p className="label mt-1">The plan’s net is linear in uplift; the weakest observed event ({usd(promo.a08.low)}/day) sits just below break-even. Two events, no control group.</p>
+          </Panel>
           <p className="text-[13px]">At zero or weakest-event uplift the recommended plan loses to no action; the manager’s lease plan is negative throughout.</p>
         </>
       )}
-      {tab === "stress" && (
+      {tab === "stress" && (<>
+        <Panel title="Which assumptions move the best achievable net most?" note={`Change in optimal July net vs the base conditional plan (${signed(byOpt.house_of_minds_conditional?.expected_net_benefit_usd)}). Select a bar.`}>
+          <ValueBars label="Change in optimal net by stress scenario" format={signed} selected={stressSel}
+            rows={[...sc.data.data.stress].map((r) => ({ r, d: n(r.optimal_net_benefit) - n(byOpt.house_of_minds_conditional?.expected_net_benefit_usd) }))
+              .sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).map(({ r, d }) => ({
+                key: String(r.scenario_id), label: String(r.description).slice(0, 34), value: Math.round(d), tone: d < 0 ? "neg" : d > 0 ? "pos" : "muted",
+                note: r.baseline_still_optimal === "true" ? "baseline plan still optimal" : "plan changes", onClick: () => setStressSel(String(r.scenario_id)) }))} />
+        </Panel>
+        {stressSel && (() => {
+          const r = sc.data!.data.stress.find((x) => x.scenario_id === stressSel)!;
+          return (
+            <Drawer label={`Scenario ${stressSel}`} onClose={() => setStressSel(null)} title={<><span className="label block">{String(r.scenario_kind).replaceAll("_", " ")}</span>{String(r.description)}</>}>
+              <div className="grid grid-cols-2 gap-4">
+                <Kpi label="Optimal July net" value={signed(n(r.optimal_net_benefit))} />
+                <Kpi label="Regret of keeping baseline" value={usd(n(r.regret))} />
+              </div>
+              <p className="mt-4 text-[13px]"><span className="text-muted">Optimal plan: </span>{allocation(String(r.optimal_portfolio))}</p>
+              <p className="mt-1 text-[13px]"><span className="text-muted">Baseline still optimal: </span>{r.baseline_still_optimal === "true" ? "yes" : "no"}</p>
+              <p className="label mt-3">Source: dash_scenario_surface (Step 3 optimizer re-run). Values are modeled July contribution.</p>
+            </Drawer>);
+        })()}
         <Panel flush title="Optimizer re-run per stress scenario" note="Regret = loss from keeping the baseline plan.">
           <Scroll><table className="tbl min-w-[720px]"><thead><tr><th>Scenario</th><th>Optimal plan</th><th className="text-right">Optimal net</th><th className="text-right">Regret</th><th>Baseline holds</th></tr></thead>
             <tbody>{sc.data.data.stress.map((r) => (
@@ -73,7 +111,7 @@ export function Scenarios() {
                 <td className={`num text-right ${tone(n(r.optimal_net_benefit))}`}>{signed(n(r.optimal_net_benefit))}</td>
                 <td className="num text-right">{usd(n(r.regret))}</td>
                 <td>{r.baseline_still_optimal === "true" ? <Pill tone="pos">yes</Pill> : <Pill tone="warn">no</Pill>}</td></tr>))}</tbody></table></Scroll>
-        </Panel>
+        </Panel></>
       )}
       {tab === "reversals" && (
         <Panel flush title="Assumption values that flip the chosen plan" note="Bisection boundaries from the Step 3 optimizer.">
@@ -90,6 +128,7 @@ export function Scenarios() {
 }
 
 export function Investment() {
+  const ui = useUI();
   const { data, error, reload } = useApi<Portfolios>("/portfolios");
   if (error) return <ErrorLine error={error} retry={reload} />;
   if (!data) return <Loading rows={6} />;
@@ -112,6 +151,20 @@ export function Investment() {
         <Kpi label="Modeled July net" value={signed(net)} className={tone(net)} />
         <Kpi label="Downside (weakest event)" value={signed(rec?.net_low_usd)} className={tone(rec?.net_low_usd)} />
         <Kpi label="Remaining budget" value={usd(100000 - cost)} />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title="How is the $100,000 used?" note="Recommended spend by action, and budget kept unused.">
+          <CompositionBar label="Budget allocation" segments={[
+            ...ev.map((p) => ({ key: String(p.passport_id), label: String(p.action_name), value: n(p.total_cost), display: usd(n(p.total_cost)), tone: "accent" as const, onClick: () => ui.openEvidence(String(p.passport_id)) })),
+            { key: "unused", label: "Kept unused", value: 100000 - cost, display: usd(100000 - cost), tone: "muted" as const }]} />
+          <p className="label mt-2">Conditional upside would add {usd(cd.filter((p) => p.action_type_id !== "A-PROMO").reduce((a, p) => a + n(p.total_cost), 0))} of inspection and moves.</p>
+        </Panel>
+        <Panel title="What does each action return?" note="Estimated additional net benefit per action (July). Select one for its passport.">
+          <ValueBars label="Net benefit by action" format={signed}
+            rows={[...ev, ...cd.filter((p) => p.action_type_id !== "A-PROMO")].map((p) => ({ key: String(p.passport_id), label: `${String(p.action_name).slice(0, 26)}${p.target_entity && p.target_entity !== "property weekend" ? ` · ${String(p.target_entity)}` : ""}`,
+              value: n(p.modeled_net_contribution), tone: p.portfolio_mode === "evidence_supported" ? "accent" : "muted",
+              note: `${usd(n(p.total_cost))} cost · ${String(p.portfolio_mode).replace("_", " ")}`, onClick: () => ui.openEvidence(String(p.passport_id)) }))} />
+        </Panel>
       </div>
       <Panel title="Allocation worksheet" note="Lead time from the official action catalog; benefits accrue after it within Jul 1–30." flush>
         <Scroll><table className="tbl min-w-[820px]"><thead><tr><th>Action</th><th>Target</th><th>Mode</th><th className="text-right">Qty</th><th className="text-right" title="Catalog lead days before the action takes effect">Lead</th><th className="text-right">Cost</th><th className="text-right">Contribution</th><th className="text-right">Net</th><th>Basis</th><th /></tr></thead>

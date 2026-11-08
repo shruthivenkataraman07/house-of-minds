@@ -241,3 +241,43 @@ def test_ask_routes_to_answers_and_catalog_has_lead_days():
     assert a["action"] == {"type": "open_answers", "view": "answers", "args": {}}
     cat = {x["action_type_id"]: x for x in get("/api/v1/portfolios")["data"]["catalog"]}
     assert cat["A-PROMO"]["lead_days"] == 14 and cat["A-REPLACE-LEASE"]["lead_days"] == 14
+
+
+@pytest.mark.parametrize(
+    "q,view,arg",
+    [
+        ("Show why M-5076 is conditional", "machines", ("machine_id", "M-5076")),
+        ("What if promotion uplift is zero?", "scenarios", ("scenario", "zero_uplift")),
+        ("Summarize all six challenge questions", "answers", None),
+        ("Which bank has the most downtime?", "operations", ("tab", "downtime")),
+        ("Show me the evidence for this investment", "evidence", None),
+    ],
+)
+def test_ask_navigates_to_visual_evidence(q, view, arg):
+    a = c.post("/api/v1/ask", json={"question": q}).json()
+    assert a["status"] == "OK" and a["action"]["view"] == view
+    if arg:
+        assert a["action"]["args"][arg[0]] == arg[1]
+
+
+def test_bank_question_states_grain_limit_and_daily_demand_present():
+    a = c.post("/api/v1/ask", json={"question": "Which bank has the most downtime?"}).json()
+    assert "recorded by zone, not bank" in a["support"][0]
+    d = get("/api/v1/operations/demand?start=2025-03-01&end=2025-03-31")["data"]
+    assert len(d["daily"]) == 31 and d["exploratory"]
+    assert sum(r["coin_in_usd"] for r in d["daily"]) == pytest.approx(
+        d["totals"]["coin_in_usd"], abs=0.01
+    )
+    assert get("/api/v1/executive")["data"]["verdict"]["answer"] == "REPLACE_NONE"
+    assert len(get("/api/v1/operations/downtime")["data"]["by_zone_month"]) == 126
+
+
+def test_fair_sort_lists_weakest_vs_peers_first():
+    rows = get("/api/v1/machines?scope=all&sort=fair&limit=5")["data"]["rows"]
+    assert [r["rank_vs_peers"] for r in rows] == [
+        1,
+        2,
+        3,
+        4,
+        5,
+    ]  # 1 = weakest vs comparable machines

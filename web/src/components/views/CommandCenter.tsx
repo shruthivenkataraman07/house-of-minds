@@ -1,16 +1,23 @@
 "use client";
+import { useState } from "react";
+
 import { useApi } from "@/lib/api";
 import { OPTION, allocation, signed, tone, usd, verdict } from "@/lib/format";
 import type { Executive } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
+import { CompositionBar, type ChartTone, ValueBars } from "../charts";
 import { ErrorLine, EvidenceLink, Kpi, Loading, Panel, Pill, Scroll, verdictTone } from "../ui";
+
+const VTONE: Record<string, ChartTone> = { RETIRED_ALREADY: "muted", DO_NOT_REPLACE_INSPECT: "accent",
+  DO_NOT_REPLACE_NOT_ECONOMIC: "neg", INSUFFICIENT_EVIDENCE: "warn", REPLACE_JUSTIFIED_CONDITIONAL: "pos", DO_NOT_REPLACE_EXPOSURE: "muted" };
 
 const FACTOR: Record<string, string> = { exposure: "Limited floor time", location: "Weak location", game_config: "Low-edge game",
   luck: "Payout luck", machine_residual: "Machine itself" };
 
 export function Overview() {
   const ui = useUI();
+  const [cat, setCat] = useState<string | null>(null);
   const { data, error, loading, reload } = useApi<Executive>("/executive");
   if (loading && !data) return <Loading rows={6} />;
   if (error || !data) return <ErrorLine error={error} retry={reload} />;
@@ -57,12 +64,46 @@ export function Overview() {
         </div>
       </section>
 
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title="What does each plan return in July?" note="Estimated additional net benefit; whiskers show the tested assumption range.">
+          <ValueBars label="Modeled July net benefit by plan" format={signed} selected={v.recommended_option}
+            rows={order.filter((o) => pf[o]).map((o) => {
+              const p = pf[o];
+              return { key: o, label: OPTION[o] ?? o, value: p.feasible ? p.expected_net_benefit_usd : null,
+                low: p.net_low_usd, high: p.net_high_usd, note: p.feasible ? `${usd(p.cost_usd)} spent` : "over the $100,000 budget",
+                tone: !p.feasible ? "muted" : o === v.recommended_option ? "accent" : (p.expected_net_benefit_usd ?? 0) < 0 ? "neg" : "muted",
+                onClick: () => ui.openEvidence(o) };
+            })} />
+          <p className="label mt-1">Select a plan to open its evidence passport.</p>
+        </Panel>
+        <Panel title="How are the manager’s 10 classified?" note="Select a category to see its machines and evidence.">
+          {(() => {
+            const counts = x.bottom10.reduce<Record<string, number>>((a, m) => ({ ...a, [m.verdict]: (a[m.verdict] ?? 0) + 1 }), {});
+            const sel = cat ?? Object.keys(counts)[0];
+            return (
+              <>
+                <CompositionBar label="Manager's 10 by verdict" selected={sel}
+                  segments={Object.entries(counts).map(([k, c]) => ({ key: k, label: verdict(k), value: c, tone: VTONE[k] ?? "muted", onClick: () => setCat(k) }))} />
+                <ul className="mt-3 divide-y divide-line border-t border-line">
+                  {x.bottom10.filter((m) => m.verdict === sel).map((m) => (
+                    <li key={m.machine_id} className="flex items-center justify-between gap-3 py-1.5 text-[12.5px]">
+                      <button type="button" onClick={() => ui.go("machines", { machineId: m.machine_id })} className="font-medium text-accent hover:underline">{m.machine_id}</button>
+                      <span className="min-w-0 flex-1 truncate text-muted">{m.recommended_alternative}</span>
+                      <EvidenceLink id={m.machine_id} />
+                    </li>))}
+                </ul>
+                <p className="label mt-2">Proposed for replacement: {x.bottom10.length} · supported: {v.replacement_justified} · floor-wide candidates paying back at planning value: {x.floor_planning_positive} of {x.floor_candidates}.</p>
+              </>);
+          })()}
+        </Panel>
+      </div>
+
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <Panel title="Why the ranking changes" note="Lowest earnings ≠ weakest machine: compare earnings rank with fair rank and floor time." flush
           right={<button type="button" onClick={() => ui.go("machines")} className="text-[12.5px] text-accent hover:underline">All machines →</button>}>
           <Scroll>
             <table className="tbl min-w-[680px]">
-              <thead><tr><th className="text-right" title="Manager's rank by total house win (1 = lowest)">Earnings #</th><th>Machine</th><th className="text-right">House win</th><th className="text-right" title="Rank vs same-game peers on theo per available hour; 310 = weakest">Fair rank</th><th className="text-right">Days on floor</th><th>Verdict</th><th>Main reason</th></tr></thead>
+              <thead><tr><th className="text-right" title="Manager's rank by total house win (1 = lowest)">Earnings #</th><th>Machine</th><th className="text-right">House win</th><th className="text-right" title="Rank vs same-game peers on expected win per available hour; 1 = weakest, 310 = strongest">Fair rank</th><th className="text-right">Days on floor</th><th>Verdict</th><th>Main reason</th></tr></thead>
               <tbody>{x.bottom10.map((m) => (
                 <tr key={m.machine_id} className="row-click" onClick={() => ui.go("machines", { machineId: m.machine_id })}>
                   <td className="num text-right text-muted">{m.manager_rank}</td>

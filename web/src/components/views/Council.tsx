@@ -2,11 +2,11 @@
 import { useState } from "react";
 
 import { useApi } from "@/lib/api";
-import { allocation, verdict } from "@/lib/format";
+import { allocation, signed, verdict } from "@/lib/format";
 import type { CouncilDecision, CouncilSummary } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
-import { ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs, verdictTone } from "../ui";
+import { ErrorLine, EvidenceLink, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs, verdictTone } from "../ui";
 
 const KIND: Record<string, string> = { "review:luck": "Luck vs signal", "review:location": "Location & peers",
   "review:exposure": "Exposure", "review:hit_rate": "Payout frequency", "review:economics": "Lease economics" };
@@ -40,12 +40,20 @@ function ManagerReview({ s }: { s: CouncilSummary }) {
   const agree = s.machines.filter((x) => x.council_agrees).length;
   return (
     <div className="space-y-4">
-      <div className="panel grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
-        <Kpi label="Before" value="Replace 10" sub="manager proposal" />
-        <Kpi label="Claims verified" value={`${s.claims.filter((c) => c.verdict === "VERIFIED").length}/${s.claims.length}`} />
-        <Kpi label="After" value={`Replace ${s.machines.filter((x) => x.council_verdict === "REPLACE_JUSTIFIED_CONDITIONAL").length}`} className="text-neg" sub="council verdict" />
-        <Kpi label="Matches analytics" value={`${agree}/10`} sub="confirmation, not independent proof" />
-      </div>
+      <ol className="panel grid gap-2 p-4 md:grid-cols-4" aria-label="Decision pathway">
+        {[
+          { h: "1 · Proposal", v: `Replace ${s.machines.length}`, sub: "manager, by lowest casino win", cls: "" },
+          { h: "2 · Evidence challenges", v: `${s.claims.filter((c) => c.action === "CHALLENGE").length} challenges`, sub: `${s.claims.length} checks across luck, location, exposure, payout, economics`, cls: "" },
+          { h: "3 · Objections verified", v: `${s.claims.filter((c) => c.verdict === "VERIFIED").length}/${s.claims.length}`, sub: "recomputed by the deterministic verifier", cls: "text-pos" },
+          { h: "4 · Final disposition", v: `Replace ${s.machines.filter((x) => x.council_verdict === "REPLACE_JUSTIFIED_CONDITIONAL").length}`, sub: `matches analytics on ${agree}/10 (confirmation, not independent proof)`, cls: "text-neg" },
+        ].map((st, i) => (
+          <li key={st.h} className="relative rounded-md border border-line p-3">
+            <p className="label">{st.h}</p>
+            <p className={`num text-[18px] font-semibold ${st.cls}`}>{st.v}</p>
+            <p className="label">{st.sub}</p>
+            {i < 3 && <span aria-hidden className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-muted md:block">→</span>}
+          </li>))}
+      </ol>
       <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
         <Panel title="Machines" flush>
           <ul className="py-1">{s.machines.map((x) => (
@@ -55,12 +63,13 @@ function ManagerReview({ s }: { s: CouncilSummary }) {
         </Panel>
         <Panel title={`${mid}: replace → ${verdict(m.council_verdict)}`} note={m.council_agrees ? "Council verdict matches the analytic verdict." : "Council verdict differs from the analytics."} flush
           right={<EvidenceLink id={mid}>Machine passport</EvidenceLink>}>
-          <Scroll><table className="tbl min-w-[620px]"><thead><tr><th>Check</th><th>Agent</th><th>Finding</th><th>Status</th><th>Impact</th></tr></thead>
+          <Scroll><table className="tbl min-w-[620px]"><thead><tr><th>Check</th><th>Agent</th><th>Finding</th><th className="text-right">Measured</th><th>Status</th><th>Impact</th></tr></thead>
             <tbody>{claims.map((c) => (
               <tr key={c.claim_id}>
                 <td className="whitespace-nowrap text-[12.5px]">{KIND[c.kind] ?? c.kind}</td>
                 <td className="whitespace-nowrap text-[12.5px] text-muted">{c.agent_name}</td>
                 <td className="text-[12.5px]">{c.statement} <EvidenceLink id={c.claim_id} /></td>
+                <td className="num whitespace-nowrap text-right text-[12.5px]">{c.numeric_result === null ? "—" : c.unit === "USD" ? signed(c.numeric_result) : `${c.numeric_result.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${c.unit}`}</td>
                 <td><Pill tone={c.verdict === "VERIFIED" ? "pos" : "warn"}>{c.verdict.toLowerCase()}</Pill></td>
                 <td>{deciding.has(c.claim_id) ? <Pill tone="accent">deciding</Pill> : <span className="label">{c.action.toLowerCase()}</span>}</td>
               </tr>))}</tbody></table></Scroll>

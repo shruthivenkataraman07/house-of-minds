@@ -26,6 +26,7 @@ export interface UIState {
   tier: string | null;
   period: { from: string; to: string };
   evidenceId: string | null;
+  scenario: string | null;
   askOpen: boolean;
   history: Omit<UIState, "history" | "askOpen">[];
 }
@@ -39,7 +40,7 @@ interface Actions {
 
 export const initialUI: UIState = {
   view: "overview", tab: null, machineId: null, bankId: null, zoneId: null, tier: null,
-  period: { ...OFFICIAL }, evidenceId: null, askOpen: false, history: [],
+  period: { ...OFFICIAL }, evidenceId: null, scenario: null, askOpen: false, history: [],
 };
 
 function snap(s: UIState) {

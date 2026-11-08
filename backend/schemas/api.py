@@ -160,6 +160,7 @@ class Demand(BaseModel):
     exploratory: bool
     totals: Record
     weekly: list[Record]
+    daily: list[Record]
     zone_monthly: list[Record]
     explanations: list[Record]
 
@@ -182,6 +183,7 @@ class Downtime(BaseModel):
     totals: Record
     by_manufacturer: list[Record]
     by_hour: list[Record]
+    by_zone_month: list[Record]
 
 
 class Players(BaseModel):

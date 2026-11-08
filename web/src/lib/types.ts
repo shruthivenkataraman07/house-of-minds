@@ -71,6 +71,8 @@ export interface Demand {
     coin_in_per_available_hour_usd: number | null };
   weekly: { week_start: string; days: number; coin_in_per_day_usd: number;
     coin_in_per_available_hour_usd: number | null }[];
+  daily: { gaming_date: string; coin_in_usd: number; house_win_usd: number; theo_usd: number;
+    available_hours: number; active_machines: number; events: string | null; hold: number | null }[];
   zone_monthly: { zone_id: string; zone_name: string; month: string; theo_per_available_hour: number }[];
   explanations: Rec[];
 }
@@ -81,7 +83,7 @@ export interface BankList { period: { start: string; end: string }; exploratory:
 export interface BankDetail { bank_id: string; totals: BankRow;
   daily: { gaming_date: string; coin_in_usd: number; house_win_usd: number; theo_usd: number }[];
   machines: string[] }
-export interface Downtime { totals: Record<string, number>; by_manufacturer: Rec[]; by_hour: Rec[] }
+export interface Downtime { totals: Record<string, number>; by_manufacturer: Rec[]; by_hour: Rec[]; by_zone_month: Rec[] }
 export interface Players { summary: Rec; tiers: Rec[]; population: string }
 export interface Comps { months: Rec[] }
 

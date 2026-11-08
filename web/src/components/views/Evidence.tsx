@@ -1,13 +1,14 @@
 "use client";
 import { useState } from "react";
-import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Scatter, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Scatter, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
 import { compact, n, pct, signed, usd } from "@/lib/format";
-import type { EvidenceList, Forecast } from "@/lib/types";
+import type { EvidenceList, Forecast, Portfolios } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
-import { ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, robustTone } from "../ui";
+import { CompositionBar } from "../charts";
+import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, robustTone } from "../ui";
 
 export function Evidence() {
   const ui = useUI();
@@ -22,6 +23,7 @@ export function Evidence() {
     <div className="space-y-4">
       <PageHead title="Evidence" line="Every recommendation traces to a source, calculation and limitation." />
       {error && <ErrorLine error={error} retry={reload} />}
+      <LineageTree />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
         <Panel title={`Claims register${d ? ` · ${d.total}` : ""}`} flush right={
           <div className="flex flex-wrap gap-2">
@@ -73,6 +75,7 @@ export function Evidence() {
 
 export function Validation() {
   const [marks, setMarks] = useState(true);
+  const [pt, setPt] = useState<string | null>(null);
   const { data, error, reload } = useApi<Forecast>("/forecast/validation");
   if (error) return <ErrorLine error={error} retry={reload} />;
   if (!data) return <Loading rows={6} />;
@@ -81,12 +84,20 @@ export function Validation() {
   const all = f.all, ev = f.event_days, ne = f.non_event_days;
   const p = d.protocol;
   const rows = d.holdout.map((r) => ({ d: String(r.gaming_date).slice(0, 10), actual: n(r.actual), model: n(r.candidate_pred), base: n(r.baseline_pred),
-    band: [n(r.candidate_lo80), n(r.candidate_hi80)] as [number, number], evt: r.is_event_day ? n(r.actual) : null }));
+    band: [n(r.candidate_lo80), n(r.candidate_hi80)] as [number, number], evt: r.is_event_day ? n(r.actual) : null,
+    err: n(r.actual) - n(r.candidate_pred), baseErr: n(r.actual) - n(r.baseline_pred), isEvent: !!r.is_event_day, weekday: String(r.weekday) }));
+  const sel = rows.find((r) => r.d === pt);
   return (
     <div className="space-y-4">
       <PageHead title="Validation" line="Holt-Winters beats the baseline overall but not on promotion days." />
+      <Panel title="Which data trained, selected and tested the model?" note="Chronological split; the holdout was never used for fitting.">
+        <CompositionBar label="Chronological protocol windows (days)" segments={[
+          { key: "train", label: `Train · ${String(p.train)}`, value: 90, display: "90 days", tone: "muted" },
+          { key: "validate", label: `Model selection · ${String(p.validate)}`, value: 30, display: "30 days", tone: "warn" },
+          { key: "holdout", label: `Holdout · ${String(p.holdout)}`, value: 61, display: "61 days", tone: "accent" }]} />
+      </Panel>
       <div className="panel flex flex-wrap gap-x-6 gap-y-2 p-4 text-[12.5px]">
-        {[["Train", String(p.train)], ["Validate", String(p.validate)], ["Holdout", String(p.holdout)], ["Model", String(p.model)], ["Baseline", String(p.baseline)], ["Registry", String(p.registry)], ["Protocol", `${String(p.protocol_version)} · ${String(p.protocol_sha256).slice(0, 10)}…`]].map(([k, v]) => (
+        {[["Model", String(p.model)], ["Baseline", String(p.baseline)], ["Registry", String(p.registry)], ["Protocol", `${String(p.protocol_version)} · ${String(p.protocol_sha256).slice(0, 10)}…`]].map(([k, v]) => (
           <span key={k}><span className="label">{k} </span>{v}</span>))}
       </div>
       <div className="panel grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
@@ -112,6 +123,33 @@ export function Validation() {
           </ComposedChart></ResponsiveContainer>
         </div>
       </Panel>
+      <Panel title="Where did the forecast miss?" note="Daily error on the holdout (actual − forecast); amber = event day. Select a day.">
+        <div className="h-48" role="img" aria-label="Daily forecast error on the holdout">
+          <ResponsiveContainer><BarChart data={rows} margin={{ left: 0, right: 4 }}>
+            <CartesianGrid stroke="var(--line)" vertical={false} />
+            <XAxis dataKey="d" stroke="var(--muted)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(x: string) => x.slice(5)} minTickGap={24} />
+            <YAxis stroke="var(--muted)" fontSize={11} tickLine={false} axisLine={false} width={52} tickFormatter={(x: number) => compact(x)} />
+            <ReferenceLine y={0} stroke="var(--line-strong)" />
+            <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, fontSize: 12 }} formatter={(v) => [signed(Number(v)), "Actual − forecast"]} />
+            <Bar isAnimationActive={false} dataKey="err" onClick={(e) => { const d2 = (e as unknown as { d?: string; payload?: { d?: string } }); setPt(d2.payload?.d ?? d2.d ?? null); }}>
+              {rows.map((r) => <Cell key={r.d} cursor="pointer" fill={r.isEvent ? "var(--chart-4)" : "var(--chart-1)"} fillOpacity={pt === r.d ? 1 : 0.75} />)}
+            </Bar>
+          </BarChart></ResponsiveContainer>
+        </div>
+        <p className="label mt-1">Large misses cluster on event days, where the model under-forecasts; this limits its use for promotion decisions.</p>
+      </Panel>
+      {sel && (
+        <Drawer label={`Holdout day ${sel.d}`} onClose={() => setPt(null)} title={<><span className="label block">Holdout day · {sel.weekday}{sel.isEvent ? " · event day" : ""}</span>{sel.d}</>}>
+          <div className="grid grid-cols-2 gap-4">
+            <Kpi label="Actual expected win" value={usd(sel.actual)} />
+            <Kpi label="Holt-Winters forecast" value={usd(sel.model)} sub={`error ${signed(sel.err)} (${pct(sel.err / sel.actual)})`} />
+            <Kpi label="Baseline forecast" value={usd(sel.base)} sub={`error ${signed(sel.baseErr)}`} />
+            <Kpi label="80% band" value={`${compact(sel.band[0])}–${compact(sel.band[1])}`} sub={sel.actual >= sel.band[0] && sel.actual <= sel.band[1] ? "actual inside band" : "actual outside band"} />
+          </div>
+          <p className="mt-4 text-[13px]">{Math.abs(sel.err) < Math.abs(sel.baseErr) ? "The model was closer than the baseline on this day." : "The baseline was closer than the model on this day."}</p>
+          <p className="label mt-2">Source: dash_model_evaluation (Step 5 holdout). Daily floor expected win, USD.</p>
+        </Drawer>
+      )}
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title="Error metrics" flush>
           <Scroll><table className="tbl min-w-[460px]"><thead><tr><th>Subset</th><th className="text-right">n</th><th className="text-right">MAE model / base</th><th className="text-right">RMSE model / base</th><th className="text-right">Bias</th><th className="text-right">Cov. 80%</th></tr></thead>
@@ -132,5 +170,48 @@ export function Validation() {
         </Panel>
       </div>
     </div>
+  );
+}
+
+
+/** Decision -> claims -> assumptions -> sources, using only links recorded in the passports. */
+function LineageTree() {
+  const ui = useUI();
+  const { data, error, reload } = useApi<Portfolios>("/portfolios");
+  const [open, setOpen] = useState<string | null>(null);
+  if (error) return <ErrorLine error={error} retry={reload} />;
+  if (!data) return <Loading rows={3} />;
+  const split = (v: unknown) => String(v ?? "").split(/[;,]/).map((x) => x.trim()).filter(Boolean);
+  const pp = data.data.passports;
+  const cur = open ?? String(pp[0]?.passport_id ?? "");
+  const sel = pp.find((p) => p.passport_id === cur);
+  return (
+    <Panel title="How is each decision supported?" note="Decision → council claims → assumptions → source tables, from recorded passport links. Select a decision.">
+      <div className="grid gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <ul className="space-y-1">{pp.map((p) => (
+          <li key={String(p.passport_id)}>
+            <button type="button" aria-pressed={cur === p.passport_id} onClick={() => setOpen(String(p.passport_id))}
+              className={`w-full rounded-md px-2.5 py-1.5 text-left text-[13px] ${cur === p.passport_id ? "bg-accent-soft" : "hover:bg-surface-2"}`}>
+              <span className="font-medium">{String(p.action_name)}</span>
+              <span className="label block">{String(p.portfolio_mode).replace("_", " ")} · {String(p.target_entity)}</span>
+            </button></li>))}</ul>
+        {sel && (
+          <ol className="grid gap-3 sm:grid-cols-4">
+            {[
+              { h: "Decision", items: [String(sel.passport_id)], link: true, extra: `${String(sel.action_name)} ×${String(sel.quantity)}` },
+              { h: `Council claims (${split(sel.council_claim_ids).length})`, items: split(sel.council_claim_ids), link: true },
+              { h: "Assumptions", items: split(sel.assumption_ids), link: false },
+              { h: "Sources", items: split(sel.source_query_ids), link: false },
+            ].map((col, i) => (
+              <li key={col.h} className="relative rounded-md border border-line p-2.5">
+                <p className="label">{i + 1}. {col.h}</p>
+                {col.extra && <p className="text-[12.5px]">{col.extra}</p>}
+                <ul className="mt-1 space-y-0.5">{col.items.length ? col.items.map((it) => (
+                  <li key={it} className="text-[12px]">{col.link ? <button type="button" onClick={() => ui.openEvidence(it)} className="text-accent hover:underline">{it} ↗</button> : <span className="text-muted">{it}</span>}</li>))
+                  : <li className="label">none recorded</li>}</ul>
+              </li>))}
+          </ol>)}
+      </div>
+    </Panel>
   );
 }

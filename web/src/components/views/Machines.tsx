@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
+import { CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
 import { n, num, pct, signed, tone, usd, verdict } from "@/lib/format";
+import { TERM, weaknessFromEarnings, weaknessFromFair } from "@/lib/terms";
 import type { BankList, MachineDetail, MachinePage } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
+import { RankDumbbell } from "../charts";
 import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, robustTone, verdictTone } from "../ui";
 
 const ZONES: [string, string][] = [["", "All zones"], ["Z-B40", "Back Forty"], ["Z-PIT", "Center Pit"], ["Z-ENT", "Main Entrance"],
@@ -35,7 +38,9 @@ export function Machines() {
 
   return (
     <div>
-      <PageHead title="Machines" line={SORT_LINE[sort]} />
+      <PageHead title="Machines" line="The lowest earners are mostly not the weakest machines once floor time and location are considered." />
+      <RankingVisuals />
+      <p className="label mb-2">{SORT_LINE[sort]}</p>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <Segmented label="Ranking" value={sort} onChange={(s) => { setSort(s); setOffset(0); }} options={[
           { id: "observed", label: "Observed earnings" }, { id: "fair", label: "Fair performance" }, { id: "opportunity", label: "Replacement opportunity" }]} />
@@ -61,7 +66,7 @@ export function Machines() {
               <caption className="sr-only">Machines with earnings, fair performance, availability and verdicts</caption>
               <thead><tr>
                 <th>Machine</th><th className="text-right" title="Rank by total house win; 1 = lowest">Earnings #</th><th className="text-right">House win</th><th className="text-right">Theo win</th>
-                <th className="text-right" title="Rank vs same-game peers on theo per available hour; 310 = weakest">Fair rank</th><th className="text-right">Availability</th><th className="text-right" title="Meter downtime for the manager's 10; scheduled minus available hours otherwise">Downtime</th><th>Location</th><th>Payout</th><th>Action</th><th>Robustness</th><th />
+                <th className="text-right" title="Rank vs same-game peers on expected win per available hour; 1 = weakest, 310 = strongest">Fair rank</th><th className="text-right">Availability</th><th className="text-right" title="Meter downtime for the manager's 10; scheduled minus available hours otherwise">Downtime</th><th>Location</th><th>Payout</th><th>Action</th><th>Robustness</th><th />
               </tr></thead>
               <tbody>{page.rows.map((m) => (
                 <tr key={m.machine_id} className="row-click" aria-selected={ui.machineId === m.machine_id} onClick={() => ui.set({ machineId: m.machine_id })}>
@@ -178,5 +183,43 @@ function MachineDrawer({ id }: { id: string }) {
         </div>
       )}
     </Drawer>
+  );
+}
+
+const VCOL: Record<string, string> = { RETIRED_ALREADY: "var(--chart-2)", DO_NOT_REPLACE_INSPECT: "var(--accent)",
+  DO_NOT_REPLACE_NOT_ECONOMIC: "var(--neg)", INSUFFICIENT_EVIDENCE: "var(--warn)", REPLACE_JUSTIFIED_CONDITIONAL: "var(--pos)" };
+
+function RankingVisuals() {
+  const ui = useUI();
+  const ten = useApi<MachinePage>("/machines?scope=bottom10&limit=10");
+  const all = useApi<MachinePage>("/machines?scope=all&limit=310");
+  const rows = ten.data?.data.rows ?? [];
+  const pts = (all.data?.data.rows ?? []).map((m) => ({ ...m, x: m.available_hours, y: m.theo_per_available_hour_usd, z: m.theo_usd }));
+  return (
+    <div className="mb-4 grid gap-4 xl:grid-cols-2">
+      <Panel title="Where do the manager’s 10 really rank?" note="Red: rank by casino win · blue: rank vs comparable machines (1 = weakest of 310).">
+        {ten.error ? <ErrorLine error={ten.error} retry={ten.reload} /> : !rows.length ? <Loading rows={4} /> : (
+          <RankDumbbell label="Earnings rank versus fair rank" max={310} aLabel={TERM.earnings_rank} bLabel={TERM.fair_rank} selected={ui.machineId}
+            rows={rows.map((m) => ({ key: m.machine_id, label: m.machine_id, a: weaknessFromEarnings(m.rank_raw), b: weaknessFromFair(m.rank_vs_peers), onClick: () => ui.set({ machineId: m.machine_id }) }))} />)}
+        <p className="label mt-1">A long line means the low total comes from floor time, location or luck rather than the machine. Select a row for detail.</p>
+      </Panel>
+      <Panel title="Does low exposure explain low earnings?" note={`All 310 machines · x: available hours · y: ${TERM.theo_per_hour.toLowerCase()} · size: expected win`}>
+        {all.error ? <ErrorLine error={all.error} retry={all.reload} /> : !pts.length ? <Loading rows={4} /> : (
+          <div className="h-64" role="img" aria-label="Scatterplot of available hours versus expected win per available hour for 310 machines">
+            <ResponsiveContainer><ScatterChart margin={{ left: 0, right: 8, top: 6, bottom: 4 }}>
+              <CartesianGrid stroke="var(--line)" />
+              <XAxis type="number" dataKey="x" name="Available hours" stroke="var(--muted)" fontSize={11} tickLine={false} tickFormatter={(v: number) => num(v)} />
+              <YAxis type="number" dataKey="y" name="Expected win / hour" stroke="var(--muted)" fontSize={11} tickLine={false} width={44} tickFormatter={(v: number) => `$${v}`} />
+              <ZAxis type="number" dataKey="z" range={[14, 90]} name="Expected win" />
+              <Tooltip cursor={{ strokeDasharray: "3 3" }} contentStyle={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, fontSize: 12 }}
+                formatter={(v, k) => [k === "Available hours" ? num(Number(v)) : k === "Expected win / hour" ? usd(Number(v), 2) : usd(Number(v)), String(k)]} />
+              <Scatter isAnimationActive={false} data={pts} onClick={(p) => { const id = (p as unknown as { machine_id?: string }).machine_id; if (id) ui.set({ machineId: id }); }}>
+                {pts.map((m) => <Cell key={m.machine_id} cursor="pointer" fill={m.verdict ? VCOL[m.verdict] ?? "var(--accent)" : "var(--chart-2)"} fillOpacity={m.verdict ? 0.95 : 0.35} stroke={ui.machineId === m.machine_id ? "var(--text)" : "none"} strokeWidth={2} />)}
+              </Scatter>
+            </ScatterChart></ResponsiveContainer>
+          </div>)}
+        <p className="label mt-1">Colored points are the manager’s 10 (color = verdict, also named in the table). Select a point for detail.</p>
+      </Panel>
+    </div>
   );
 }

@@ -160,7 +160,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
                 evidence="dash_machine_intelligence",
             )
     bank_id = None
-    bm = re.search(r"\bbank\s*-?\s*([a-z0-9-]+)\b", q)
+    bm = re.search(r"\bbank\s*-?\s*(b-?\d{1,3}|\d{1,3})\b", q)
     if bm:
         want = re.sub(r"^b-?", "", bm.group(1))
         cand = next(
@@ -250,7 +250,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
             f"House win {_usd(row['house_win_usd'])} vs theo {_usd(row['theo_usd'])} (luck z "
             f"{row['luck_z']:.2f}); {ZONE_NAMES.get(row['zone_id'], row['zone_id'])}, {row['config_id']}.",
             f"Theo per available hour ${row['theo_per_available_hour']:.2f}; raw rank {row['rank_raw']}, "
-            f"vs same-game peers {row['rank_vs_peers']} of 310.",
+            f"vs same-game peers {row['rank_vs_peers']} of 310 (1 = weakest).",
         ]
         if inv:
             conclusion = (
@@ -317,7 +317,20 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
             period=HZ,
             evidence="audit c_promotion_portfolio · decision_model_impact",
             uncertainty="Uplift rests on 2 events with no control group (associational).",
-            action=_act("explain_reversal", "investment", tab="promotion"),
+            action=_act("explain_reversal", "scenarios", scenario="zero_uplift"),
+        )
+
+    if re.search(r"\b(answers?|summary|summarize|six questions|conclusions?|final)\b", q):
+        return _answer(
+            "OK",
+            "open_answers",
+            "The Answers tab gives one evidence-backed conclusion for each of the six questions.",
+            support=[
+                f"Headline: {v['answer']}; recommended plan {_usd(v['recommended_net_usd'], True)}."
+            ],
+            period=f"{OFFICIAL}; economics {HZ}",
+            evidence="ch_executive_verdict",
+            action=_act("open_answers", "answers"),
         )
 
     if re.search(r"council|agent|challeng|object|statistician|cfo|whisper|debate", q):
@@ -391,12 +404,24 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
         risk = sum(float(r["theo_at_risk_usd"]) for r in dt)
         top = max(src.get("ch_downtime_by_hour"), key=lambda r: float(r["downtime_hours"]))
         worst = sorted(b10, key=lambda m: -m["downtime_hours"])[:3]
+        by_zone: dict[str, float] = {}
+        for r in dt:
+            by_zone[r["zone_id"]] = by_zone.get(r["zone_id"], 0.0) + float(r["downtime_hours"])
+        zmax = max(by_zone, key=lambda z: by_zone[z])
+        bank_note = (
+            [
+                f"Downtime is recorded by zone, not bank; the most downtime was in {ZONE_NAMES.get(zmax, zmax)} ({by_zone[zmax]:,.0f} h)."
+            ]
+            if "bank" in q
+            else []
+        )
         return _answer(
             "OK",
             "set_filters",
             f"{hours:,.0f} machine-hours of downtime put {_usd(risk)} of theoretical win at risk "
             "(opportunity, not guaranteed loss).",
-            support=[
+            support=bank_note
+            + [
                 f"Worst hour: {int(top['local_hour']):02d}:00 ({float(top['downtime_hours']):.0f} h).",
                 "Manager-list machines with most downtime: "
                 + ", ".join(f"{m['machine_id']} {m['downtime_hours']:.0f} h" for m in worst)
@@ -511,19 +536,6 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
             f"captures at least {ss_range} of the gap to the zone's best title (unmeasured).",
             premise=premise,
             action=_act("select_entity", "machines"),
-        )
-
-    if re.search(r"\b(answers?|summary|summarize|six questions|conclusions?|final)\b", q):
-        return _answer(
-            "OK",
-            "open_answers",
-            "The Answers tab gives one evidence-backed conclusion for each of the six questions.",
-            support=[
-                f"Headline: {v['answer']}; recommended plan {_usd(v['recommended_net_usd'], True)}."
-            ],
-            period=f"{OFFICIAL}; economics {HZ}",
-            evidence="ch_executive_verdict",
-            action=_act("open_answers", "answers"),
         )
 
     if re.search(r"spend|100k|\$?100,?000|budget|invest|recommend|what should", q):

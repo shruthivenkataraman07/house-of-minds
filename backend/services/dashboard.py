@@ -91,6 +91,24 @@ def weekly(src: DataSource, start: str, end: str) -> list[dict[str, Any]]:
     ]
 
 
+def daily(src: DataSource, start: str, end: str) -> list[dict[str, Any]]:
+    """Floor totals per gaming date (exported integer cents -> USD); ratios per day."""
+    return [
+        {
+            "gaming_date": r["d"],
+            "coin_in_usd": r["ci"] / 100,
+            "house_win_usd": r["hw"] / 100,
+            "theo_usd": r["th"] / 100,
+            "available_hours": r["ah"],
+            "active_machines": r["am"],
+            "events": r["ev"] or None,
+            "hold": r["hw"] / r["ci"] if r["ci"] else None,
+        }
+        for r in src.get("floor_day")["rows"]
+        if start <= r["d"] <= end
+    ]
+
+
 def bank_totals(src: DataSource, start: str, end: str, zone: str | None) -> list[dict[str, Any]]:
     bd = src.get("bank_day")
     idx = [i for i, d in enumerate(bd["dates"]) if start <= d <= end]

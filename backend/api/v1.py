@@ -157,7 +157,7 @@ def machines(
     bank: Annotated[str | None, Query(pattern=r"^B-\d{1,3}$")] = None,
     q: Annotated[str | None, Query(max_length=40)] = None,
     offset: Annotated[int, Query(ge=0)] = 0,
-    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    limit: Annotated[int, Query(ge=1, le=310)] = 50,
 ) -> Any:
     src = get_source()
     rows = d.machine_rows(src)
@@ -178,7 +178,7 @@ def machines(
         ]
     key = {
         "observed": lambda r: r["rank_raw"],
-        "fair": lambda r: -r["rank_vs_peers"],
+        "fair": lambda r: r["rank_vs_peers"],  # 1 = weakest vs comparable machines
         "opportunity": lambda r: (
             -(r["lease_net_best_case_usd"] if r["lease_net_best_case_usd"] is not None else -1e9)
         ),
@@ -242,6 +242,7 @@ def demand(resp: Response, start: DateStr = d.OFFICIAL[0], end: DateStr = d.OFFI
             "exploratory": (start, end) != d.OFFICIAL,
             "totals": d.floor_totals(src, start, end),
             "weekly": d.weekly(src, start, end),
+            "daily": d.daily(src, start, end),
             "zone_monthly": [
                 {**r, "zone_name": d.ZONE_NAMES.get(r["zone_id"], r["zone_id"])}
                 for r in src.get("ch_zone_demand")
@@ -322,7 +323,15 @@ def downtime(resp: Response) -> Any:
     _cached(resp)
     return {
         "meta": _meta(src, ["ch_downtime_economics", "ch_downtime_by_hour"], "official window"),
-        "data": {"totals": tot, "by_manufacturer": rows, "by_hour": src.get("ch_downtime_by_hour")},
+        "data": {
+            "totals": tot,
+            "by_manufacturer": rows,
+            "by_hour": src.get("ch_downtime_by_hour"),
+            "by_zone_month": [
+                {**r, "zone_name": d.ZONE_NAMES.get(r["zone_id"], r["zone_id"])}
+                for r in src.get("ch_downtime_economics")
+            ],
+        },
     }
 
 
