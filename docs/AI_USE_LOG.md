@@ -34,3 +34,6 @@ AI assistant (Claude Code), guided by the `impeccable`, `design-taste-frontend` 
 - a cold-start loading message;
 - explanatory motion (count-ups, bars growing from zero, rank dots sliding to fair rank, a sequenced council strip and validation chart), all honoring reduced motion.
 No number, model, calculation or data file was changed. A browser check confirmed that every dollar and percentage figure on all nine routes matches the previous deployment.
+
+## Passport reconciliation and move-downtime fix (2026-11-08)
+AI assistant (Claude Code) traced the three passport gaps to the optimizer's downtime term. It exposed that term in the sidecar export (`investment_economics`) and through the passport API, and added an independent reconciliation test. It also fixed the move-downtime rate in `optimization/investment_model.py`, with a regression test. The Databricks snapshot was not rerun.

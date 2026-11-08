@@ -37,3 +37,14 @@ The **Scenarios → Decision flips** view shows the assumption values at which t
 ## What is modeled and what is observed
 
 Every July figure above is **modeled contribution**, not realized profit. The measurement plans are `PLANNED_NOT_STARTED`: no July results exist yet.
+
+## Correction: machine-move downtime
+
+The optimizer valued the 3 hours a moved machine is offline at the worst Back Forty machine's hourly rate (M-5076, $6.39 an hour) for every move, rather than the moved machine's own rate. The code now uses each machine's own rate (`optimization/investment_model.py`, tested in `tests/unit/test_step3_optimizer.py`).
+
+| Move | Downtime (published) | Downtime (corrected) | Net (published) | Net (corrected) |
+|---|---:|---:|---:|---:|
+| M-1154 → Center Pit | $18.16 | $36.90 | $2,518 | ≈ $2,499 |
+| M-1184 → Center Pit | $18.16 | $35.00 | $2,731 | ≈ $2,714 |
+
+The conditional plan falls by about $36, to ≈ $69,000. Both moves stay positive and no recommendation changes. The published dashboard figures come from the last Databricks Step 3 run; they update when the Step 3–6 jobs are rerun and the snapshot is re-exported. That rerun uses billed compute and has not been done.
