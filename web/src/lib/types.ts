@@ -79,6 +79,8 @@ export interface Demand {
     available_hours: number; active_machines: number; events: string | null; hold: number | null }[];
   zone_monthly: { zone_id: string; zone_name: string; month: string; theo_per_available_hour: number }[];
   explanations: Rec[];
+  comparison: { selected: string; comparison: string; selected_days: number; comparison_days: number;
+    wagered_per_day_change_pct: number; wagered_per_available_hour_change_pct: number; conclusion: string } | null;
 }
 export interface BankRow { bank_id: string; zone_id: string; zone_name: string; coin_in_usd: number;
   house_win_usd: number; theo_usd: number; available_hours: number; machine_days: number;

@@ -109,6 +109,46 @@ def daily(src: DataSource, start: str, end: str) -> list[dict[str, Any]]:
     ]
 
 
+def period_comparison(src: DataSource, start: str, end: str) -> dict[str, Any] | None:
+    """Selected period vs the rest of the official window (ratio of sums on the daily grain).
+
+    Same test as the official finding: if wagers per available machine-hour move as much as
+    wagers per day, a change in the number of machines running does not explain the change.
+    """
+    inside = [r for r in src.get("floor_day")["rows"] if start <= r["d"] <= end]
+    rest = [
+        r
+        for r in src.get("floor_day")["rows"]
+        if OFFICIAL[0] <= r["d"] <= OFFICIAL[1] and not start <= r["d"] <= end
+    ]
+    if not inside or not rest:
+        return None  # official window selected: no complement to compare against
+
+    def agg(rows: list[dict[str, Any]]) -> tuple[float, float]:
+        ci = sum(r["ci"] for r in rows) / 100
+        return ci / len(rows), ci / sum(r["ah"] for r in rows)
+
+    day_a, hour_a = agg(inside)
+    day_b, hour_b = agg(rest)
+    per_day = (day_a / day_b - 1) * 100
+    per_hour = (hour_a / hour_b - 1) * 100
+    if abs(per_day) < 1.0:
+        verdict = "little change in daily wagers versus the rest of Jan–Jun"
+    elif per_day * per_hour > 0 and abs(per_hour) >= 0.5 * abs(per_day):
+        verdict = "demand per machine-hour moved too, so the number of machines running does not explain it"
+    else:
+        verdict = "mostly explained by how many machines were available, not by demand per machine"
+    return {
+        "selected": f"{start}..{end}",
+        "comparison": "rest of 2025-01-01..2025-06-30",
+        "selected_days": len(inside),
+        "comparison_days": len(rest),
+        "wagered_per_day_change_pct": per_day,
+        "wagered_per_available_hour_change_pct": per_hour,
+        "conclusion": verdict,
+    }
+
+
 def bank_totals(src: DataSource, start: str, end: str, zone: str | None) -> list[dict[str, Any]]:
     bd = src.get("bank_day")
     idx = [i for i, d in enumerate(bd["dates"]) if start <= d <= end]

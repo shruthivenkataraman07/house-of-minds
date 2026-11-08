@@ -359,3 +359,18 @@ def test_ask_month_demand_and_business_wording():
     ]:
         text = c.post("/api/v1/ask", json={"question": q}).json()["conclusion"]
         assert "REPLACE_" not in text and "INV-" not in text and "_" not in text.split("(")[0]
+
+
+def test_period_comparison_follows_selection_and_matches_official_finding():
+    off = get("/api/v1/operations/demand")["data"]
+    assert off["comparison"] is None  # nothing to compare when the whole window is selected
+    mj = get("/api/v1/operations/demand?start=2025-05-01&end=2025-06-30")["data"]
+    official = next(e for e in mj["explanations"] if "May-Jun" in str(e["change"]))
+    assert mj["comparison"]["wagered_per_day_change_pct"] == pytest.approx(
+        official["observed_pct"], abs=0.01
+    )
+    assert mj["comparison"]["wagered_per_available_hour_change_pct"] == pytest.approx(
+        official["result_pct"], abs=0.01
+    )
+    mar = get("/api/v1/operations/demand?start=2025-03-01&end=2025-03-31")["data"]["comparison"]
+    assert mar["selected_days"] == 31 and mar["comparison_days"] == 150

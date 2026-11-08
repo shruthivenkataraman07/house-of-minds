@@ -179,6 +179,7 @@ class Demand(BaseModel):
     daily: list[Record]
     zone_monthly: list[Record]
     explanations: list[Record]
+    comparison: Record | None = None
 
 
 class BankList(BaseModel):

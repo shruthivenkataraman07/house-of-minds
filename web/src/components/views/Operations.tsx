@@ -118,10 +118,19 @@ function DemandTab() {
       </div>
       {zoneSel && <ZoneDrawer zone={zoneSel} name={zname(zoneSel)} months={months} value={zval} explanations={d.explanations} onClose={() => setZoneSel(null)} />}
       <EventPanel onZone={() => setZoneSel("Z-B40")} />
-      <Panel title="What changed and why" note="Observed change first; the tested explanation is shown separately." flush>
+      <Panel title="What changed and why" note={d.comparison ? "First row follows your selected period; the rows below are the official Jan–Jun findings and stay fixed." : "Official Jan–Jun findings. Choose a shorter period to compare it with the rest of the window."} flush>
         <Scroll><table className="tbl min-w-[620px]"><thead><tr><th>Change</th><th className="text-right">Observed</th><th>Alternative tested</th><th>Result</th></tr></thead>
-          <tbody>{[e1, e2].filter(Boolean).map((e, i) => (
-            <tr key={i}><td>{String(e.change)}</td><td className="num text-right">{n(e.observed_pct).toFixed(1)}%</td>
+          <tbody>
+            {d.comparison && (
+              <tr className="bg-accent-soft">
+                <td><span className="font-medium">Your period ({d.comparison.selected.replace("..", " → ")}) vs rest of Jan–Jun</span><div className="label">{d.comparison.selected_days} vs {d.comparison.comparison_days} gaming days · amount wagered per day</div></td>
+                <td className={`num text-right ${d.comparison.wagered_per_day_change_pct < 0 ? "text-neg" : ""}`}>{d.comparison.wagered_per_day_change_pct >= 0 ? "+" : ""}{d.comparison.wagered_per_day_change_pct.toFixed(1)}%</td>
+                <td className="text-[12.5px] text-muted">fewer or more machines running, rather than demand</td>
+                <td className="text-[12.5px]">Per available machine-hour {d.comparison.wagered_per_available_hour_change_pct >= 0 ? "+" : ""}{d.comparison.wagered_per_available_hour_change_pct.toFixed(1)}%: {d.comparison.conclusion}.</td>
+              </tr>
+            )}
+            {[e1, e2].filter(Boolean).map((e, i) => (
+            <tr key={i}><td>{String(e.change)}<div className="label">Official finding · fixed</div></td><td className="num text-right">{n(e.observed_pct).toFixed(1)}%</td>
               <td className="text-[12.5px] text-muted">{String(e.alternative)}</td><td className="text-[12.5px]">{String(e.conclusion)}</td></tr>))}</tbody></table></Scroll>
       </Panel>
       <p className="text-[13px]"><span className="font-medium">Action:</span> treat Back Forty as a location problem before blaming machines.</p>
@@ -343,7 +352,7 @@ function EventPanel({ onZone }: { onZone: () => void }) {
   if (!data) return <Loading rows={2} />;
   const e = data.data;
   return (
-    <Panel title="Did the walkway closure cut Back Forty demand?" note={`${e.event}, ${e.closed_from} → ${e.closed_to} (shaded). ${e.unit}; ${e.machines}.`}
+    <Panel title="Did the walkway closure cut Back Forty demand?" note={`Always Jan–Jun (event study, not affected by the period filter). ${e.event}, ${e.closed_from} → ${e.closed_to} (shaded); ${e.unit}.`}
       right={<button type="button" onClick={onZone} className="text-[12.5px] text-accent hover:underline">Back Forty detail →</button>}>
       <div className="h-56" role="img" aria-label="Daily expected win per available hour, Back Forty versus rest of floor, with the closure period shaded">
         <ResponsiveContainer><LineChart data={e.rows} margin={{ left: 0, right: 8, top: 4 }}>

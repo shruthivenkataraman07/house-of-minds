@@ -290,6 +290,7 @@ def demand(resp: Response, start: DateStr = d.OFFICIAL[0], end: DateStr = d.OFFI
                 for r in src.get("ch_zone_demand")
             ],
             "explanations": src.get("ch_demand_explanations"),
+            "comparison": d.period_comparison(src, start, end),
         },
     }
 
