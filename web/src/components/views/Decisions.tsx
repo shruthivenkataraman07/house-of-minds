@@ -7,7 +7,9 @@ import { OPTION, allocation, n, signed, tone, usd } from "@/lib/format";
 import type { Portfolio, Portfolios, Scenarios as ScenarioData } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
+import { F } from "@/lib/formulas";
 import { CompositionBar, ValueBars } from "../charts";
+import { How, Term } from "../explain";
 import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs } from "../ui";
 
 const SCEN: Record<string, string> = { zero_uplift: "Zero", weakest_event: "Weakest event", break_even: "Break-even",
@@ -78,6 +80,12 @@ export function Scenarios() {
               </LineChart></ResponsiveContainer>
             </div>
             <p className="label mt-1">The plan’s net is linear in uplift; the weakest observed event ({usd(promo.a08.low)}/day) sits just below break-even. Two events, no control group.</p>
+            <How steps={[
+              "Each promotion weekend runs Friday to Sunday and costs $15,000; the plan buys two.",
+              <>Uplift is the extra <Term id="expected_win">expected win</Term> per promotion day, estimated from the two past promotion events.</>,
+              <>Only the share kept after revenue share and comps counts (<Term id="contribution" />).</>,
+              <>The <Term id="break_even">break-even</Term> is the uplift at which the weekends exactly pay for themselves.</>,
+            ]} formulas={[F.promotion(promo.a08.value, promo.break_even_A08)]} />
           </Panel>
           <p className="text-[13px]">At zero or weakest-event uplift the recommended plan loses to no action; the manager’s lease plan is negative throughout.</p>
         </>
@@ -152,6 +160,11 @@ export function Investment() {
         <Kpi label="Downside (weakest event)" value={signed(rec?.net_low_usd)} className={tone(rec?.net_low_usd)} />
         <Kpi label="Remaining budget" value={usd(100000 - cost)} />
       </div>
+      <How steps={[
+        "Each action’s modeled extra July earnings are taken after revenue share and comps, then its catalog cost is subtracted.",
+        "The optimizer picks the combination with the highest total, spending no more than $100,000 and using at most three kinds of action.",
+        <>Actions that rest on an unmeasured assumption go into the conditional plan, not the recommended one (<Term id="net_benefit" />).</>,
+      ]} formulas={[F.netBenefit()]} />
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title="How is the $100,000 used?" note="Recommended spend by action, and budget kept unused.">
           <CompositionBar label="Budget allocation" segments={[

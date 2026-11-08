@@ -20,3 +20,6 @@ AI assistant (Claude Code) built the Next.js dashboard in `web/src/` (views, the
 
 ## Product transformation (2026-11-08)
 AI assistant (Claude Code) built the FastAPI dashboard API (`backend/api/v1.py`, `backend/services/`, `backend/schemas/api.py`). It ported the Ask the House router to Python and rebuilt the React views as a light-theme static app served by FastAPI. It also added `Dockerfile` and `docs/DEPLOYMENT.md`. No analytical results were recalculated; live mode reads the existing Unity Catalog tables.
+
+## Plain-language explanations and typeset formulas (2026-11-08)
+AI assistant (Claude Code) rewrote the dashboard's calculation explanations in plain language (`web/src/lib/explain.ts`, `web/src/components/explain.tsx`). It added typeset formulas, rendered with KaTeX from fixed templates in `web/src/lib/formulas.ts`, to the evidence passports and the "How this is calculated" panels. The passport API now exposes the recorded numeric operands (`values`). No calculation or recorded value was changed; substituted numbers come from API fields only.

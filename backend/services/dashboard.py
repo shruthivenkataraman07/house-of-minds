@@ -328,6 +328,20 @@ def passport(src: DataSource, evidence_id: str) -> dict[str, Any] | None:
                 for c in (p.get("council_claim_ids") or "").replace(";", ",").split(",")
                 if c.strip()
             ][:8],
+            "values": {
+                k: p.get(k)
+                for k in (
+                    "action_type_id",
+                    "quantity",
+                    "unit_cost",
+                    "total_cost",
+                    "modeled_incremental_effect",
+                    "modeled_net_contribution",
+                    "portfolio_total_cost",
+                    "remaining_budget",
+                    "portfolio_modeled_net",
+                )
+            },
         }
     if eid.startswith("M-"):
         m = next((x for x in src.get("ch_machine_investigation") if x["machine_id"] == eid), None)
@@ -478,5 +492,16 @@ def passport(src: DataSource, evidence_id: str) -> dict[str, Any] | None:
                 ["Limitation", f"{p['note']}{'; ' + p['violations'] if p['violations'] else ''}"],
             ],
             "links": [],
+            "values": {
+                k: p.get(k)
+                for k in (
+                    "cost_usd",
+                    "expected_incremental_contribution_usd",
+                    "expected_net_benefit_usd",
+                    "net_low_usd",
+                    "net_high_usd",
+                    "remaining_budget_usd",
+                )
+            },
         }
     return None

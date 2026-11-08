@@ -250,6 +250,8 @@ class EvidencePassport(BaseModel):
     title: str
     fields: list[list[str]]
     links: list[str]
+    # Numeric operands for the frontend's typeset formula templates (unchanged source values).
+    values: dict[str, float | str | None] = {}
 
 
 class EvidenceList(BaseModel):

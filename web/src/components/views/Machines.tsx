@@ -9,6 +9,8 @@ import type { BankList, MachineDetail, MachinePage, Stability } from "@/lib/type
 import { useUI } from "@/lib/ui";
 
 import { RankDumbbell, ValueBars } from "../charts";
+import { F } from "@/lib/formulas";
+import { How, Term } from "../explain";
 import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, robustTone, verdictTone } from "../ui";
 
 const ZONES: [string, string][] = [["", "All zones"], ["Z-B40", "Back Forty"], ["Z-PIT", "Center Pit"], ["Z-ENT", "Main Entrance"],
@@ -130,41 +132,57 @@ function MachineDrawer({ id }: { id: string }) {
             <Kpi label="Expected win per available hour" value={usd(n(m.theo_per_available_hour), 2)} sub={i ? `zone ${usd(n(i.zone_theo_per_available_hour), 2)} · peer index ${n(i.machine_vs_peer_index).toFixed(2)}` : `peer rank ${m.rank_vs_peers}`} />
             <Kpi label="Availability" value={pct(n(m.availability_rate))} sub={i ? `${i.active_days} active days · ${num(n(i.downtime_hours), 1)} h down` : `${num(n(m.available_hours))} available h`} />
           </div>
-          {i && <p className="label">RTP {pct(n(i.rtp))} · {String(i.volatility_class)} volatility · hit-rate z {n(i.hit_rate_z).toFixed(2)} (Bonferroni p {n(i.hit_p_bonferroni) < 0.001 ? "< 0.001" : n(i.hit_p_bonferroni).toFixed(2)}){i.retire_date ? ` · retired ${String(i.retire_date).slice(0, 10)}` : ""}</p>}
+          {i && <p className="text-[13px] text-muted">Game pays back {pct(n(i.rtp))} of bets by design ({String(i.volatility_class)} volatility){i.retire_date ? ` · retired ${String(i.retire_date).slice(0, 10)}` : ""}.</p>}
 
           {d.diagnostics && <Diagnosis g={d.diagnostics} />}
 
           {i && (
             <section>
-              <h3 className="mb-2 text-[12.5px] font-semibold">Earnings gap attribution</h3>
+              <h3 className="mb-1 text-[14px] font-semibold">Why does it earn {n(d.diagnostics?.gap_vs_reference_usd ?? 0) < 0 ? "less" : "more"} than a typical machine?</h3>
+              {d.diagnostics && <p className="mb-2 text-[13.5px]">A typical machine earned about {usd(n(d.diagnostics.reference_win_usd))} over six months; this one earned {usd(n(m.house_win_usd))}. These five parts add up to the {signed(n(d.diagnostics.gap_vs_reference_usd))} difference.</p>}
               <ul className="space-y-1.5">{gaps.map(([l, k]) => {
                 const v = n(i[k]);
                 return (
-                  <li key={k} className="grid grid-cols-[96px_minmax(0,1fr)_76px] items-center gap-2 text-[12.5px]">
+                  <li key={k} className="grid grid-cols-[110px_minmax(0,1fr)_84px] items-center gap-2 text-[13px]">
                     <span className="text-muted">{l}</span>
                     <span className="h-1.5 rounded bg-surface-2"><span className={`block h-1.5 rounded ${v < 0 ? "bg-neg/70" : "bg-pos/70"}`} style={{ width: `${(Math.abs(v) / max) * 100}%` }} /></span>
                     <span className={`num text-right ${tone(v)}`}>{signed(v)}</span>
                   </li>);
               })}</ul>
-              <p className="label mt-1">Attribution, not causation: location, configuration and player mix are confounded.</p>
+              <How steps={[
+                <><b>Luck</b>: casino win minus <Term id="expected_win">expected win</Term>. Pure payout luck.</>,
+                <><b>Exposure</b>: hours on the floor compared with a typical machine, valued at a typical machine’s hourly earnings.</>,
+                <><b>Location</b>: how much more or less its zone earns per hour than the casino average.</>,
+                <><b>Configuration</b>: how its game earns compared with other games in the same zone.</>,
+                <><b>Residual</b>: what is left, which is the machine compared with identical machines nearby.</>,
+                "The five parts add up exactly to the total. They show where the gap sits, not what caused it: location, game choice and the guests who play there overlap.",
+              ]} technical="Sequential accounting identity against a reference machine at the floor-median rate and hours."
+              formulas={d.diagnostics ? [F.decomposition(n(d.diagnostics.gap_vs_reference_usd), ["gap_luck_usd", "gap_exposure_usd", "gap_location_usd", "gap_game_config_usd", "gap_machine_residual_usd"].map((k) => n(d.diagnostics![k])))] : undefined} />
             </section>
           )}
 
           {(planning !== null || best !== null) && (
             <section>
-              <h3 className="mb-2 text-[12.5px] font-semibold">July lease replacement (16 operating days)</h3>
+              <h3 className="mb-1 text-[14px] font-semibold">Would leasing a new machine in its place pay off in July?</h3>
+              <p className="mb-2 text-[13.5px]">{n(best) <= 0 ? "No. It loses money even if the new machine matched the best one ever seen in this zone." : n(planning) <= 0 ? "Only in the most optimistic case, so the evidence is not strong enough." : "Yes, at the planning value."}</p>
               <table className="tbl"><tbody>
-                <tr><td>Planning value (50% gap capture)</td><td className={`num text-right ${tone(n(planning))}`}>{signed(n(planning))}</td></tr>
-                <tr><td>Best case (zone’s best title)</td><td className={`num text-right ${tone(n(best))}`}>{signed(n(best))}</td></tr>
+                <tr><td>Likely case: the new machine closes half the gap to the zone’s best</td><td className={`num text-right ${tone(n(planning))}`}>{signed(n(planning))}</td></tr>
+                <tr><td>Best case: it performs like the zone’s best machine</td><td className={`num text-right ${tone(n(best))}`}>{signed(n(best))}</td></tr>
                 {r && <>
-                  <tr><td>Conservative (25% capture, 25% cannibalized)</td><td className={`num text-right ${tone(n(r["conservative_A10_0.25_cann_0.25"]))}`}>{signed(n(r["conservative_A10_0.25_cann_0.25"]))}</td></tr>
-                  <tr><td>No revenue share on new lease (best)</td><td className={`num text-right ${tone(n(r.leaseclass_adjusted_best))}`}>{signed(n(r.leaseclass_adjusted_best))}</td></tr>
-                  <tr><td>Ceiling +10% (best)</td><td className={`num text-right ${tone(n(r["best_with_ceiling_+10pct"]))}`}>{signed(n(r["best_with_ceiling_+10pct"]))}</td></tr>
-                  <tr><td>July break-even gap capture</td><td className="num text-right">{pct(n(r.breakeven_A10_july), 0)}</td></tr>
-                  <tr><td>Steady-state payback at 50%</td><td className="num text-right">{num(n(r["payback_days_after_install_at_A10_0.5"]))} days</td></tr>
+                  <tr><td>Cautious case: closes a quarter of the gap, a quarter taken from neighbors</td><td className={`num text-right ${tone(n(r["conservative_A10_0.25_cann_0.25"]))}`}>{signed(n(r["conservative_A10_0.25_cann_0.25"]))}</td></tr>
+                  <tr><td>Best case, if the lease carried no revenue share</td><td className={`num text-right ${tone(n(r.leaseclass_adjusted_best))}`}>{signed(n(r.leaseclass_adjusted_best))}</td></tr>
+                  <tr><td>Best case, if the zone’s best were 10% better still</td><td className={`num text-right ${tone(n(r["best_with_ceiling_+10pct"]))}`}>{signed(n(r["best_with_ceiling_+10pct"]))}</td></tr>
+                  <tr><td>Share of the gap it must close just to break even in July</td><td className="num text-right">{pct(n(r.breakeven_A10_july), 0)}</td></tr>
+                  <tr><td>Days to pay back after July, in the likely case</td><td className="num text-right">{num(n(r["payback_days_after_install_at_A10_0.5"]))} days</td></tr>
                 </>}
               </tbody></table>
-              {r && <p className="mt-2 flex items-center gap-2 text-[12.5px]"><Pill tone={robustTone(String(r.robustness))}>{String(r.robustness).toLowerCase()}</Pill><span className="text-muted">{r.robustness === "ROBUST" ? "Negative in every tested variant." : r.robustness === "CONDITIONAL" ? "Negative at planning values; best case flips under some variants." : "Best case straddles zero."}</span></p>}
+              {r && <p className="mt-2 flex items-center gap-2 text-[13px]"><Pill tone={robustTone(String(r.robustness))}>{String(r.robustness).toLowerCase()}</Pill><span>{r.robustness === "ROBUST" ? "Loses money in every case we tested." : r.robustness === "CONDITIONAL" ? "Loses money in the likely case; only some optimistic cases turn positive." : "Too close to call: the best case is near zero."}</span></p>}
+              <How steps={[
+                "A lease costs $2,500 up front plus $55 a day and takes 14 days to arrive, so it earns for 16 days of July.",
+                <>The gain is the gap between this machine and the best machine in its zone, measured in <Term id="expected_win">expected win</Term> per hour, times the share of that gap a new title wins back (<Term id="gap_capture" />).</>,
+                "Nobody has measured how much a new title helps, so we show the likely, best and cautious cases side by side.",
+                <>Net benefit = that gain after revenue share and comps, minus the lease cost and six hours of installation downtime (<Term id="net_benefit" />).</>,
+              ]} formulas={[F.leaseNet(planning === null ? undefined : n(planning), best === null ? undefined : n(best), i?.lease_cost_usd == null ? undefined : n(i.lease_cost_usd))]} />
             </section>
           )}
 
@@ -203,7 +221,7 @@ function RankingVisuals() {
         {ten.error ? <ErrorLine error={ten.error} retry={ten.reload} /> : !rows.length ? <Loading rows={4} /> : (
           <RankDumbbell label="Earnings rank versus fair rank" max={310} aLabel={TERM.earnings_rank} bLabel={TERM.fair_rank} selected={ui.machineId}
             rows={rows.map((m) => ({ key: m.machine_id, label: m.machine_id, a: weaknessFromEarnings(m.rank_raw), b: weaknessFromFair(m.rank_vs_peers), onClick: () => ui.set({ machineId: m.machine_id }) }))} />)}
-        <p className="label mt-1">A long line means the low total comes from floor time, location or luck rather than the machine. Select a row for detail.</p>
+        <p className="mt-2 text-[13.5px]">Red is where the manager’s ranking puts each machine (by total casino win). Blue is where it really stands against identical machines. A long line means its low total came from floor time, location or luck, not from the machine.</p>
       </Panel>
       <Panel title="Does low exposure explain low earnings?" note={`All 310 machines · x: available hours · y: ${TERM.theo_per_hour.toLowerCase()} · size: expected win`}>
         {all.error ? <ErrorLine error={all.error} retry={all.reload} /> : !pts.length ? <Loading rows={4} /> : (
@@ -220,7 +238,7 @@ function RankingVisuals() {
               </Scatter>
             </ScatterChart></ResponsiveContainer>
           </div>)}
-        <p className="label mt-1">Colored points are the manager’s 10 (color = verdict, also named in the table). Select a point for detail.</p>
+        <p className="mt-2 text-[13.5px]">Each dot is a machine. Most sat on the floor the whole six months (the band on the right). Colored dots are the manager’s 10; they sit low on earnings per hour, but so do many machines nobody proposed replacing.</p>
       </Panel>
       <StabilityPanel />
     </div>
@@ -249,7 +267,7 @@ function StabilityPanel() {
           <div><dt className="label">Assumption</dt><dd className="text-muted">{String(s.assumption)}.</dd></div>
         </dl>
       </div>
-      <p className="label mt-1">Rank = 5th–95th percentile of simulated earnings rank. Amber = a manager-list machine in the lowest 10 less than half the time (its position depends on payout luck). Select a bar.</p>
+      <p className="mt-2 text-[13.5px]">Each bar is how often a machine landed in the lowest 10 when we replayed the six months 2,000 times with fresh random payouts. Amber marks a manager-list machine that stays there less than half the time: luck put it on the list. “Rank” is the range of places it landed in.</p>
     </Panel>
   );
 }
@@ -267,20 +285,35 @@ function Diagnosis({ g }: { g: Record<string, string | number | boolean | null> 
   if (!flags.length) flags.push({ t: "No distinct statistical signal", tone: "muted" });
   return (
     <section>
-      <h3 className="mb-2 text-[12.5px] font-semibold">Statistical diagnosis</h3>
-      <div className="mb-2 flex flex-wrap gap-1.5">{flags.map((f) => <Pill key={f.t} tone={f.tone}>{f.t}</Pill>)}</div>
-      <table className="tbl"><tbody>
-        <tr><td>Payout luck (casino win − expected)</td><td className="num text-right">{signed(n(g.luck_residual_usd))}</td></tr>
-        <tr><td>Luck spread (1 standard deviation)</td><td className="num text-right">{usd(n(g.luck_residual_sd_usd))}</td></tr>
-        <tr><td>Luck z-score <span className="label">(Bonferroni p {n(g.luck_p_bonferroni) < 0.001 ? "< 0.001" : n(g.luck_p_bonferroni).toFixed(3)})</span></td><td className="num text-right">{z.toFixed(2)}</td></tr>
-        <tr><td>Paying spins: observed vs game math</td><td className="num text-right">{pct(n(g.observed_hit_rate), 2)} vs {pct(n(g.expected_hit_probability), 2)}</td></tr>
-        <tr><td>Exact binomial test <span className="label">({num(n(g.paid_spins))} spins, Bonferroni)</span></td><td className="num text-right">{hitP < 0.001 ? "p < 0.001" : `p = ${hitP.toFixed(2)}`}</td></tr>
-        <tr><td>In lowest 10 by casino win <span className="label">(payout simulations)</span></td><td className="num text-right">{pct(pB, 1)}</td></tr>
-        <tr><td>Simulated earnings rank (5th–95th pct)</td><td className="num text-right">{n(g.raw_rank_p05_sim).toFixed(0)}–{n(g.raw_rank_p95_sim).toFixed(0)}</td></tr>
-        <tr><td>Vs comparable machines, excluding itself <span className="label">({String(g.loo_peer_basis)}, {String(g.loo_peer_n)} peers)</span></td><td className="num text-right">{n(g.loo_peer_index).toFixed(2)}×</td></tr>
-      </tbody></table>
-      <p className="label mt-2">Luck spread = √(Σ bet² × payout-multiplier variance), assuming independent spins. A statistical anomaly is not proof of a paytable fault; inspection confirms it.</p>
-      <p className="label mt-1">Gap factors below sum to the total gap within {usd(Math.abs(n(g.decomposition_error_usd)), 2)}: an exact sequential accounting identity, not a causal split.</p>
+      <h3 className="mb-1 text-[14px] font-semibold">Bad luck, a payout fault, or a weak machine?</h3>
+      <div className="mb-3 flex flex-wrap gap-1.5">{flags.map((f) => <Pill key={f.t} tone={f.tone}>{f.t}</Pill>)}</div>
+      <dl className="space-y-3 text-[13.5px] leading-relaxed">
+        <div>
+          <dt className="font-medium">Was it unlucky?</dt>
+          <dd>It won {usd(Math.abs(n(g.luck_residual_usd)))} {n(g.luck_residual_usd) < 0 ? "less" : "more"} than its games should have. A normal swing for this machine is about {usd(n(g.luck_residual_sd_usd))}, so that is {Math.abs(z).toFixed(1)} normal swings ({Math.abs(z) < 2 ? "within ordinary luck" : Math.abs(z) < 3 ? "unusual but possible" : "far beyond ordinary luck"}).</dd>
+        </div>
+        <div>
+          <dt className="font-medium">Does it pay out as often as its game should?</dt>
+          <dd>It paid out on {pct(n(g.observed_hit_rate), 1)} of {num(n(g.paid_spins))} spins; the game is designed for {pct(n(g.expected_hit_probability), 1)}. {hitP < 0.001 ? "A gap that large, over that many spins, is almost impossible by chance (even allowing for checking 310 machines). Inspect the meters and paytable." : "That is within what chance allows."}</dd>
+        </div>
+        <div>
+          <dt className="font-medium">Is it weaker than identical machines nearby?</dt>
+          <dd>It earns {n(g.loo_peer_index).toFixed(2)}× what {String(g.loo_peer_n)} comparable machines earn per hour ({String(g.loo_peer_basis)}, not counting itself){n(g.loo_peer_index) < 0.95 ? ", a little weaker." : n(g.loo_peer_index) >= 1.05 ? ", so the machine itself is not the problem." : ", about the same."}</dd>
+        </div>
+        <div>
+          <dt className="font-medium">Would it be in the lowest 10 again?</dt>
+          <dd>In {pct(pB, 0)} of 2,000 replays with fresh random payouts (its rank ranged from {n(g.raw_rank_p05_sim).toFixed(0)} to {n(g.raw_rank_p95_sim).toFixed(0)}). {pB < 0.5 ? "Its place on the manager’s list owes a lot to luck." : "Its low ranking is consistent."}</dd>
+        </div>
+      </dl>
+      <How steps={[
+        <>Luck: we compare actual <Term id="casino_win">casino win</Term> with <Term id="expected_win">expected win</Term>, and measure the gap in normal swings for this machine’s bets and game (<Term id="luck_z" />).</>,
+        <>Paying spins: we count spins that paid anything and compare with the game’s design rate (<Term id="paying_spins" />), then raise the bar because we test 310 machines (<Term id="multiple_testing" />).</>,
+        <>Comparable machines: same game, same zone, excluding this machine so it cannot pull its own benchmark (<Term id="comparable" />).</>,
+        <>Replays: 2,000 simulated six-month runs where only payout luck changes (<Term id="simulation" />).</>,
+        "A statistical anomaly is a strong signal, not proof of a fault; an inspection confirms it.",
+      ]} technical={`Luck sd = √(Σ bet² × payout-multiplier variance), independent spins. Exact binomial test, Bonferroni ×310 (p ${hitP < 0.001 ? "< 0.001" : hitP.toFixed(3)}). Luck p (Bonferroni) ${n(g.luck_p_bonferroni) < 0.001 ? "< 0.001" : n(g.luck_p_bonferroni).toFixed(3)}. Monte Carlo seed 20250701, normal approximation. Gap parts sum to the total within ${usd(Math.abs(n(g.decomposition_error_usd)), 2)}.`}
+        formulas={[F.luckZ(n(g.house_win_usd), n(g.theo_usd), n(g.luck_residual_sd_usd), z), F.payingSpins(n(g.paying_spins), n(g.paid_spins), n(g.expected_hit_probability), hitP),
+          F.peerIndex(n(g.loo_peer_index), n(g.loo_peer_n)), F.simulation(pB)]} />
     </section>
   );
 }

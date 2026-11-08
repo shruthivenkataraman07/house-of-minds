@@ -35,7 +35,7 @@ export function Panel({ title, note, right, children, className = "", flush = fa
   );
 }
 
-export function Kpi({ label, value, sub, className = "", title }: { label: string; value: ReactNode; sub?: ReactNode; className?: string; title?: string }) {
+export function Kpi({ label, value, sub, className = "", title }: { label: ReactNode; value: ReactNode; sub?: ReactNode; className?: string; title?: string }) {
   return (
     <div className="min-w-0" title={title}>
       <p className="label">{label}</p>

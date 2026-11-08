@@ -114,7 +114,8 @@ export interface Portfolios { options: Portfolio[]; passports: Rec[]; measuremen
   catalog: { action_type_id: string; name: string; unit_cost_usd: number; lead_days: number; quantity_limit: number }[] }
 export interface Scenarios { promotion: Promotion; stress: Rec[]; reversals: Rec[]; lease_operating_days: number | null }
 
-export interface Passport { kind: string; id: string; title: string; fields: [string, string][]; links: string[] }
+export interface Passport { kind: string; id: string; title: string; fields: [string, string][]; links: string[];
+  values?: Record<string, number | string | null> }
 export interface EvidenceList { total: number; claims: Rec[]; classifications: Record<string, number>;
   passports: Rec[]; machines: string[]; verification: Rec[] }
 

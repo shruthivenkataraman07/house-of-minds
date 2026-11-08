@@ -5,6 +5,8 @@ import { postJSON, useApi } from "@/lib/api";
 import type { AskAnswer, Metadata, Passport } from "@/lib/types";
 import { OFFICIAL, VIEWS, type ViewId, useUI } from "@/lib/ui";
 
+import { PassportMath } from "./PassportMath";
+import { GlossaryDrawer } from "./explain";
 import { Drawer, EvidenceLink, ErrorLine, Loading, Pill } from "./ui";
 import { Answers } from "./views/Answers";
 import { Overview } from "./views/CommandCenter";
@@ -49,7 +51,7 @@ export default function Dashboard() {
     const k = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); useUI.getState().set({ askOpen: true }); }
       if (e.key === "/" && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement)) { e.preventDefault(); useUI.getState().set({ askOpen: true }); }
-      if (e.key === "Escape") useUI.getState().set({ askOpen: false, evidenceId: null });
+      if (e.key === "Escape") useUI.getState().set({ askOpen: false, evidenceId: null, glossary: null });
     };
     window.addEventListener("keydown", k);
     return () => window.removeEventListener("keydown", k);
@@ -91,6 +93,10 @@ export default function Dashboard() {
               <Pill tone={meta.live ? "pos" : "muted"}>{meta.live ? "Live · Databricks" : "Validated snapshot"}</Pill></span>}
             {meta && <span className="label hidden lg:inline">as of {meta.exported_at_utc.slice(0, 10)}</span>}
             {ui.history.length > 0 && <button type="button" onClick={ui.back} className="rounded-md border border-line bg-surface px-2 py-1 text-[12.5px] text-muted hover:text-ink" aria-label="Back to previous view">← Back</button>}
+            <button type="button" onClick={() => ui.set({ glossary: "all" })} aria-haspopup="dialog"
+              className="rounded-md border border-line bg-surface px-2.5 py-1 text-[12.5px] text-muted hover:border-line-strong hover:text-ink">
+              Glossary
+            </button>
             <button type="button" onClick={() => ui.set({ askOpen: true })} aria-haspopup="dialog"
               className="flex items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-1 text-[12.5px] text-muted hover:border-line-strong hover:text-ink">
               Ask the House <kbd className="hidden rounded border border-line px-1 text-[10.5px] sm:inline">⌘K</kbd>
@@ -106,6 +112,7 @@ export default function Dashboard() {
       </div>
       {ui.evidenceId && <EvidenceDrawer id={ui.evidenceId} />}
       {ui.askOpen && <AskPalette />}
+      <GlossaryDrawer />
     </div>
   );
 }
@@ -128,6 +135,8 @@ function EvidenceDrawer({ id }: { id: string }) {
       {error && <ErrorLine error={error} retry={reload} />}
       {p && (
         <>
+          <PassportMath p={p} />
+          {(p.kind === "machine" || p.kind === "passport" || p.kind === "portfolio") && <h3 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-muted">Recorded evidence</h3>}
           <dl className="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-2.5 sm:grid-cols-[110px_minmax(0,1fr)]">
             {p.fields.map(([k, v], i) => (
               <div key={i} className="contents"><dt className="label pt-px">{k}</dt>

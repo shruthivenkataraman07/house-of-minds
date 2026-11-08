@@ -7,7 +7,9 @@ import { compact, n, pct, signed, usd } from "@/lib/format";
 import type { EvidenceList, Forecast, Portfolios } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
+import { F } from "@/lib/formulas";
 import { CompositionBar } from "../charts";
+import { How, Term } from "../explain";
 import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, robustTone } from "../ui";
 
 export function Evidence() {
@@ -106,6 +108,14 @@ export function Validation() {
         <Kpi label="Improvement · event days" value={`${n(ev?.mae_improvement_pct).toFixed(1)}%`} className="text-neg" sub={`${n(ev?.n)} days`} />
         <Kpi label="80% interval coverage" value={pct(n(all?.candidate_coverage80), 0)} className="text-warn" sub={`event days ${pct(n(ev?.candidate_coverage80), 0)}`} />
       </div>
+      <How steps={[
+        <>The model never saw the <Term id="holdout">holdout</Term> days (May–June) while it was built, so its errors there show how it would do on future days.</>,
+        <><Term id="mae">Average miss</Term>: the typical dollars off per day. <Term id="rmse">Big-miss measure</Term>: the same, but large misses count more.</>,
+        <><Term id="bias" />: forecast minus actual, averaged; positive means the forecast ran high.</>,
+        <><Term id="coverage" />: how often the actual day fell inside the model’s 80% range.</>,
+        <>Improvement compares the model’s average miss with the simple <Term id="baseline">weekday-average rule</Term>.</>,
+      ]} formulas={[F.forecastErrors(all?.candidate_mae == null ? undefined : n(all.candidate_mae), all?.candidate_rmse == null ? undefined : n(all.candidate_rmse), all?.candidate_bias == null ? undefined : n(all.candidate_bias), all?.candidate_coverage80 == null ? undefined : n(all.candidate_coverage80), all?.n == null ? undefined : n(all.n)),
+        F.improvement(all?.baseline_mae == null ? undefined : n(all.baseline_mae), all?.candidate_mae == null ? undefined : n(all.candidate_mae), all?.mae_improvement_pct == null ? undefined : n(all.mae_improvement_pct))]} />
       <Panel title="Actual vs forecast: daily expected casino win (holdout)" note="Black: actual · blue: Holt-Winters with 80% band · grey: baseline · amber: event days."
         right={<label className="label flex items-center gap-1"><input type="checkbox" checked={marks} onChange={(e) => setMarks(e.target.checked)} />Event days</label>}>
         <div className="h-64" role="img" aria-label="Holdout actual, model and baseline daily expected casino win">
