@@ -1,26 +1,57 @@
 @import "tailwindcss";
 
+/* Light, restrained analytical palette; one indigo accent; semantic colors for outcomes. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-2: #f2f1ed;
+  --line: #e4e2dc;
+  --line-strong: #d3d0c8;
+  --text: #1d1f23;
+  --muted: #6b6e75;
+  --accent: #3f51b5;
+  --accent-soft: #3f51b514;
+  --pos: #2e7d5b;
+  --warn: #a8670f;
+  --neg: #b23e36;
+  --chart-1: #3f51b5;
+  --chart-2: #9aa0ab;
+  --chart-3: #2e7d5b;
+  --chart-4: #a8670f;
+  color-scheme: light;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-pos: var(--pos);
+  --color-warn: var(--warn);
+  --color-neg: var(--neg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+html, body { background: var(--bg); color: var(--text); }
+body { font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.45; }
+.num { font-variant-numeric: tabular-nums; }
+.label { font-size: 11.5px; color: var(--muted); letter-spacing: .01em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
+main:focus, main:focus-visible { outline: none; }
+button { cursor: pointer; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { font-weight: 500; color: var(--muted); font-size: 11.5px; text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; background: var(--surface); position: sticky; top: 0; }
+.tbl td { padding: 7px 10px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+.tbl tbody tr:last-child td { border-bottom: 0; }
+.tbl tr.row-click { cursor: pointer; }
+.tbl tr.row-click:hover td { background: var(--surface-2); }
+.tbl tr[aria-selected="true"] td { background: var(--accent-soft); }
+.panel p, .panel li, .panel dd { overflow-wrap: anywhere; }
+.tbl td.num, .tbl th { white-space: nowrap; }

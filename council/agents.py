@@ -63,6 +63,18 @@ class Agent:
         """Default: stay silent when the mandate adds no new evidence (saves budget)."""
         return []
 
+    def review_proposal(self, machine_ids: list[str]) -> list[Claim]:
+        """Machine-level review of the manager's replacement proposal (default: none)."""
+        return []
+
+    def _review_claim(self, mid: str, kind: str, r: ToolResult, statement: str,
+                      action: Action, **kw: Any) -> Claim:
+        return self.claim(f"review:{kind}", int(mid[2:]), [r],
+                          target_investment="MANAGER_PROPOSAL", target_assumption=None,
+                          statement=statement[:600], action=action, numeric_result=r.value,
+                          numeric_unit=r.unit, classification="VERIFIED_FACT_CANDIDATE",
+                          financial_relevance=f"replacement of {mid}", **kw)
+
 
 def promo_breakeven(model: Any) -> float:
     """Excess theo/day at which one promotion weekend breaks even (Step 3 economics)."""
@@ -127,6 +139,25 @@ class Statistician(Agent):
         return super().respond(msg, claims, model)
 
 
+def _stat_review(self: Agent, machine_ids: list[str]) -> list[Claim]:
+    out = []
+    for mid in machine_ids:
+        r = self.t("machine_luck", machine_id=mid)
+        sig = abs(r.value) >= 3.773  # Step 1 rule: Bonferroni p < 0.05 over 310 machines
+        out.append(self._review_claim(
+            mid, "luck", r,
+            f"{mid}: house win minus theo is ${r.detail['residual_usd']:,.0f} "
+            f"(luck z {r.value:.2f}); " + ("beyond chance: luck does not explain it."
+                                          if sig else "within chance: weak results may be "
+                                          "payout luck, not a weak machine."),
+            Action.CHALLENGE if not sig else Action.FLAG_UNCERTAINTY,
+            alternative_explanation="payout variance", sample_size=181))
+    return out
+
+
+Statistician.review_proposal = _stat_review  # type: ignore[method-assign]
+
+
 class DemandStrategist(Agent):
     def investigate(self, model: Any) -> list[Claim]:
         pit, b40 = self.t("zone_occupancy", zone_id="Z-PIT"), self.t(
@@ -163,6 +194,29 @@ class DemandStrategist(Agent):
 
 
 class OperationsChief(Agent):
+    def review_proposal(self, machine_ids: list[str]) -> list[Claim]:
+        out = []
+        for mid in machine_ids:
+            e = self.t("machine_exposure", machine_id=mid)
+            ret = e.detail["retire_date"]
+            out.append(self._review_claim(
+                mid, "exposure", e,
+                f"{mid}: {int(e.value)} active days, availability "
+                f"{e.detail['availability']:.1%}" + (f"; retired {ret}: nothing to replace."
+                                                    if ret else "."),
+                Action.CHALLENGE if ret or e.value < 150 else Action.SUPPORT,
+                sample_size=int(e.value)))
+            h = self.t("machine_hit_total", machine_id=mid)
+            anomaly = h.value > 4.656  # Step 1 rule: Bonferroni p < 0.001 over 310 machines
+            out.append(self._review_claim(
+                mid, "hit_rate", h,
+                f"{mid}: payout frequency z {h.value:.1f} vs configured game math"
+                + (": a payout fault; inspect instead of replacing." if anomaly else
+                   ": consistent with configuration."),
+                Action.CHALLENGE if anomaly else Action.SUPPORT,
+                sample_size=h.detail["spins"]))
+        return out
+
     def investigate(self, model: Any) -> list[Claim]:
         hz, st = self.t("machine_monthly_hit_z", machine_id="M-1158"), self.t("tech_staffing")
         mt = self.t("maintenance_fault_effect", manufacturer="Ridgeline")
@@ -188,6 +242,25 @@ class OperationsChief(Agent):
             classification="OBSERVATIONAL", sample_size=mt.detail["all_maintained"],
             argued_direction="low", financial_relevance="$9,000 action.")
         return [primary, support]
+
+
+def _demand_review(self: Agent, machine_ids: list[str]) -> list[Claim]:
+    out = []
+    for mid in machine_ids:
+        r = self.t("machine_peer_index", machine_id=mid)
+        d = r.detail
+        out.append(self._review_claim(
+            mid, "location", r,
+            f"{mid}: earns {r.value:.2f}x its same-game peers in {d['zone_id']}; the zone runs "
+            f"at {d['zone_vs_floor']:.2f}x the floor and its game at {d['config_vs_zone']:.2f}x "
+            "the zone." + (" Weakness is location/configuration, not the machine."
+                           if r.value >= 0.9 else " Weak even against its peers."),
+            Action.CHALLENGE if r.value >= 0.9 else Action.SUPPORT,
+            alternative_explanation="location and game configuration", sample_size=181))
+    return out
+
+
+DemandStrategist.review_proposal = _demand_review  # type: ignore[method-assign]
 
 
 class GuestAnalyst(Agent):
@@ -307,24 +380,44 @@ class CFO(Agent):
         return super().respond(msg, claims, model)
 
 
+def _cfo_review(self: Agent, machine_ids: list[str]) -> list[Claim]:
+    out = []
+    for mid in machine_ids:
+        try:
+            r = self.t("replacement_lease_net", machine_id=mid, case="best_case")
+        except ValueError:
+            continue  # not evaluable (retired): Operations Chief covers it
+        out.append(self._review_claim(
+            mid, "economics", r,
+            f"Replacing {mid} with a leased title nets ${r.value:,.0f} in July even if the new "
+            "title matches the best one ever observed in its zone"
+            + (": not worth replacing." if r.value <= 0 else ": positive only in the best case."),
+            Action.CHALLENGE if r.value <= 0 else Action.FLAG_UNCERTAINTY))
+    return out
+
+
+CFO.review_proposal = _cfo_review  # type: ignore[method-assign]
+
+
 def build_agents() -> list[Agent]:
     return [
         Statistician("AG1_STATISTICIAN", "Statistician",
                      "Detect statistical weaknesses that could change an investment decision.",
                      "Two promotion observations cannot support a reliable uplift estimate.",
-                     ("promo_event_excess", "weekend_noise_sd", "comp_change_date"),
+                     ("promo_event_excess", "weekend_noise_sd", "comp_change_date", "machine_luck"),
                      ("A08_promo_excess_theo_per_day", "statistics", "timing"),
                      "Evidence is below a break-even or indistinguishable from noise."),
         DemandStrategist("AG2_DEMAND", "Demand Strategist",
                          "Test whether machine moves create incremental demand.",
                          "Moving machines into Center Pit may redistribute existing play.",
-                         ("zone_occupancy", "zone_count_elasticity"),
+                         ("zone_occupancy", "zone_count_elasticity", "machine_peer_index"),
                          ("A09_move_location_transfer", "A03_wayfinding_net_uplift", "demand"),
                          "Transfer evidence crosses the 20-21% boundary."),
         OperationsChief("AG3_OPERATIONS", "Operations Chief",
                         "Test feasibility and recoverable benefits of operational actions.",
                         "Inspection or maintenance benefits need unrealistic success rates.",
-                        ("machine_monthly_hit_z", "tech_staffing", "maintenance_fault_effect"),
+                        ("machine_monthly_hit_z", "tech_staffing", "maintenance_fault_effect",
+                         "machine_exposure", "machine_hit_total"),
                         ("A01_inspect_fix_probability", "A04_preventive_effectiveness",
                          "A05_tech_downtime_reduction", "operations"),
                         "A required success rate is above anything observed."),
@@ -343,7 +436,7 @@ def build_agents() -> list[Agent]:
         CFO("AG6_CFO", "CFO",
             "Challenge prioritisation and financial risk.",
             "The $34,800 conditional portfolio does not justify its extra uncertainty.",
-            ("portfolio_comparison", "reoptimise_with"),
+            ("portfolio_comparison", "reoptimise_with", "replacement_lease_net"),
             ("portfolio", "financial_consequence", "A08_promo_excess_theo_per_day"),
             "A challenge changes a baseline portfolio."),
     ]

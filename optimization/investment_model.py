@@ -514,10 +514,14 @@ def economics(model: InvestmentModel, c: Candidate) -> Economics:
         contrib = gross * fl
         down = act.downtime_minutes / 60 * f["replace_target_rate"] * dm * fl
     elif c.action_type in ("A-REPLACE-LEASE", "A-REPLACE-BUY"):
-        gain = a("A10_replacement_gap_capture") * (
-            f["replace_ceiling_rate"] - f["replace_target_rate"]) * 24 * days * dm
+        # per-machine inputs when present (challenge alignment); Step 3 keys otherwise
+        mid = c.machines[0] if c.machines else ""
+        ceil_r = f.get(f"replace_ceiling_rate:{mid}", f["replace_ceiling_rate"])
+        own_r = f.get(f"replace_target_rate:{mid}", f["replace_target_rate"])
+        avail = f.get(f"replace_availability:{mid}", 1.0)
+        gain = a("A10_replacement_gap_capture") * (ceil_r - own_r) * 24 * avail * days * dm
         gross, contrib = gain, gain * fl
-        down = act.downtime_minutes / 60 * f["replace_target_rate"] * dm * fl
+        down = act.downtime_minutes / 60 * own_r * dm * fl
     net = contrib + avoided - down - cost
     status = c.benefit_status
     if status == ASSUMPTION_REQUIRED and _best_case_net(model, c) <= 0:

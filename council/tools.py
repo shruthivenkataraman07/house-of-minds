@@ -262,6 +262,103 @@ class EvidenceTools:
                           {"evidence": e.signature, "conditional": c.signature,
                            "evidence_base": base_e.signature})
 
+    # ---------------------------------------------------------- machine-level review
+    def _machine(self, machine_id: str) -> str:
+        mid = self._validate("machine_id", machine_id)
+        if not self._repo.scalar("SELECT count(*) FROM machines WHERE machine_id = $m",
+                                 {"m": mid}):
+            raise ToolError(f"unknown machine {mid}")
+        return mid
+
+    def machine_exposure(self, machine_id: str) -> ToolResult:
+        mid = self._machine(machine_id)
+        r = self._repo.query_df("""
+            SELECT count(*) FILTER (WHERE m.active) active_days,
+                   sum(m.available_seconds)::DOUBLE / nullif(sum(m.scheduled_seconds), 0)
+                     availability,
+                   any_value(CAST(mc.retire_date AS STRING)) retire_date
+            FROM machine_day m JOIN machines mc USING (machine_id)
+            WHERE m.machine_id = $m""", {"m": mid}).iloc[0]
+        return ToolResult("machine_exposure", (("machine_id", mid),), float(r.active_days),
+                          "active days", ("machine_day", "machines"), (EV["decomposition"],),
+                          {"availability": float(r.availability),
+                           "retire_date": None if r.retire_date in (None, "None") or
+                           pd.isna(r.retire_date) else str(r.retire_date)})
+
+    def machine_luck(self, machine_id: str) -> ToolResult:
+        mid = self._machine(machine_id)
+        r = self._repo.query_df("""
+            SELECT (sum(m.house_win_cents) - sum(m.theo_cents))::DOUBLE
+                     / sqrt(sum(m.sum_bet_squared * g.payout_multiplier_variance::DOUBLE)) z,
+                   (sum(m.house_win_cents) - sum(m.theo_cents))::DOUBLE / 100 residual
+            FROM machine_day m JOIN game_math g USING (config_id)
+            WHERE m.active AND m.machine_id = $m""", {"m": mid}).iloc[0]
+        return ToolResult("machine_luck", (("machine_id", mid),), float(r.z), "z",
+                          ("machine_day", "game_math"), (EV["persistence"],),
+                          {"residual_usd": float(r.residual)})
+
+    def machine_hit_total(self, machine_id: str) -> ToolResult:
+        mid = self._machine(machine_id)
+        r = self._repo.query_df("""
+            SELECT m.config_id, sum(m.paid_spins) n, sum(m.payout_positive_spins) h,
+                   any_value(g.hit_probability)::DOUBLE p
+            FROM machine_day m JOIN game_math g USING (config_id)
+            WHERE m.active AND m.machine_id = $m GROUP BY 1 ORDER BY 2 DESC""",
+            {"m": mid}).iloc[0]
+        z = (r.h - r.n * r.p) / np.sqrt(r.n * r.p * (1 - r.p))
+        return ToolResult("machine_hit_total", (("machine_id", mid),), float(z), "z",
+                          ("machine_day", "game_math"), (EV["payout_anomaly"],),
+                          {"config_id": r.config_id, "spins": int(r.n)})
+
+    def machine_peer_index(self, machine_id: str) -> ToolResult:
+        mid = self._machine(machine_id)
+        r = self._repo.query_df("""
+            WITH md AS (SELECT p.machine_id, p.zone_id, m.config_id, m.theo_cents,
+                               m.available_seconds
+                        FROM machine_day m JOIN prepared_daily_view p
+                          USING (machine_id, gaming_date) WHERE m.active),
+            me AS (SELECT zone_id, config_id, count(*) d FROM md WHERE machine_id = $m
+                   GROUP BY 1, 2 ORDER BY 3 DESC, 1 LIMIT 1)
+            SELECT (SELECT sum(theo_cents)::DOUBLE / sum(available_seconds) FROM md
+                     WHERE machine_id = $m) own,
+                   (SELECT sum(md.theo_cents)::DOUBLE / sum(md.available_seconds) FROM md, me
+                     WHERE md.zone_id = me.zone_id AND md.config_id = me.config_id) peer,
+                   (SELECT sum(md.theo_cents)::DOUBLE / sum(md.available_seconds) FROM md, me
+                     WHERE md.zone_id = me.zone_id) zone_rate,
+                   (SELECT sum(theo_cents)::DOUBLE / sum(available_seconds) FROM md) floor_rate,
+                   (SELECT zone_id FROM me) zone_id, (SELECT config_id FROM me) config_id""",
+            {"m": mid}).iloc[0]
+        return ToolResult("machine_peer_index", (("machine_id", mid),),
+                          float(r.own / r.peer), "ratio",
+                          ("machine_day", "prepared_daily_view"), (EV["decomposition"],),
+                          {"zone_id": r.zone_id, "config_id": r.config_id,
+                           "zone_vs_floor": float(r.zone_rate / r.floor_rate),
+                           "config_vs_zone": float(r.peer / r.zone_rate)})
+
+    def replacement_lease_net(self, machine_id: str, case: str) -> ToolResult:
+        """Step 3 lease economics for replacing this machine (planning or best case)."""
+        from analytics.replacement import (
+            lease_economics,
+            machine_facts,
+            with_replacement_candidates,
+            zone_ceilings,
+        )
+        mid = self._machine(machine_id)
+        if case not in ("planning", "best_case"):
+            raise ToolError(f"unknown case {case!r}")
+        if not hasattr(self, "_repl"):
+            facts = machine_facts(self._repo)
+            self._repl = with_replacement_candidates(
+                self._model, facts, zone_ceilings(self._repo), list(facts.machine_id))
+        e = lease_economics(self._repl, mid)
+        key = "net_planning" if case == "planning" else "net_best_case"
+        value = e[key]
+        if value is None:
+            raise ToolError(f"no on-floor demand for {mid}: replacement not evaluable")
+        return ToolResult("replacement_lease_net", (("machine_id", mid), ("case", case)),
+                          float(value), "USD", ("machine_day", "action_catalog"),
+                          (EV["decomposition"],), {"cost": e["cost"]})
+
 
 ALLOWLIST: dict[str, Callable[..., ToolResult]] = {
     "promo_event_excess": EvidenceTools.promo_event_excess,
@@ -276,4 +373,9 @@ ALLOWLIST: dict[str, Callable[..., ToolResult]] = {
     "maintenance_fault_effect": EvidenceTools.maintenance_fault_effect,
     "portfolio_comparison": EvidenceTools.portfolio_comparison,
     "reoptimise_with": EvidenceTools.reoptimise_with,
+    "machine_exposure": EvidenceTools.machine_exposure,
+    "machine_luck": EvidenceTools.machine_luck,
+    "machine_hit_total": EvidenceTools.machine_hit_total,
+    "machine_peer_index": EvidenceTools.machine_peer_index,
+    "replacement_lease_net": EvidenceTools.replacement_lease_net,
 }

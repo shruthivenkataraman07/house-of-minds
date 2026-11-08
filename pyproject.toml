@@ -64,6 +64,11 @@ extend-exclude = ["frontend", ".claude"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# user-facing answer and passport sentences are kept on one line for readability
+"backend/services/ask.py" = ["E501"]
+"backend/services/dashboard.py" = ["E501"]
+
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = true

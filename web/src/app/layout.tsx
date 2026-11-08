@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The House of Minds",
-  description: "Evidence-driven casino investment intelligence (Dashboard Royale)",
+  title: "House of Minds",
+  description: "The Gilded Ace Decision Intelligence System (TAMU Datathon 2026 · Dashboard Royale)",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -23,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }

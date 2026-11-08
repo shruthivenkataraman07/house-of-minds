@@ -1,0 +1,222 @@
+"""Dashboard API v1: contracts, validation, parity, Ask the House and source fallback."""
+
+from __future__ import annotations
+
+import pytest
+from fastapi.testclient import TestClient
+
+from backend.main import app
+from backend.services import source as srcmod
+from backend.services.source import DataSource, DataUnavailable, Live
+
+c = TestClient(app)
+pytestmark = pytest.mark.skipif(
+    not (srcmod.DATA / "current" / "manifest.json").exists(), reason="snapshot export not present"
+)
+
+
+def get(path: str) -> dict:
+    r = c.get(path)
+    assert r.status_code == 200, (path, r.text[:300])
+    return r.json()
+
+
+def test_health_and_metadata_report_snapshot_not_live():
+    h = get("/api/v1/health")
+    assert h["status"] == "ok" and h["snapshot_id"].startswith("chf-v1:")
+    m = get("/api/v1/metadata")
+    assert m["data_mode"] == "snapshot" and m["live"] is False and "not live" in m["note"]
+    assert m["sidecar_snapshot_id"] == m["snapshot_id"]
+
+
+def test_every_response_carries_meta_with_units_and_window():
+    for p in [
+        "/api/v1/executive",
+        "/api/v1/machines",
+        "/api/v1/operations/downtime",
+        "/api/v1/portfolios",
+        "/api/v1/forecast/validation",
+    ]:
+        meta = get(p)["meta"]
+        assert (
+            meta["served_from"] == "snapshot"
+            and meta["official_window"] == "2025-01-01..2025-06-30"
+        )
+        assert meta["decision_horizon"] == "2025-07-01..2025-07-30" and "USD" in meta["units"]
+
+
+def test_executive_matches_exports():
+    d = get("/api/v1/executive")["data"]
+    pf = {p["option"]: p for p in d["portfolios"]}
+    assert d["verdict"]["answer"] == "REPLACE_NONE"
+    assert pf[d["verdict"]["recommended_option"]]["expected_net_benefit_usd"] == pytest.approx(
+        d["verdict"]["recommended_net_usd"]
+    )
+    assert [m["manager_rank"] for m in d["bottom10"]] == list(range(1, 11))
+
+
+def test_period_filter_is_ratio_of_sums_and_reconciles():
+    full = get("/api/v1/operations/demand")["data"]
+    k = get("/api/v1/executive")["data"]["kpis"]
+    assert full["totals"]["days"] == 181 and not full["exploratory"]
+    assert full["totals"]["house_win_usd"] == pytest.approx(k["house_win_usd"], abs=0.01)
+    assert full["totals"]["hold"] == pytest.approx(k["observed_hold"], rel=1e-9)
+    may = get("/api/v1/operations/demand?start=2025-05-01&end=2025-06-30")["data"]
+    assert may["exploratory"] and may["totals"]["days"] == 61
+    banks = get("/api/v1/operations/banks?start=2025-05-01&end=2025-06-30")["data"]["banks"]
+    assert sum(b["house_win_usd"] for b in banks) == pytest.approx(
+        may["totals"]["house_win_usd"], abs=0.01
+    )
+    # verdicts are frozen: the executive payload is unaffected by the filter
+    assert get("/api/v1/executive")["data"]["verdict"]["answer"] == "REPLACE_NONE"
+
+
+def test_bank_and_machine_lookups():
+    b = get("/api/v1/operations/banks/B-38")["data"]
+    assert b["machines"] and b["daily"]
+    m = get("/api/v1/machines/M-5076")["data"]
+    assert m["investigation"]["verdict"] == "INSUFFICIENT_EVIDENCE" and m["robustness"]
+    page = get("/api/v1/machines?scope=all&limit=20&offset=20")["data"]
+    assert page["total"] == 310 and len(page["rows"]) == 20
+
+
+@pytest.mark.parametrize(
+    "path,code",
+    [
+        ("/api/v1/machines/M-9999", 404),
+        ("/api/v1/machines/DROP", 422),
+        ("/api/v1/operations/banks/B-999", 404),
+        ("/api/v1/operations/demand?start=2025-07-01", 422),
+        ("/api/v1/operations/demand?start=2025-06-01&end=2025-05-01", 422),
+        ("/api/v1/machines?limit=5000", 422),
+        ("/api/v1/evidence/NOPE-123", 404),
+        ("/api/v1/council/anything", 422),
+        ("/api/v1/unknown", 404),
+    ],
+)
+def test_invalid_inputs_return_consistent_errors(path, code):
+    r = c.get(path)
+    assert r.status_code == code
+    body = r.json()
+    assert set(body) == {"error", "detail", "recovery"}
+
+
+def test_read_only_no_write_methods():
+    for p in ["/api/v1/machines", "/api/v1/executive", "/api/v1/ask"]:
+        assert c.delete(p).status_code in (404, 405)
+        assert c.put(p, json={}).status_code in (404, 405)
+
+
+def test_evidence_resolves_for_every_reference():
+    ex = get("/api/v1/executive")["data"]
+    for m in ex["bottom10"]:
+        assert get(f"/api/v1/evidence/{m['machine_id']}")["data"]["fields"]
+    pf = get("/api/v1/portfolios")["data"]
+    for p in pf["passports"]:
+        assert get(f"/api/v1/evidence/{p['passport_id']}")["data"]["kind"] == "passport"
+    for o in pf["options"]:
+        assert get(f"/api/v1/evidence/{o['option']}")["data"]["kind"] == "portfolio"
+    for cl in get("/api/v1/council")["data"]["claims"]:
+        assert get(f"/api/v1/evidence/{cl['claim_id']}")["data"]["kind"] == "claim"
+
+
+def test_portfolio_constraints_and_horizon():
+    pf = get("/api/v1/portfolios")["data"]
+    for o in pf["options"]:
+        if o["feasible"]:
+            assert o["cost_usd"] <= 100000 and o["action_types"] <= 3
+            assert o["horizon"] == "2025-07-01..2025-07-30"
+    checks = {x["check"]: x["pass"] for x in pf["constraints"]}
+    assert checks["Budget ≤ $100,000"] and not checks["Manager buy ×10"]
+
+
+ASK = [
+    ("Why shouldn't we replace the original bottom 10?", "OK", "get_evidence"),
+    ("Investigate machine M-1158", "OK", "select_entity"),
+    ("Explain M-5076 sensitivity", "OK", "select_entity"),
+    ("Compare the manager's plan with House of Minds", "OK", "compare_portfolios"),
+    ("What happens if promotional uplift is zero?", "OK", "explain_reversal"),
+    ("Why did the council challenge this action?", "OK", "open_council"),
+    ("What happened to demand across zones?", "OK", "set_filters"),
+    ("Which machines are affected by downtime?", "OK", "set_filters"),
+    ("How reliable is the forecast?", "OK", "open_validation"),
+    ("Explain machine M-9999", "UNAVAILABLE", None),
+    ("Why is this machine low?", "AMBIGUOUS", None),
+    ("What's the weather in Houston?", "UNSUPPORTED", None),
+    ("SELECT * FROM players; DROP TABLE machine_day", "REFUSED", None),
+    ("Delete the verdict data for M-5076", "REFUSED", None),
+    ("Which loyalty groups account for tracked play?", "OK", "set_filters"),
+    ("Show the evidence for this recommendation", "OK", "get_evidence"),
+    ("Who are the biggest losers we should target?", "REFUSED", None),
+]
+
+
+@pytest.mark.parametrize("q,status,intent", ASK)
+def test_ask_routes(q, status, intent):
+    r = c.post("/api/v1/ask", json={"question": q})
+    assert r.status_code == 200
+    a = r.json()
+    assert a["status"] == status
+    if intent:
+        assert a["intent"] == intent
+
+
+def test_ask_context_premise_and_figures():
+    a = c.post(
+        "/api/v1/ask", json={"question": "Why is this machine low?", "machine_context": "M-5076"}
+    ).json()
+    assert a["status"] == "OK" and a["action"]["args"]["machine_id"] == "M-5076"
+    assert (
+        "did not reject"
+        in c.post(
+            "/api/v1/ask", json={"question": "Why did the council reject the promotion plan?"}
+        ).json()["premise_correction"]
+    )
+    z = c.post("/api/v1/ask", json={"question": "What if promo uplift is zero?"}).json()
+    assert "30,000" in z["conclusion"]
+    m = c.post("/api/v1/ask", json={"question": "Explain machine M-5076"}).json()
+    assert "Conservative".lower() in (m["uncertainty"] or "").lower()
+    assert c.post("/api/v1/ask", json={"question": "x" * 500}).status_code == 422
+    assert (
+        c.post("/api/v1/ask", json={"question": "hi", "machine_context": "DROP"}).status_code == 422
+    )
+
+
+def test_live_failure_falls_back_to_snapshot_and_is_labelled():
+    def broken():
+        raise RuntimeError("warehouse unreachable")
+
+    s = DataSource("databricks", Live(broken))
+    rows = s.get("ch_executive_verdict")
+    assert rows[0]["answer"] == "REPLACE_NONE"
+    assert s.served_from["ch_executive_verdict"] == "snapshot"
+    assert s.live is not None and "warehouse unreachable" in (s.live.last_error or "")
+
+
+def test_live_reads_only_allowlisted_tables():
+    calls = []
+
+    class Repo:
+        def query_df(self, sql):
+            import pandas as pd
+
+            calls.append(sql)
+            return pd.DataFrame([{"answer": "REPLACE_NONE"}])
+
+    live = Live(lambda: Repo())
+    assert live.get("ch_executive_verdict")[0]["answer"] == "REPLACE_NONE"
+    live.get("ch_executive_verdict")  # cached
+    assert calls == ["SELECT * FROM ch_executive_verdict"]
+    with pytest.raises(DataUnavailable):
+        live.get("players; DROP TABLE x")
+
+
+def test_openapi_lists_v1_routes():
+    spec = get("/openapi.json")
+    assert {
+        "/api/v1/ask",
+        "/api/v1/executive",
+        "/api/v1/machines/{machine_id}",
+        "/api/v1/evidence/{evidence_id}",
+        "/api/v1/forecast/validation",
+    } <= set(spec["paths"])

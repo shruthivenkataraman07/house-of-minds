@@ -29,6 +29,15 @@ DATASETS = {
     "dash_council_activity": None, "dash_evidence_validation": None,
     "dash_model_evaluation": None, "dash_decision_passports": None,
     "aibi_metric_definitions": None,
+    # official challenge alignment (contracts/dashboard_contracts.json)
+    "ch_executive_verdict": None, "ch_manager_bottom10": None,
+    "ch_machine_investigation": None, "ch_replacement_candidates": None,
+    "ch_portfolio_comparison": None, "ch_council_manager_review": None,
+    "ch_floor_demand_monthly": None, "ch_floor_demand_weekly": None, "ch_zone_demand": None,
+    "ch_zone_traffic": None, "ch_demand_explanations": None, "ch_downtime_economics": None,
+    "ch_downtime_by_hour": None, "ch_player_outcomes": None,
+    "ch_player_outcomes_by_tier": None, "ch_loyalty_comps": None,
+    "forecast_baseline_comparison": None, "decision_model_impact": None,
     # Whisper Network graph edges (council messages; no personal data)
     "council_whispers": "SELECT config, message_id, sender_agent_id, recipient_agent_id, "
                         "message_type, claim_id, origin_claim_id, origin_agent_id, "

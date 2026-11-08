@@ -1,0 +1,8 @@
+# Optional: live Unity Catalog reads (HOM_DATA_MODE=databricks). Versions match uv.lock.
+-r requirements-web.txt
+pydantic-settings==2.16.2
+python-dotenv==1.2.4
+databricks-sdk==0.162.0
+databricks-sql-connector==4.9.0
+pandas==3.1.1
+pyarrow==26.0.1

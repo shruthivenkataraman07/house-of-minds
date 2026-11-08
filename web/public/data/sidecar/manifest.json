@@ -1,0 +1,48 @@
+{
+ "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+ "source": "official parquet (local) + reports/audit",
+ "exported_at_utc": "2026-11-08T05:22:20+00:00",
+ "files": [
+  {
+   "dataset": "floor_day",
+   "file": "floor_day.json",
+   "sha256": "3b5cba12af31035782dfe27a87264cf897e468c85a452ea8c8ad3a3359f645b1"
+  },
+  {
+   "dataset": "bank_day",
+   "file": "bank_day.json",
+   "sha256": "953024afe2cb474579bb50e5d51a2f13dd922e655a4322c7e094220878118ec0"
+  },
+  {
+   "dataset": "machine_bank",
+   "file": "machine_bank.json",
+   "sha256": "2e124e2ea0cb441bd7899c4874bba66c768e1e363bbbf2070cc2d4b59f12e4df"
+  },
+  {
+   "dataset": "measurement_plans",
+   "file": "measurement_plans.json",
+   "sha256": "df616a136431cf6d9220837a4ccd136f53aae618c712fd839bcd5243bdb24427"
+  },
+  {
+   "dataset": "audit_a3_a4_verification",
+   "file": "audit_a3_a4_verification.json",
+   "sha256": "2fbe661a36254351c1dec69804f2000137cea166817c335a90395d2a6d292fa4"
+  },
+  {
+   "dataset": "audit_b4_robustness_matrix",
+   "file": "audit_b4_robustness_matrix.json",
+   "sha256": "0280515fcede7e78399827ee39df4d7bb9c856508fe9695004a884365cc3fea3"
+  },
+  {
+   "dataset": "audit_c_promotion_portfolio",
+   "file": "audit_c_promotion_portfolio.json",
+   "sha256": "7a4daa2778726008d0ee1722e14d47396123f2805017b671abcac3a27589f8c2"
+  },
+  {
+   "dataset": "audit_b_inputs",
+   "file": "audit_b_inputs.json",
+   "sha256": "861c4fc64c297de1b5404dd13d6a2e3670e02ce202e06b3e121292543a6af3bb"
+  }
+ ],
+ "notes": "Sidecar grains for date filtering and bank drill-down; audit results are from scripts/run_audit.py (local run)."
+}

@@ -1,0 +1,18 @@
+# Render Blueprint: one free web service, no database, no disk.
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: house-of-minds
+    runtime: docker
+    plan: free                    # $0/month instance; spins down when idle
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    autoDeploy: true              # rebuild on every push to main (e.g. a new validated snapshot)
+    envVars:
+      - key: HOM_DATA_MODE
+        value: snapshot           # public demo reads the committed, SHA-256-verified snapshot
+      - key: HOM_CACHE_TTL_S
+        value: "900"

@@ -1,0 +1,13 @@
+.git
+.venv
+.env
+.env.*
+**/__pycache__
+**/node_modules
+web/.next
+web/out
+web/artifact
+data/
+reports/
+exports/
+.databricks/

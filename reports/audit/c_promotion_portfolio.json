@@ -1,0 +1,180 @@
+{
+ "promotion_ids": [
+  "INV-PROMO"
+ ],
+ "a08": {
+  "low": 5015.873800000006,
+  "value": 16237.041330555552,
+  "high": 27458.2088611111
+ },
+ "minus_1506_meaning": "total evidence-portfolio net at A08 = weakest observed event (5015.87/day); a scenario value, not a confidence bound",
+ "break_even_A08": 5281.062337274317,
+ "step5_per_event_excess": {
+  "EV-P-LOCALS": {
+   "baseline_excess": 3520.51,
+   "candidate_excess": 11728.73
+  },
+  "EV-P-TOURN": {
+   "baseline_excess": 27875.35,
+   "candidate_excess": 19901.27
+  }
+ },
+ "scenarios": [
+  {
+   "scenario": "zero_uplift",
+   "A08": 0.0,
+   "original_evidence": -30000.0,
+   "original_conditional": -23201.234377708504,
+   "evidence_without_promo": 0.0,
+   "conditional_without_promo": 6798.7656222914975,
+   "promo_only": -30000.0,
+   "reoptimised_conditional_choice": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1"
+  },
+  {
+   "scenario": "weakest_event",
+   "A08": 5015.873800000006,
+   "original_evidence": -1506.4499546004954,
+   "original_conditional": 5292.315667691002,
+   "evidence_without_promo": 0.0,
+   "conditional_without_promo": 6798.7656222914975,
+   "promo_only": -1506.4499546004954,
+   "reoptimised_conditional_choice": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1"
+  },
+  {
+   "scenario": "base_mean",
+   "A08": 16237.041330555552,
+   "original_evidence": 62237.358472097956,
+   "original_conditional": 69036.12409438945,
+   "evidence_without_promo": 0.0,
+   "conditional_without_promo": 6798.7656222914975,
+   "promo_only": 62237.358472097956,
+   "reoptimised_conditional_choice": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1;INV-PROMOx2"
+  },
+  {
+   "scenario": "strongest_event",
+   "A08": 27458.2088611111,
+   "original_evidence": 125981.16689879645,
+   "original_conditional": 132779.93252108796,
+   "evidence_without_promo": 0.0,
+   "conditional_without_promo": 6798.7656222914975,
+   "promo_only": 125981.16689879645,
+   "reoptimised_conditional_choice": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1;INV-PROMOx2"
+  },
+  {
+   "scenario": "break_even",
+   "A08": 5281.062337274317,
+   "original_evidence": 3.637978807091713e-12,
+   "original_conditional": 6798.765622291501,
+   "evidence_without_promo": 0.0,
+   "conditional_without_promo": 6798.7656222914975,
+   "promo_only": 3.637978807091713e-12,
+   "reoptimised_conditional_choice": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1"
+  }
+ ],
+ "reoptimised_promo_prohibited": {
+  "evidence_supported": {
+   "allocation": {},
+   "net": 0.0
+  },
+  "conditional": {
+   "allocation": {
+    "INV-INSPECT-M1158": 1,
+    "INV-MOVE-M-1154-Z-PIT": 1,
+    "INV-MOVE-M-1184-Z-PIT": 1
+   },
+   "net": 6798.7656222914975
+  }
+ },
+ "manager_and_no_action": [
+  {
+   "option": "manager_proposal_lease",
+   "cost_usd": 27040.0,
+   "expected_net_benefit_usd": -15843.016143328765,
+   "net_low_usd": -27398.954306300122,
+   "net_high_usd": -4287.07798035741,
+   "feasible": true
+  },
+  {
+   "option": "house_of_minds_evidence",
+   "cost_usd": 30000.0,
+   "expected_net_benefit_usd": 62237.358472097956,
+   "net_low_usd": -1506.4499546004954,
+   "net_high_usd": 125981.16689879645,
+   "feasible": true
+  },
+  {
+   "option": "house_of_minds_conditional",
+   "cost_usd": 34800.0,
+   "expected_net_benefit_usd": 69036.12409438945,
+   "net_low_usd": 5292.315667691002,
+   "net_high_usd": 132779.93252108796,
+   "feasible": true
+  },
+  {
+   "option": "house_of_minds_with_replacements_allowed",
+   "cost_usd": 34800.0,
+   "expected_net_benefit_usd": 69036.12409438945,
+   "net_low_usd": 69036.12409438945,
+   "net_high_usd": 69036.12409438945,
+   "feasible": true
+  },
+  {
+   "option": "no_action",
+   "cost_usd": 0.0,
+   "expected_net_benefit_usd": 0.0,
+   "net_low_usd": 0.0,
+   "net_high_usd": 0.0,
+   "feasible": true
+  },
+  {
+   "option": "manager_proposal_buy",
+   "cost_usd": 220000.0,
+   "expected_net_benefit_usd": null,
+   "net_low_usd": null,
+   "net_high_usd": null,
+   "feasible": false
+  }
+ ],
+ "action_nets": {
+  "INV-INSPECT-M1158": {
+   "status": "ASSUMPTION_REQUIRED",
+   "net_by_A08_scenario": [
+    1549.3945368721998,
+    1549.3945368721998,
+    1549.3945368721998,
+    1549.3945368721998,
+    1549.3945368721998
+   ]
+  },
+  "INV-MOVE-M-1154-Z-PIT": {
+   "status": "ASSUMPTION_REQUIRED",
+   "net_by_A08_scenario": [
+    2518.1067190150197,
+    2518.1067190150197,
+    2518.1067190150197,
+    2518.1067190150197,
+    2518.1067190150197
+   ]
+  },
+  "INV-MOVE-M-1184-Z-PIT": {
+   "status": "ASSUMPTION_REQUIRED",
+   "net_by_A08_scenario": [
+    2731.264366404278,
+    2731.264366404278,
+    2731.264366404278,
+    2731.264366404278,
+    2731.264366404278
+   ]
+  },
+  "INV-PROMO": {
+   "status": "EVIDENCE_ESTIMATE",
+   "net_by_A08_scenario": [
+    -30000.0,
+    -1506.4499546004954,
+    62237.358472097956,
+    125981.16689879645,
+    3.637978807091713e-12
+   ]
+  }
+ }
+}

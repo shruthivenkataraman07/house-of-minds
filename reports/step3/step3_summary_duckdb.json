@@ -1,7 +1,7 @@
 {
-  "run_id": "S3-20261108T011934Z-991446d9be867b7c",
+  "run_id": "S3-20261108T042925Z-991446d9be867b7c",
   "backend": "duckdb",
-  "runtime_seconds": 10.7,
+  "runtime_seconds": 4.9,
   "evidence_portfolio": [
     "INV-PROMOx2",
     30000.0,

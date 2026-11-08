@@ -32,7 +32,8 @@ class Verifier:
         self.tools = EvidenceTools(repo, model)  # fresh instance, not the agents'
         self._base = {m: optimise(model, m).signature for m in (MODE_EVIDENCE,
                                                                  MODE_CONDITIONAL)}
-        self.investments = {c.candidate_id for c in model.candidates} | {"PORTFOLIO", "COMP"}
+        self.investments = {c.candidate_id for c in model.candidates} | {
+            "PORTFOLIO", "COMP", "MANAGER_PROPOSAL"}
 
     def _reproduce(self, claim: Claim) -> tuple[bool | None, float | None, list[str]]:
         reasons: list[str] = []

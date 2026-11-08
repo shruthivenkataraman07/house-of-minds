@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
+// Static export: FastAPI serves web/out and the /api/v1 routes from one origin.
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  output: "export",
   turbopack: {
     rules: {
       "*.css": {
