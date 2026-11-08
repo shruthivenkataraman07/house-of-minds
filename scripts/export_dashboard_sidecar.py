@@ -85,6 +85,14 @@ def main() -> int:
         f"uncertainty, baseline_kpi, observation_period, comparison_method, feasibility, "
         f"confounders, success_threshold, stop_or_revise, unit_cost, total_cost, status "
         f"FROM '{mp}'").df().to_dict(orient="records")
+    # Per-unit economics behind each decision passport: net = contribution + avoided - downtime
+    # - cost (optimization.investment_model.economics); exposes the downtime term passports omit.
+    ie = ROOT / "data" / "processed" / "step3" / "databricks" / "investment_candidates.parquet"
+    payloads["investment_economics"] = con.sql(
+        "SELECT investment_id, action_type, target_entity, unit_cost, max_quantity, "
+        "effective_days_within_horizon, gross_theo_gain, contribution_gain, avoided_costs, "
+        "downtime_cost, benefit_base, benefit_status "
+        f"FROM '{ie}' ORDER BY investment_id").df().to_dict(orient="records")
     from analytics.diagnostics import machine_diagnostics, walkway_event_series
     from pipelines.ingestion.loader import open_local_repository
 

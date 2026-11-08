@@ -25,17 +25,25 @@ export const F = {
     meaning: "Expected win is the fairer measure of play: it does not move with payout luck.",
     fallback: "Casino win = wagered − paid out; expected win = wagered × (1 − payout rate).",
   }),
-  actionNet: (q?: number, k?: number, g?: number, net?: number): FormulaSpec => ({
-    title: "Net benefit of this action",
-    tex: String.raw`N=G-q\times k`,
-    vars: [["G", "modeled extra July contribution (after revenue share and comps)"], ["q", "quantity"], ["k", "catalog cost per unit"], ["N", "estimated net benefit"]],
-    calc: has(q, k, g, net) && Math.abs(g! - q! * k! - net!) <= 1 ? String.raw`N=${usd(g)}-${tn(q)}\times${usd(k)}=${usd(net)}` : null,
-    result: has(q, k, g, net) && Math.abs(g! - q! * k! - net!) > 1
-      ? `Recorded: contribution ${fmtUsd(g!)}, cost ${fmtUsd(q! * k!)}, net ${fmtUsd(net!)}. The recorded net is ${fmtUsd(Math.abs(g! - q! * k! - net!))} ${g! - q! * k! > net! ? "below" : "above"} contribution − cost; that difference is not itemised in the exported record, so no substitution is shown.`
-      : has(net) ? `Estimated July net ${net! < 0 ? "loss" : "gain"} of ${fmtUsd(Math.abs(net!))}.` : undefined,
-    meaning: "A planning estimate for July, not booked profit. Its size depends on the listed assumptions.",
-    fallback: "Net = modeled contribution − quantity × unit cost.",
-  }),
+  actionNet: (q?: number, k?: number, g?: number, net?: number, d?: number, a?: number): FormulaSpec => {
+    const D = d ?? 0, A = a ?? 0, terms = has(d);
+    const gap = has(q, k, g, net) ? g! + A - D - q! * k! - net! : NaN;
+    const ok = Math.abs(gap) <= 0.5;
+    return {
+      title: "Net benefit of this action",
+      tex: String.raw`N=G+A-D-q\times k`,
+      vars: [["G", "modeled extra July contribution (after revenue share and comps)"], ["A", "costs avoided by the action"],
+        ["D", "expected win lost while the machine is offline for the action (installation, inspection or move downtime)"],
+        ["q", "quantity"], ["k", "catalog cost per unit"], ["N", "estimated net benefit"]],
+      calc: terms && ok ? String.raw`N=${usd(g)}+${usd(A)}-${usd(D, 2)}-${tn(q)}\times${usd(k)}=${usd(net)}` : null,
+      result: !has(q, k, g, net) ? undefined
+        : terms && ok ? `Estimated July net ${net! < 0 ? "loss" : "gain"} of ${fmtUsd(Math.abs(net!))}${D > 0 ? `, after ${fmtUsd(Math.round(D * 100) / 100)} of downtime` : ""}.`
+        : `Recorded: contribution ${fmtUsd(g!)}, cost ${fmtUsd(q! * k!)}, net ${fmtUsd(net!)}. The cost components needed to reconcile these are not available, so no substitution is shown.`,
+      meaning: D > 0 ? "The action takes the machine offline for part of a day; the expected win lost in that time is subtracted. A planning estimate for July, not booked profit."
+        : "A planning estimate for July, not booked profit. Its size depends on the listed assumptions.",
+      fallback: "Net = contribution + avoided costs − downtime cost − quantity × unit cost.",
+    };
+  },
   portfolioNet: (g?: number, cost?: number, net?: number, lo?: number, hi?: number, feasible = true): FormulaSpec => ({
     title: "Net benefit of this plan",
     tex: String.raw`\begin{gathered}N=G-K\\ K\le\$100{,}000\end{gathered}`,

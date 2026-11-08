@@ -62,6 +62,11 @@
    "dataset": "audit_b_inputs",
    "file": "audit_b_inputs.json",
    "sha256": "861c4fc64c297de1b5404dd13d6a2e3670e02ce202e06b3e121292543a6af3bb"
+  },
+  {
+   "dataset": "investment_economics",
+   "file": "investment_economics.json",
+   "sha256": "e451b5fc4c7aea8432b921799a588a1b02f9872b742b82beffbf79f43fc1e799"
   }
  ],
  "notes": "Sidecar grains for date filtering and bank drill-down; audit results are from scripts/run_audit.py (local run)."

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { F, tn } from "../lib/formulas";
 
 const withValues = [
-  F.machineWin(519610, 503813.75, 15796.25, 0.9, 51961), F.actionNet(2, 15000, 92237, 62237), F.portfolioNet(11197, 27040, -15843, -27399, -4287),
+  F.machineWin(519610, 503813.75, 15796.25, 0.9, 51961), F.actionNet(2, 15000, 92237, 62237, 0, 0), F.actionNet(1, 1200, 2773.133133, 1549.394537, 23.738596, 0), F.portfolioNet(11197, 27040, -15843, -27399, -4287),
   F.casinoWin(), F.expectedWin(), F.perHour(1000, 10, 100), F.luckZ(15796, 51961, 7913, -4.57), F.payingSpins(260144, 674454, 0.31544, 0),
   F.peerIndex(1.088, 9), F.decomposition(-62810.6, [-36164.75, 181.4, -27987.8, -2623.4, 3783.95]), F.simulation(0.014),
   F.leaseNet(-2720, -1993, 3380), F.promotion(5800, 5281), F.downtime(1234, 5678), F.comps(), F.gini(0.81),
@@ -34,7 +34,10 @@ describe("formula templates", () => {
     const z = F.luckZ(15796.25, 51961, 7913.26, -4.5701);
     expect(z.calc).toContain("15{,}796");
     expect(z.calc).toContain("-4.57");
-    expect(F.actionNet(2, 15000, 92237.36, 62237.36).calc).toContain("62{,}237");
+    expect(F.actionNet(2, 15000, 92237.36, 62237.36, 0, 0).calc).toContain("62{,}237");
+    // M-1158 inspection: the downtime term reconciles contribution − cost to the recorded net
+    expect(F.actionNet(1, 1200, 2773.133133, 1549.394537, 23.738596, 0).calc).toContain("23.74");
+    expect(F.actionNet(1, 1200, 2773.133133, 1549.394537).calc).toBeNull();
     expect(tn(-1234.5, 1)).toBe("-1{,}234.5");
     expect(tn(undefined)).toBe("?");
   });

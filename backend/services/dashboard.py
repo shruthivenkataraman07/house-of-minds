@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import Any
 
-from .source import DataSource
+from .source import DataSource, DataUnavailable
 
 OFFICIAL = ("2025-01-01", "2025-06-30")
 HORIZON = "2025-07-01..2025-07-30"
@@ -287,6 +287,25 @@ def _usd(v: Any) -> str:
     return f"-{s}" if x < 0 else s
 
 
+def _line_terms(src: DataSource, investment_id: str, quantity: Any) -> dict[str, float | None]:
+    """Optimizer net components for a passport line (sidecar investment_economics), scaled by
+    quantity: net = contribution + avoided - downtime - cost. None when not exported."""
+    try:
+        e = next(
+            (r for r in src.get("investment_economics") if r["investment_id"] == investment_id),
+            None,
+        )
+    except DataUnavailable:
+        e = None
+    q = _f(quantity) or 0.0
+    if not e:
+        return {"avoided_costs": None, "downtime_cost": None}
+    return {
+        "avoided_costs": (_f(e["avoided_costs"]) or 0.0) * q,
+        "downtime_cost": (_f(e["downtime_cost"]) or 0.0) * q,
+    }
+
+
 def passport(src: DataSource, evidence_id: str) -> dict[str, Any] | None:
     """Resolve an evidence id (passport PP-, claim CLM-, machine M-, portfolio option)."""
     eid = evidence_id.strip()
@@ -341,7 +360,8 @@ def passport(src: DataSource, evidence_id: str) -> dict[str, Any] | None:
                     "remaining_budget",
                     "portfolio_modeled_net",
                 )
-            },
+            }
+            | _line_terms(src, p["investment_id"], p["quantity"]),
         }
     if eid.startswith("M-"):
         m = next((x for x in src.get("ch_machine_investigation") if x["machine_id"] == eid), None)

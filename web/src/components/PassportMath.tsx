@@ -50,7 +50,7 @@ export function PassportMath({ p }: { p: Passport }) {
   else if (p.kind === "claim") body = <ClaimMath p={p} />;
   else if (p.kind === "passport") {
     body = <>
-      <Formula spec={F.actionNet(num(v.quantity), num(v.unit_cost), num(v.modeled_incremental_effect), num(v.modeled_net_contribution))} />
+      <Formula spec={F.actionNet(num(v.quantity), num(v.unit_cost), num(v.modeled_incremental_effect), num(v.modeled_net_contribution), num(v.downtime_cost), num(v.avoided_costs))} />
       {v.action_type_id === "A-PROMO" && <Formula spec={F.promotion()} />}
     </>;
   } else if (p.kind === "portfolio") {
