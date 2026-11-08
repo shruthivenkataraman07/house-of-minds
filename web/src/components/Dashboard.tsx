@@ -92,19 +92,19 @@ export default function Dashboard() {
             {meta && <span title={`${meta.note}; exported ${meta.exported_at_utc}; ${meta.verified_files} files verified`}>
               <Pill tone={meta.live ? "pos" : "muted"}>{meta.live ? "Live · Databricks" : "Validated snapshot"}</Pill></span>}
             {meta && <span className="label hidden lg:inline">as of {meta.exported_at_utc.slice(0, 10)}</span>}
-            {ui.history.length > 0 && <button type="button" onClick={ui.back} className="rounded-md border border-line bg-surface px-2 py-1 text-[12.5px] text-muted hover:text-ink" aria-label="Back to previous view">← Back</button>}
+            {ui.history.length > 0 && <button type="button" onClick={ui.back} className="whitespace-nowrap rounded-md border border-line bg-surface px-2 py-1 text-[12.5px] text-muted hover:text-ink" aria-label="Back to previous view">← Back</button>}
             <button type="button" onClick={() => ui.set({ glossary: "all" })} aria-haspopup="dialog"
               className="rounded-md border border-line bg-surface px-2.5 py-1 text-[12.5px] text-muted hover:border-line-strong hover:text-ink">
               Glossary
             </button>
             <button type="button" onClick={() => ui.set({ askOpen: true })} aria-haspopup="dialog"
-              className="flex items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-1 text-[12.5px] text-muted hover:border-line-strong hover:text-ink">
+              className="flex items-center gap-2 whitespace-nowrap rounded-md border border-line bg-surface px-2.5 py-1 text-[12.5px] text-muted hover:border-line-strong hover:text-ink">
               Ask the House <kbd className="hidden rounded border border-line px-1 text-[10.5px] sm:inline">⌘K</kbd>
             </button>
           </span>
         </header>
         <main ref={mainRef} tabIndex={-1} className="mx-auto max-w-[1280px] px-4 py-5 sm:px-6">
-          <Page key={ui.view} />
+          <div key={ui.view} className="view-enter"><Page /></div>
         </main>
         <footer className="label mx-auto max-w-[1280px] px-4 pb-8 sm:px-6">
           {meta ? `Snapshot ${meta.snapshot_id} · ${meta.note}` : "Loading snapshot…"} · Modeled values are July contribution, not realized profit · Agents are rule-based.

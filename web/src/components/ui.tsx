@@ -1,22 +1,27 @@
 "use client";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import type { ApiError } from "@/lib/api";
 import { useUI } from "@/lib/ui";
 
-export type Tone = "pos" | "neg" | "warn" | "accent" | "muted";
+/** One color per meaning. Verdict categories have their own tones so no hue means two things. */
+export type Tone = "pos" | "neg" | "warn" | "accent" | "muted" | "insufficient" | "inspect" | "retired" | "conditional";
 const PILL: Record<Tone, string> = {
   pos: "text-pos bg-pos/10", neg: "text-neg bg-neg/10", warn: "text-warn bg-warn/10",
   accent: "text-accent bg-accent-soft", muted: "text-muted bg-surface-2",
+  insufficient: "text-insufficient bg-insufficient/10", inspect: "text-inspect bg-inspect/10",
+  retired: "text-muted bg-surface-2", conditional: "text-accent bg-conditional/15",
 };
 
 export function Pill({ tone = "muted", children, title }: { tone?: Tone; children: ReactNode; title?: string }) {
-  return <span title={title} className={`inline-flex items-center rounded px-1.5 py-px text-[11.5px] font-medium whitespace-nowrap ${PILL[tone]}`}>{children}</span>;
+  return <span title={title} className={`inline-flex items-center rounded px-1.5 py-0.5 text-[12px] font-medium leading-tight whitespace-nowrap ${PILL[tone]}`}>{children}</span>;
 }
 
-export const verdictTone = (v: string | null | undefined): Tone =>
-  v === "REPLACE_JUSTIFIED_CONDITIONAL" ? "pos" : v === "INSUFFICIENT_EVIDENCE" ? "warn"
-    : v === "DO_NOT_REPLACE_INSPECT" ? "accent" : v === "RETIRED_ALREADY" ? "muted" : v ? "neg" : "muted";
+export const VERDICT_TONE: Record<string, Tone> = {
+  REPLACE_JUSTIFIED_CONDITIONAL: "pos", INSUFFICIENT_EVIDENCE: "insufficient", DO_NOT_REPLACE_INSPECT: "inspect",
+  RETIRED_ALREADY: "retired", DO_NOT_REPLACE_NOT_ECONOMIC: "neg", DO_NOT_REPLACE_EXPOSURE: "retired",
+};
+export const verdictTone = (v: string | null | undefined): Tone => (v ? VERDICT_TONE[v] ?? "neg" : "muted");
 export const robustTone = (v: string | null | undefined): Tone =>
   v === "ROBUST" || v === "VERIFIED" ? "pos" : v === "CONDITIONAL" || v === "VERIFIED WITH ASSUMPTIONS" ? "warn" : v ? "neg" : "muted";
 
@@ -25,8 +30,8 @@ export function Panel({ title, note, right, children, className = "", flush = fa
   return (
     <section className={`panel ${className}`}>
       {(title || right) && (
-        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-2.5">
-          <div className="min-w-0"><h2 className="text-[13px] font-semibold">{title}</h2>{note && <p className="label mt-0.5">{note}</p>}</div>
+        <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
+          <div className="min-w-0"><h2 className="text-[14px] font-semibold leading-snug">{title}</h2>{note && <p className="label mt-0.5">{note}</p>}</div>
           {right}
         </header>
       )}
@@ -39,7 +44,7 @@ export function Kpi({ label, value, sub, className = "", title }: { label: React
   return (
     <div className="min-w-0" title={title}>
       <p className="label">{label}</p>
-      <p className={`num mt-0.5 text-[22px] font-semibold leading-tight tracking-tight ${className}`}>{value}</p>
+      <p className={`num mt-1 text-[22px] font-semibold leading-tight tracking-[-0.02em] ${className}`}>{value}</p>
       {sub && <p className="label mt-0.5">{sub}</p>}
     </div>
   );
@@ -78,17 +83,30 @@ export function Segmented({ options, value, onChange, label }: { options: { id: 
   );
 }
 
+/** Page title, then its answer: the takeaway is the most prominent text after the title. */
 export function PageHead({ title, line, right }: { title: string; line?: ReactNode; right?: ReactNode }) {
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-      <div className="min-w-0"><h1 className="text-[20px] font-semibold tracking-tight">{title}</h1>{line && <p className="mt-0.5 text-[13px] text-muted">{line}</p>}</div>
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+      <div className="min-w-0 max-w-[820px]"><h1 className="text-[14px] font-medium text-muted">{title}</h1>{line && <p className="mt-1 text-[20px] font-semibold leading-snug tracking-[-0.01em] text-balance text-ink sm:text-[22px]">{line}</p>}</div>
       {right}
     </div>
   );
 }
 
+/** Skeleton rows; after 2.5 s explains the free host's cold start instead of looking broken. */
 export function Loading({ rows = 3 }: { rows?: number }) {
-  return <div aria-busy="true" aria-label="Loading" className="space-y-2">{Array.from({ length: rows }, (_, i) => <div key={i} className="h-9 animate-pulse rounded bg-surface-2" />)}</div>;
+  const [slow, setSlow] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setSlow(true), 2500); return () => clearTimeout(t); }, []);
+  return (
+    <div aria-busy="true" aria-label="Loading" className="space-y-2">
+      {slow && <p role="status" className="rise flex items-center gap-2 text-[13px] text-muted"><span className="inline-block h-2 w-2 animate-pulse rounded-full bg-accent" />Waking the House: the free host sleeps when idle, so the first load can take up to 30 seconds.</p>}
+      {Array.from({ length: rows }, (_, i) => <div key={i} className="h-9 animate-pulse rounded bg-surface-2" />)}
+    </div>
+  );
+}
+
+export function Empty({ children }: { children: ReactNode }) {
+  return <p className="rounded-md border border-dashed border-line px-3 py-6 text-center text-[13px] text-muted">{children}</p>;
 }
 
 export function ErrorLine({ error, retry }: { error?: ApiError; retry?: () => void }) {
@@ -115,6 +133,23 @@ export function Drawer({ title, onClose, children, label }: { title: ReactNode; 
   );
 }
 
+/** Horizontal scroll for wide tables, with an edge fade while more columns are hidden. */
 export function Scroll({ children }: { children: ReactNode }) {
-  return <div className="overflow-x-auto">{children}</div>;
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setMore(el.scrollWidth - el.clientWidth - el.scrollLeft > 4);
+    check();
+    el.addEventListener("scroll", check, { passive: true });
+    const ro = new ResizeObserver(check); ro.observe(el);
+    return () => { el.removeEventListener("scroll", check); ro.disconnect(); };
+  }, []);
+  return (
+    <div className="scroll-x" data-more={more}>
+      <div ref={ref} className="scroll-body" tabIndex={more ? 0 : undefined} role={more ? "region" : undefined} aria-label={more ? "Scrollable table" : undefined}>{children}</div>
+      {more && <p className="label px-4 py-1.5 sm:hidden" aria-hidden>Swipe for more columns →</p>}
+    </div>
+  );
 }

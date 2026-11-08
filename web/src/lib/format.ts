@@ -14,7 +14,12 @@ export const compact = (v: number | null | undefined): string => {
   return v < 0 ? `−${s}` : s;
 };
 export const pct = (v: number | null | undefined, d = 1) =>
-  v === null || v === undefined || Number.isNaN(v) ? "—" : `${(v * 100).toFixed(d)}%`;
+  v === null || v === undefined || Number.isNaN(v) ? "—" : `${v < 0 && Math.abs(v * 100).toFixed(d) !== (0).toFixed(d) ? "−" : ""}${Math.abs(v * 100).toFixed(d)}%`;
+/** A value already in percentage points (e.g. -13.04 → "−13.0%"), with a true minus sign. */
+export const pp = (v: number | null | undefined, d = 1, plus = false) =>
+  v === null || v === undefined || Number.isNaN(v) ? "—" : `${v < 0 ? "−" : plus && v > 0 ? "+" : ""}${Math.abs(v).toFixed(d)}%`;
+/** Display-only typography for recorded text: hyphen-minus before a number becomes a true minus. */
+export const typo = (s: unknown): string => String(s ?? "").replace(/(^|[\s([,=:])-(?=[$\d.])/g, "$1−");
 export const num = (v: number | null | undefined, d = 0) =>
   v === null || v === undefined || Number.isNaN(v) ? "—"
     : v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
