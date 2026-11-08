@@ -175,3 +175,17 @@ def test_baseline_reevaluation_and_nonnegative_regret():
     v_opt, _, _ = evaluate(worse, opt.allocation)
     v_base, _, feasible = evaluate(worse, base.allocation)
     assert feasible and v_opt - v_base >= -1e-6 and v_opt - v_base > 0
+
+
+def test_move_downtime_uses_the_moved_machines_own_rate():
+    # Each move is valued at its own machine's $/h while offline, not one shared rate.
+    m = with_moves_and_replace(synthetic())
+    m.facts.update(
+        {"replace_target_rate": 99.0, "move_own_rate_M-X": 6.0, "move_own_rate_M-Y": 12.0}
+    )
+    by = {c.candidate_id: c for c in m.candidates}
+    dx = economics(m, by["INV-MOVE-M-X-Z-PIT"]).downtime_cost
+    dy = economics(m, by["INV-MOVE-M-Y-Z-PIT"]).downtime_cost
+    minutes = m.catalog.actions["A-MOVE-MACHINE"].downtime_minutes
+    assert dx == pytest.approx(minutes / 60 * 6.0)
+    assert dy == pytest.approx(minutes / 60 * 12.0)

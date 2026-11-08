@@ -405,6 +405,7 @@ def build_model(repo: AnalyticsRepository, catalog: ActionCatalog) -> Investment
         own * 24 for _, _, mid, _, _, own in {(0, 0, x[2], 0, 0, x[5]) for x in movers})
     for gap, zone, mid, cfg, dest, own in movers:
         f[f"move_gap_{mid}_{zone}"] = float(gap)
+        f[f"move_own_rate_{mid}"] = float(own)  # the moved machine's own $/available hour
         cands.append(Candidate(
             f"INV-MOVE-{mid}-{zone}", "A-MOVE-MACHINE", f"{mid}->{zone}", 1, True,
             f"empty slot in {zone}; same config {cfg} observed there",
@@ -512,7 +513,10 @@ def economics(model: InvestmentModel, c: Candidate) -> Economics:
         gap = f[f"move_gap_{mid}_{zone}"]
         gross = a("A09_move_location_transfer") * gap * 24 * days * dm
         contrib = gross * fl
-        down = act.downtime_minutes / 60 * f["replace_target_rate"] * dm * fl
+        # Downtime is the moved machine's own expected win while it is offline. (Previously
+        # this used replace_target_rate, the worst Back Forty machine's rate, for every move.)
+        own = f.get(f"move_own_rate_{mid}", f["replace_target_rate"])
+        down = act.downtime_minutes / 60 * own * dm * fl
     elif c.action_type in ("A-REPLACE-LEASE", "A-REPLACE-BUY"):
         # per-machine inputs when present (challenge alignment); Step 3 keys otherwise
         mid = c.machines[0] if c.machines else ""
