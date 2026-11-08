@@ -206,8 +206,8 @@ function MachineDrawer({ id }: { id: string }) {
   );
 }
 
-const VCOL: Record<string, string> = { RETIRED_ALREADY: "var(--chart-2)", DO_NOT_REPLACE_INSPECT: "var(--accent)",
-  DO_NOT_REPLACE_NOT_ECONOMIC: "var(--neg)", INSUFFICIENT_EVIDENCE: "var(--warn)", REPLACE_JUSTIFIED_CONDITIONAL: "var(--pos)" };
+const VCOL: Record<string, string> = { RETIRED_ALREADY: "var(--cat-retired)", DO_NOT_REPLACE_INSPECT: "var(--cat-inspect)",
+  DO_NOT_REPLACE_NOT_ECONOMIC: "var(--neg)", INSUFFICIENT_EVIDENCE: "var(--cat-insufficient)", REPLACE_JUSTIFIED_CONDITIONAL: "var(--pos)" };
 
 function RankingVisuals() {
   const ui = useUI();

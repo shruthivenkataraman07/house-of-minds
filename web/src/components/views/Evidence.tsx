@@ -3,13 +3,15 @@ import { useState } from "react";
 import { Area, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Scatter, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
-import { compact, n, pct, signed, usd } from "@/lib/format";
+import { compact, n, pct, signed, usd, pp } from "@/lib/format";
+import { ASSUMPTION, evidenceKind } from "@/lib/explain";
 import type { EvidenceList, Forecast, Portfolios } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
 import { F } from "@/lib/formulas";
 import { CompositionBar } from "../charts";
 import { How, Term } from "../explain";
+import { useFirstPlay } from "../motion";
 import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, robustTone } from "../ui";
 
 export function Evidence() {
@@ -44,7 +46,7 @@ export function Evidence() {
                     <td className="text-[12px] text-muted">{String(c.source_table)}</td>
                     <td className="max-w-[220px] truncate text-[12px] text-muted" title={String(c.result)}>{String(c.result || "—")}</td>
                     <td className="num whitespace-nowrap text-[12px] text-muted">{String(c.data_as_of || "—")}</td>
-                    <td><Pill tone={c.verification_status === "PASS" ? "pos" : c.evidence_classification === "RETRACTED" ? "neg" : "warn"}>{String(c.evidence_classification).replaceAll("_", " ").toLowerCase()}</Pill></td>
+                    <td><Pill tone={c.verification_status === "PASS" ? "pos" : c.evidence_classification === "RETRACTED" ? "neg" : "warn"}>{evidenceKind(String(c.evidence_classification))}</Pill></td>
                     <td className="max-w-[260px] truncate text-[12px] text-muted" title={String(c.limitation)}>{String(c.limitation || "—")}</td>
                     <td className="text-[12px]">{String(c.decision)}</td></tr>))}</tbody></table>
               {d.claims.length === 0 && <p className="p-4 text-[13px] text-muted">No claims match; clear the search.</p>}
@@ -55,7 +57,7 @@ export function Evidence() {
             <Panel title="Decision passports" flush>
               <ul className="divide-y divide-line">{all.data.data.passports.map((p) => (
                 <li key={String(p.passport_id)} className="flex items-center justify-between gap-2 px-4 py-2 text-[13px]">
-                  <span className="min-w-0">{String(p.action_name)}<span className="label block">{String(p.portfolio_mode).replace("_", " ")} · {String(p.target_entity)}</span></span>
+                  <span className="min-w-0">{String(p.action_name)}<span className="label block">{p.portfolio_mode === "evidence_supported" ? "recommended" : "conditional"} · {String(p.target_entity).replace("->", " → ")}</span></span>
                   <EvidenceLink id={String(p.passport_id)}>Open</EvidenceLink></li>))}</ul>
             </Panel>
             <Panel title="Machine verdicts" note="Independently re-derived from raw data.">
@@ -66,7 +68,7 @@ export function Evidence() {
             </Panel>
             <Panel title="Evidence mix">
               <ul className="space-y-1">{Object.entries(all.data.data.classifications).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
-                <li key={k} className="flex justify-between text-[12.5px]"><span className="text-muted">{k.replaceAll("_", " ").toLowerCase()}</span><span className="num">{v}</span></li>))}</ul>
+                <li key={k} className="flex justify-between text-[12.5px]"><span className="text-muted">{evidenceKind(k)}</span><span className="num">{v}</span></li>))}</ul>
             </Panel>
           </>}
         </div>
@@ -78,6 +80,7 @@ export function Evidence() {
 export function Validation() {
   const [marks, setMarks] = useState(true);
   const [pt, setPt] = useState<string | null>(null);
+  const play = useFirstPlay("validation-chart");
   const { data, error, reload } = useApi<Forecast>("/forecast/validation");
   if (error) return <ErrorLine error={error} retry={reload} />;
   if (!data) return <Loading rows={6} />;
@@ -104,8 +107,8 @@ export function Validation() {
       </div>
       <div className="panel grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
         <Kpi label="Holdout MAE (mean absolute error)" value={usd(n(all?.candidate_mae))} sub={`baseline ${usd(n(all?.baseline_mae))} per day`} />
-        <Kpi label="Improvement · all days" value={`${n(all?.mae_improvement_pct).toFixed(1)}%`} className="text-pos" sub={`non-event ${n(ne?.mae_improvement_pct).toFixed(1)}%`} />
-        <Kpi label="Improvement · event days" value={`${n(ev?.mae_improvement_pct).toFixed(1)}%`} className="text-neg" sub={`${n(ev?.n)} days`} />
+        <Kpi label="Improvement · all days" value={pp(n(all?.mae_improvement_pct))} className="text-pos" sub={`non-event ${pp(n(ne?.mae_improvement_pct))}`} />
+        <Kpi label="Improvement · event days" value={pp(n(ev?.mae_improvement_pct))} className="text-neg" sub={`${n(ev?.n)} days`} />
         <Kpi label="80% interval coverage" value={pct(n(all?.candidate_coverage80), 0)} className="text-warn" sub={`event days ${pct(n(ev?.candidate_coverage80), 0)}`} />
       </div>
       <How steps={[
@@ -125,11 +128,11 @@ export function Validation() {
             <YAxis stroke="var(--muted)" fontSize={11} tickLine={false} axisLine={false} width={52} tickFormatter={(x: number) => compact(x)} domain={["auto", "auto"]} />
             <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, fontSize: 12 }}
               formatter={(x, k) => [Array.isArray(x) ? `${usd(Number(x[0]))} – ${usd(Number(x[1]))}` : usd(Number(x)), String(k)]} />
-            <Area isAnimationActive={false} dataKey="band" name="80% band" fill="var(--chart-1)" fillOpacity={0.1} stroke="none" />
-            <Line isAnimationActive={false} dataKey="base" name="Baseline" stroke="var(--chart-2)" dot={false} strokeDasharray="3 3" />
-            <Line isAnimationActive={false} dataKey="model" name="Holt-Winters" stroke="var(--chart-1)" dot={false} strokeWidth={1.75} />
-            <Line isAnimationActive={false} dataKey="actual" name="Actual" stroke="var(--text)" dot={false} strokeWidth={1.25} />
-            {marks && <Scatter isAnimationActive={false} dataKey="evt" name="Event day" fill="var(--chart-4)" />}
+            <Area isAnimationActive={play} animationBegin={520} animationDuration={380} animationEasing="ease-out" dataKey="band" name="80% band" fill="var(--chart-1)" fillOpacity={0.1} stroke="none" />
+            <Line isAnimationActive={play} animationBegin={520} animationDuration={380} animationEasing="ease-out" dataKey="base" name="Baseline" stroke="var(--chart-2)" dot={false} strokeDasharray="3 3" />
+            <Line isAnimationActive={play} animationBegin={520} animationDuration={380} animationEasing="ease-out" dataKey="model" name="Holt-Winters" stroke="var(--chart-1)" dot={false} strokeWidth={1.75} />
+            <Line isAnimationActive={play} animationBegin={0} animationDuration={500} animationEasing="ease-out" dataKey="actual" name="Actual" stroke="var(--text)" dot={false} strokeWidth={1.25} />
+            {marks && <Scatter isAnimationActive={play} animationBegin={900} animationDuration={250} dataKey="evt" name="Event day" fill="var(--chart-4)" />}
           </ComposedChart></ResponsiveContainer>
         </div>
       </Panel>
@@ -203,14 +206,14 @@ function LineageTree() {
             <button type="button" aria-pressed={cur === p.passport_id} onClick={() => setOpen(String(p.passport_id))}
               className={`w-full rounded-md px-2.5 py-1.5 text-left text-[13px] ${cur === p.passport_id ? "bg-accent-soft" : "hover:bg-surface-2"}`}>
               <span className="font-medium">{String(p.action_name)}</span>
-              <span className="label block">{String(p.portfolio_mode).replace("_", " ")} · {String(p.target_entity)}</span>
+              <span className="label block">{p.portfolio_mode === "evidence_supported" ? "recommended" : "conditional"} · {String(p.target_entity).replace("->", " → ")}</span>
             </button></li>))}</ul>
         {sel && (
           <ol className="grid gap-3 sm:grid-cols-4">
             {[
               { h: "Decision", items: [String(sel.passport_id)], link: true, extra: `${String(sel.action_name)} ×${String(sel.quantity)}` },
               { h: `Council claims (${split(sel.council_claim_ids).length})`, items: split(sel.council_claim_ids), link: true },
-              { h: "Assumptions", items: split(sel.assumption_ids), link: false },
+              { h: "Assumptions", items: split(sel.assumption_ids).map((x) => ASSUMPTION[x] ? `${ASSUMPTION[x]} (${x.slice(0, 3)})` : x), link: false },
               { h: "Sources", items: split(sel.source_query_ids), link: false },
             ].map((col, i) => (
               <li key={col.h} className="relative rounded-md border border-line p-2.5">

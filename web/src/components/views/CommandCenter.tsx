@@ -54,7 +54,7 @@ export function Overview() {
               const p = pf[o];
               return { key: o, label: OPTION[o] ?? o, value: p.feasible ? p.expected_net_benefit_usd : null,
                 low: p.net_low_usd, high: p.net_high_usd, note: p.feasible ? `${usd(p.cost_usd)} spent` : "over the $100,000 budget",
-                tone: !p.feasible ? "muted" : o === v.recommended_option ? "accent" : (p.expected_net_benefit_usd ?? 0) < 0 ? "neg" : "muted",
+                tone: !p.feasible ? "muted" : o === v.recommended_option ? "accent" : (p.expected_net_benefit_usd ?? 0) < 0 ? "neg" : o === "house_of_minds_conditional" ? "conditional" : "muted",
                 onClick: () => ui.openEvidence(o) };
             })} />
           <p className="label mt-1">Select a plan to open its evidence passport.</p>

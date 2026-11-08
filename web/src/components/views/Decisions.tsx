@@ -7,6 +7,7 @@ import { OPTION, allocation, n, signed, tone, usd } from "@/lib/format";
 import type { Portfolio, Portfolios, Scenarios as ScenarioData } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
+import { evidenceKind } from "@/lib/explain";
 import { F } from "@/lib/formulas";
 import { CompositionBar, ValueBars } from "../charts";
 import { How, Term } from "../explain";
@@ -150,6 +151,10 @@ export function Investment() {
   const rec = d.options.find((o) => o.option === "house_of_minds_evidence");
   const noPromo = promo.reoptimised_promo_prohibited;
   const lead = Object.fromEntries(d.catalog.map((c) => [c.action_type_id, c.lead_days]));
+  const actName = Object.fromEntries(d.catalog.map((c) => [c.action_type_id, c.name]));
+  const short = (p: Record<string, unknown>) => p.action_type_id === "A-INSPECT" ? `Inspect ${String(p.target_entity)}`
+    : p.action_type_id === "A-MOVE-MACHINE" ? `Move ${String(p.target_entity).replace("→", " → ")}`
+    : p.action_type_id === "A-PROMO" ? `Promotion weekend ×${String(p.quantity)}` : String(p.action_name);
 
   return (
     <div className="space-y-4">
@@ -174,9 +179,8 @@ export function Investment() {
         </Panel>
         <Panel title="What does each action return?" note="Estimated additional net benefit per action (July). Select one for its passport.">
           <ValueBars label="Net benefit by action" format={signed}
-            rows={[...ev, ...cd.filter((p) => p.action_type_id !== "A-PROMO")].map((p) => ({ key: String(p.passport_id), label: `${String(p.action_name).slice(0, 26)}${p.target_entity && p.target_entity !== "property weekend" ? ` · ${String(p.target_entity)}` : ""}`,
-              value: n(p.modeled_net_contribution), tone: p.portfolio_mode === "evidence_supported" ? "accent" : "muted",
-              note: `${usd(n(p.total_cost))} cost · ${String(p.portfolio_mode).replace("_", " ")}`, onClick: () => ui.openEvidence(String(p.passport_id)) }))} />
+            rows={[...ev, ...cd.filter((p) => p.action_type_id !== "A-PROMO")].map((p) => ({ key: String(p.passport_id), label: short(p), value: n(p.modeled_net_contribution), tone: p.portfolio_mode === "evidence_supported" ? "accent" : "conditional",
+              note: `${usd(n(p.total_cost))} cost · ${p.portfolio_mode === "evidence_supported" ? "recommended" : "conditional"}`, onClick: () => ui.openEvidence(String(p.passport_id)) }))} />
         </Panel>
       </div>
       <Panel title="Allocation worksheet" note="Lead time from the official action catalog; benefits accrue after it within Jul 1–30." flush>
@@ -184,13 +188,13 @@ export function Investment() {
           <tbody>{[...ev, ...cd].map((p) => (
             <tr key={String(p.passport_id)} className={p.portfolio_mode === "conditional" ? "text-muted" : ""}>
               <td className="font-medium">{String(p.action_name)}</td><td className="text-[12.5px]">{String(p.target_entity)}</td>
-              <td>{p.portfolio_mode === "evidence_supported" ? <Pill tone="accent">recommended</Pill> : <Pill>conditional</Pill>}</td>
+              <td>{p.portfolio_mode === "evidence_supported" ? <Pill tone="accent">recommended</Pill> : <Pill tone="conditional">conditional</Pill>}</td>
               <td className="num text-right">{String(p.quantity)}</td>
               <td className="num text-right">{lead[String(p.action_type_id)] !== undefined ? `${lead[String(p.action_type_id)]} d` : "—"}</td>
               <td className="num text-right">{usd(n(p.total_cost))}</td>
               <td className="num text-right">{usd(n(p.modeled_incremental_effect))}</td>
               <td className={`num text-right ${tone(n(p.modeled_net_contribution))}`}>{signed(n(p.modeled_net_contribution))}</td>
-              <td className="text-[12px]">{String(p.effect_classification).toLowerCase()}</td>
+              <td className="text-[13px]">{evidenceKind(String(p.effect_classification))}</td>
               <td><EvidenceLink id={String(p.passport_id)}>Passport</EvidenceLink></td></tr>))}</tbody></table></Scroll>
       </Panel>
       <div className="grid gap-4 lg:grid-cols-2">
@@ -212,7 +216,7 @@ export function Investment() {
       <Panel title="Measure in July" note="Step 5 measurement plans." flush>
         <Scroll><table className="tbl min-w-[760px]"><thead><tr><th>Action</th><th>Window</th><th>Success</th><th>Stop / revise</th></tr></thead>
           <tbody>{d.measurement_plans.map((m) => (
-            <tr key={String(m.action_id)}><td className="font-medium whitespace-nowrap">{String(m.action_id)}</td><td className="text-[12.5px]">{String(m.observation_period)}</td>
+            <tr key={String(m.action_id)}><td className="font-medium">{actName[String(m.action_id)] ?? String(m.action_id)}</td><td className="text-[12.5px]">{String(m.observation_period)}</td>
               <td className="text-[12.5px]">{String(m.success_threshold)}</td>
               <td className="text-[12.5px]">{String(m.stop_or_revise)}{m.action_id === "A-PROMO" && <span className="mt-1 block text-warn">Not executable as written: weekend 2 must be ordered before weekend 1 is observed.</span>}</td></tr>))}</tbody></table></Scroll>
       </Panel>

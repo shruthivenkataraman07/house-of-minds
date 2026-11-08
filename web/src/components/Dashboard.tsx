@@ -88,7 +88,7 @@ export default function Dashboard() {
           <span className="text-[13px] font-medium">{current}</span>
           <span className="label hidden sm:inline">Official window Jan 1–Jun 30, 2025</span>
           {exploratory && <Pill tone="warn">Exploratory {ui.period.from} → {ui.period.to}</Pill>}
-          <span className="ml-auto flex items-center gap-2">
+          <span className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
             {meta && <span title={`${meta.note}; exported ${meta.exported_at_utc}; ${meta.verified_files} files verified`}>
               <Pill tone={meta.live ? "pos" : "muted"}>{meta.live ? "Live · Databricks" : "Validated snapshot"}</Pill></span>}
             {meta && <span className="label hidden lg:inline">as of {meta.exported_at_utc.slice(0, 10)}</span>}

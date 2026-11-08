@@ -1,4 +1,5 @@
 "use client";
+import { motion } from "motion/react";
 import { useState } from "react";
 
 import { useApi } from "@/lib/api";
@@ -7,6 +8,7 @@ import type { CouncilDecision, CouncilSummary } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
 import { ErrorLine, EvidenceLink, Loading, PageHead, Panel, Pill, Scroll, Segmented, Tabs, verdictTone } from "../ui";
+import { CountUp, EASE, useInViewOnce } from "../motion";
 
 const KIND: Record<string, string> = { "review:luck": "Luck vs signal", "review:location": "Location & peers",
   "review:exposure": "Exposure", "review:hit_rate": "Payout frequency", "review:economics": "Lease economics" };
@@ -40,20 +42,12 @@ function ManagerReview({ s }: { s: CouncilSummary }) {
   const agree = s.machines.filter((x) => x.council_agrees).length;
   return (
     <div className="space-y-4">
-      <ol className="panel grid gap-2 p-4 md:grid-cols-4" aria-label="Decision pathway">
-        {[
-          { h: "1 · Proposal", v: `Replace ${s.machines.length}`, sub: "manager, by lowest casino win", cls: "" },
-          { h: "2 · Evidence challenges", v: `${s.claims.filter((c) => c.action === "CHALLENGE").length} challenges`, sub: `${s.claims.length} checks across luck, location, exposure, payout, economics`, cls: "" },
-          { h: "3 · Objections verified", v: `${s.claims.filter((c) => c.verdict === "VERIFIED").length}/${s.claims.length}`, sub: "recomputed by the deterministic verifier", cls: "text-pos" },
-          { h: "4 · Final disposition", v: `Replace ${s.machines.filter((x) => x.council_verdict === "REPLACE_JUSTIFIED_CONDITIONAL").length}`, sub: `matches analytics on ${agree}/10 (confirmation, not independent proof)`, cls: "text-neg" },
-        ].map((st, i) => (
-          <li key={st.h} className="relative rounded-md border border-line p-3">
-            <p className="label">{st.h}</p>
-            <p className={`num text-[18px] font-semibold ${st.cls}`}>{st.v}</p>
-            <p className="label">{st.sub}</p>
-            {i < 3 && <span aria-hidden className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-muted md:block">→</span>}
-          </li>))}
-      </ol>
+      <Pathway steps={[
+          { h: "1 · Proposal", n: s.machines.length, pre: "Replace ", post: "", sub: "manager, by lowest casino win", cls: "" },
+          { h: "2 · Evidence challenges", n: s.claims.filter((c) => c.action === "CHALLENGE").length, pre: "", post: " challenges", sub: `${s.claims.length} checks across luck, location, exposure, payout, economics`, cls: "" },
+          { h: "3 · Objections verified", n: s.claims.filter((c) => c.verdict === "VERIFIED").length, pre: "", post: `/${s.claims.length}`, sub: "recomputed by the deterministic verifier", cls: "text-pos" },
+          { h: "4 · Final disposition", n: s.machines.filter((x) => x.council_verdict === "REPLACE_JUSTIFIED_CONDITIONAL").length, pre: "Replace ", post: "", sub: `matches analytics on ${agree}/10 (confirmation, not independent proof)`, cls: "text-neg" },
+        ]} />
       <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
         <Panel title="Machines" flush>
           <ul className="py-1">{s.machines.map((x) => (
@@ -63,16 +57,28 @@ function ManagerReview({ s }: { s: CouncilSummary }) {
         </Panel>
         <Panel title={`${mid}: replace → ${verdict(m.council_verdict)}`} note={m.council_agrees ? "Council verdict matches the analytic verdict." : "Council verdict differs from the analytics."} flush
           right={<EvidenceLink id={mid}>Machine passport</EvidenceLink>}>
-          <Scroll><table className="tbl min-w-[620px]"><thead><tr><th>Check</th><th>Agent</th><th>Finding</th><th className="text-right">Measured</th><th>Status</th><th>Impact</th></tr></thead>
+          <ul className="divide-y divide-line sm:hidden">{claims.map((c) => (
+            <li key={c.claim_id} className="space-y-1.5 px-4 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[14px] font-medium">{KIND[c.kind] ?? c.kind}</span>
+                <span className="flex gap-1.5"><Pill tone={c.verdict === "VERIFIED" ? "pos" : "warn"}>{c.verdict.toLowerCase()}</Pill>{deciding.has(c.claim_id) && <Pill tone="accent">deciding</Pill>}</span>
+              </div>
+              <p className="text-[13.5px] leading-relaxed">{c.statement}</p>
+              <p className="flex flex-wrap items-center justify-between gap-2 text-[12.5px] text-muted">
+                <span>{c.agent_name}{c.numeric_result === null ? "" : ` · ${c.unit === "USD" ? signed(c.numeric_result) : `${c.numeric_result.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${c.unit}`}`}</span>
+                <EvidenceLink id={c.claim_id} />
+              </p>
+            </li>))}</ul>
+          <div className="hidden sm:block"><Scroll><table className="tbl min-w-[620px]"><thead><tr><th>Check</th><th>Agent</th><th>Finding</th><th className="text-right">Measured</th><th>Status</th><th>Impact</th></tr></thead>
             <tbody>{claims.map((c) => (
               <tr key={c.claim_id}>
-                <td className="whitespace-nowrap text-[12.5px]">{KIND[c.kind] ?? c.kind}</td>
+                <td className="whitespace-nowrap text-[13px]">{KIND[c.kind] ?? c.kind}</td>
                 <td className="whitespace-nowrap text-[12.5px] text-muted">{c.agent_name}</td>
-                <td className="text-[12.5px]">{c.statement} <EvidenceLink id={c.claim_id} /></td>
+                <td className="text-[13.5px] leading-relaxed">{c.statement} <EvidenceLink id={c.claim_id} /></td>
                 <td className="num whitespace-nowrap text-right text-[12.5px]">{c.numeric_result === null ? "—" : c.unit === "USD" ? signed(c.numeric_result) : `${c.numeric_result.toLocaleString("en-US", { maximumFractionDigits: 2 })} ${c.unit}`}</td>
                 <td><Pill tone={c.verdict === "VERIFIED" ? "pos" : "warn"}>{c.verdict.toLowerCase()}</Pill></td>
                 <td>{deciding.has(c.claim_id) ? <Pill tone="accent">deciding</Pill> : <span className="label">{c.action.toLowerCase()}</span>}</td>
-              </tr>))}</tbody></table></Scroll>
+              </tr>))}</tbody></table></Scroll></div>
         </Panel>
       </div>
     </div>
@@ -134,5 +140,24 @@ function Agents({ s }: { s: CouncilSummary }) {
             <td className="num text-right">{a.manager_claims}</td><td className="num text-right">{a.manager_verified}</td>
             <td className="num text-right">{a.portfolio_findings}</td><td className={`num text-right ${a.retractions ? "text-neg" : ""}`}>{a.retractions}</td></tr>))}</tbody></table></Scroll>
     </Panel>
+  );
+}
+
+/** Proposal → challenges → verified → disposition: steps light up in order, once, when scrolled into view. */
+function Pathway({ steps }: { steps: { h: string; n: number; pre: string; post: string; sub: string; cls: string }[] }) {
+  const [ref, active, animate] = useInViewOnce<HTMLOListElement>("council-pathway");
+  return (
+    <ol ref={ref} className="panel grid gap-2 p-4 md:grid-cols-4" aria-label="Decision pathway">
+      {steps.map((st, i) => (
+        <motion.li key={st.h} className="relative rounded-md border border-line p-3"
+          initial={animate ? { opacity: 0.25, borderColor: "var(--line)" } : false}
+          animate={active ? { opacity: 1, borderColor: i === steps.length - 1 ? "var(--line-strong)" : "var(--line)" } : undefined}
+          transition={{ duration: 0.3, delay: i * 0.18, ease: EASE }}>
+          <p className="label">{st.h}</p>
+          <p className={`num text-[20px] font-semibold ${st.cls}`}>{st.pre}<CountUp play={animate && active} value={st.n} format={(v) => String(Math.round(v))} delay={i * 0.18} duration={0.45} />{st.post}</p>
+          <p className="label">{st.sub}</p>
+          {i < steps.length - 1 && <span aria-hidden className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 text-muted md:block">→</span>}
+        </motion.li>))}
+    </ol>
   );
 }

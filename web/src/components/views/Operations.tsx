@@ -3,7 +3,7 @@ import { type ReactNode, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
-import { compact, n, num, pct, usd } from "@/lib/format";
+import { compact, n, num, pct, usd, pp, typo } from "@/lib/format";
 import { TERM } from "@/lib/terms";
 import type { BankDetail, BankList, Comps, Demand, Downtime, Events, EvidenceList, Players } from "@/lib/types";
 import { OFFICIAL, useUI } from "@/lib/ui";
@@ -409,7 +409,7 @@ function ZoneDrawer({ zone, name, months, value, explanations, onClose }: {
       </div>
       <table className="tbl mt-4"><thead><tr><th>Month</th><th className="text-right">{TERM.theo_per_hour}</th></tr></thead>
         <tbody>{months.map((m) => <tr key={m}><td>{m}</td><td className="num text-right">{value(zone, m) === null ? "—" : usd(value(zone, m), 2)}</td></tr>)}</tbody></table>
-      {related.map((e, i) => <p key={i} className="mt-3 text-[13px]"><span className="font-medium">{String(e.change)}:</span> {n(e.observed_pct).toFixed(1)}% · {String(e.conclusion)}</p>)}
+      {related.map((e, i) => <p key={i} className="mt-3 text-[13px]"><span className="font-medium">{String(e.change)}:</span> {pp(n(e.observed_pct))} · {typo(e.conclusion)}</p>)}
       <h3 className="mt-4 text-[12.5px] font-semibold">Banks in this zone</h3>
       {banks.data ? (
         <p className="mt-1 flex flex-wrap gap-x-2 text-[12.5px]">{banks.data.data.banks.map((b) => (
@@ -441,9 +441,9 @@ function EventPanel({ onZone }: { onZone: () => void }) {
           <Line isAnimationActive={false} dataKey="back_forty" stroke="var(--accent)" dot={false} strokeWidth={2} />
         </LineChart></ResponsiveContainer>
       </div>
-      <p className="mt-2 text-[14px] leading-relaxed">While the walkway was closed, Back Forty (blue) fell well below the rest of the floor (grey): about <b>{Math.abs(n(e.estimate.observed_pct)).toFixed(0)}% less</b> than normal (estimate {n(e.estimate.observed_pct).toFixed(1)}%). When it reopened, Back Forty recovered.</p>
+      <p className="mt-2 text-[14px] leading-relaxed">While the walkway was closed, Back Forty (blue) fell well below the rest of the floor (grey): about <b>{Math.abs(n(e.estimate.observed_pct)).toFixed(0)}% less</b> than normal (estimate {pp(n(e.estimate.observed_pct))}). When it reopened, Back Forty recovered.</p>
       <How steps={["The lines show expected casino win per machine-hour each day, using only machines that never moved.", "The shaded band is the closure. Compare the blue line’s distance from the grey line inside the band with outside it.", "Because both lines share the same days, casino-wide ups and downs (weekends, seasons) cancel out."]}
-        technical={`${String(e.estimate.test)}; ${String(e.estimate.conclusion)}.`}
+        technical={`${String(e.estimate.test)}; ${typo(e.estimate.conclusion)}.`}
         formulas={[F.eventStudy(e.estimate.result_pct == null ? undefined : n(e.estimate.result_pct))]} />
     </Panel>
   );

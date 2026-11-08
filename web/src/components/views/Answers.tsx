@@ -3,15 +3,14 @@ import type { ReactNode } from "react";
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
-import { allocation, compact, n, pct, signed, tone, usd, verdict } from "@/lib/format";
+import { allocation, compact, n, pct, pp, signed, tone, typo, usd, verdict } from "@/lib/format";
 import type { Comps, Demand, Downtime, EvidenceList, Executive, Players, Portfolios, Stability } from "@/lib/types";
 import { type ViewId, useUI } from "@/lib/ui";
 
 import { type ChartTone, CompositionBar } from "../charts";
-import { ErrorLine, EvidenceLink, Loading, PageHead, Pill } from "../ui";
+import { ErrorLine, EvidenceLink, Loading, PageHead, Pill, VERDICT_TONE } from "../ui";
 
-const VTONE: Record<string, ChartTone> = { RETIRED_ALREADY: "muted", DO_NOT_REPLACE_INSPECT: "accent",
-  DO_NOT_REPLACE_NOT_ECONOMIC: "neg", INSUFFICIENT_EVIDENCE: "warn", REPLACE_JUSTIFIED_CONDITIONAL: "pos" };
+const VTONE = VERDICT_TONE as Record<string, ChartTone>;
 const TT = { contentStyle: { background: "var(--surface)", border: "1px solid var(--line)", borderRadius: 6, fontSize: 11 } };
 
 /** Final summary: every figure comes from the same endpoints its source tab uses. */
@@ -70,9 +69,9 @@ export function Answers() {
 
         <Answer n={2} q="What changed in demand?" go="operations" tab="demand" evidence={claimFor("zone_demand")}
           lines={[
-            <>{String(e1?.change)}: {n(e1?.observed_pct).toFixed(1)}%.</>,
+            <>{String(e1?.change)}: {pp(n(e1?.observed_pct))}.</>,
             <>Per available machine-hour it fell {Math.abs(n(e1?.result_pct)).toFixed(1)}%, so fewer machines do not explain the drop.</>,
-            <>{e2 ? `${String(e2.change)}: ${n(e2.observed_pct).toFixed(1)}%; ${String(e2.conclusion)}.` : ""}</>,
+            <>{e2 ? `${String(e2.change)}: ${pp(n(e2.observed_pct))}; ${typo(e2.conclusion)}.` : ""}</>,
             <>Back Forty’s weak earnings are a location and traffic problem before they are a machine problem.</>,
           ]}
           chart={<Mini h={64} label="Weekly amount wagered per day"><LineChart data={d.weekly}><XAxis dataKey="week_start" hide /><YAxis hide domain={["auto", "auto"]} />
