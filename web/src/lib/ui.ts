@@ -8,12 +8,13 @@ import { create } from "zustand";
 export const OFFICIAL = { from: "2025-01-01", to: "2025-06-30" } as const;
 
 export type ViewId = "overview" | "machines" | "operations" | "council" | "scenarios" | "investment"
-  | "evidence" | "validation";
+  | "evidence" | "validation" | "answers";
 export const VIEWS: { id: ViewId; label: string }[] = [
   { id: "overview", label: "Overview" }, { id: "machines", label: "Machines" },
   { id: "operations", label: "Operations" }, { id: "council", label: "Council" },
   { id: "scenarios", label: "Scenarios" }, { id: "investment", label: "Investment" },
   { id: "evidence", label: "Evidence" }, { id: "validation", label: "Validation" },
+  { id: "answers", label: "Answers" },
 ];
 
 export interface UIState {

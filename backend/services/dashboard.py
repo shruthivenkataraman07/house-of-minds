@@ -170,6 +170,13 @@ def machine_rows(src: DataSource) -> list[dict[str, Any]]:
                 "theo_per_available_hour_usd": m["theo_per_available_hour"],
                 "available_hours": m["available_hours"],
                 "availability_rate": m["availability_rate"],
+                # meter downtime for the manager's 10; otherwise scheduled - available hours,
+                # where scheduled = available / availability (exported fields only)
+                "downtime_hours": inv["downtime_hours"]
+                if inv
+                else (m["available_hours"] / m["availability_rate"] - m["available_hours"])
+                if m["availability_rate"]
+                else None,
                 "rank_raw": m["rank_raw"],
                 "rank_luck_aware": m["rank_luck_aware"],
                 "rank_vs_peers": m["rank_vs_peers"],

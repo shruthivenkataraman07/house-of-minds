@@ -74,6 +74,11 @@ def main() -> int:
                      "banks": list(banks.values())},
         "machine_bank": [{"machine_id": m, "bank_id": b, "zone_id": z} for m, b, z in mb],
     }
+    ac = d / "2_machine_decision" / "action_catalog.parquet"
+    payloads["action_catalog"] = con.sql(
+        f"SELECT action_type_id, name, unit_cost_cents / 100.0 AS unit_cost_usd, "
+        f"recurring_cost_cents_per_day / 100.0 AS recurring_cost_usd_per_day, lead_days, "
+        f"quantity_limit FROM '{ac}' ORDER BY 1").df().to_dict(orient="records")
     mp = ROOT / "data" / "processed" / "step5" / "duckdb" / "action_measurement_plans.parquet"
     payloads["measurement_plans"] = con.sql(
         f"SELECT action_id, investment, quantity, expected_effect, evidence_classification, "

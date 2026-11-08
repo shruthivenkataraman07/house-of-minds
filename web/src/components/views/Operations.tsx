@@ -14,16 +14,16 @@ const ZCOL: Record<string, string> = { "Back Forty": "var(--chart-1)" };
 
 export function Operations() {
   const ui = useUI();
-  const tab = ui.tab ?? "demand";
+  const tab = ui.tab === "banks" ? "demand" : ui.tab ?? "demand"; // banks live inside Demand
   return (
     <div className="space-y-4">
-      <PageHead title="Operations" line="Demand, downtime, tracked players and comps; totals are sums, ratios recomputed." />
+      <PageHead title="Operations" line="What happened, how much, and why it matters, for four operating questions." />
       <Tabs label="Operations" value={tab} onChange={(t) => ui.set({ tab: t })} tabs={[
-        { id: "demand", label: "Demand" }, { id: "banks", label: "Banks" }, { id: "downtime", label: "Downtime" },
+        { id: "demand", label: "Demand" }, { id: "downtime", label: "Downtime" },
         { id: "players", label: "Players" }, { id: "comps", label: "Comps" }]} />
-      {(tab === "demand" || tab === "banks") && <PeriodControl />}
+      {tab === "demand" && <PeriodControl />}
       {tab === "demand" && <DemandTab />}
-      {tab === "banks" && <BanksTab />}
+      {tab === "demand" && <BanksTab />}
       {tab === "downtime" && <DowntimeTab />}
       {tab === "players" && <PlayersTab />}
       {tab === "comps" && <CompsTab />}
@@ -188,7 +188,7 @@ function DowntimeTab() {
             <tbody>{d.by_manufacturer.map((r) => <tr key={String(r.manufacturer)}><td>{String(r.manufacturer)}</td><td className="num text-right">{num(n(r.downtime_hours))}</td><td className="num text-right">{pct(n(r.downtime_rate), 2)}</td><td className="num text-right">{num(n(r.faults))}</td><td className="num text-right">{usd(n(r.theo_at_risk_usd))}</td></tr>)}</tbody></table></Scroll>
         </Panel>
       </div>
-      <p className="text-[13px]"><span className="font-medium">Action:</span> target preventive maintenance at {String(d.by_manufacturer[0]?.manufacturer)} and evening technician coverage.</p>
+      <p className="text-[13px]"><span className="font-medium">Action:</span> target preventive maintenance at {String(d.by_manufacturer[0]?.manufacturer)} and technician coverage near {(() => { const pk = [...d.by_hour].sort((a, b) => n(b.downtime_hours) - n(a.downtime_hours))[0]; return pk ? `${String(pk.local_hour).padStart(2, "0")}:00` : "peak hours"; })()}, the worst downtime hour.</p>
     </div>
   );
 }
@@ -218,6 +218,7 @@ function PlayersTab() {
               <td className="num text-right text-neg">{compact(n(t.net))}</td><td className="num text-right">{compact(n(t.theo))}</td>
               <td className="num text-right">{pct(n(t.theo) / totalTheo)}</td><td className="num text-right">{pct(n(t.share_ahead))}</td></tr>))}</tbody></table></Scroll>
       </Panel>
+      <p className="text-[13px]"><span className="font-medium">Why it matters:</span> play is concentrated, so program design should use tier economics, never individual targeting.</p>
       {ui.tier && (() => { const s = tiers.find((t) => t.tier === ui.tier); return s && <p className="text-[13px]">{String(s.tier)}: {num(n(s.players))} players wagered {usd(n(s.coin_in))}, net {usd(n(s.net))} (player view); {pct(n(s.share_ahead))} finished ahead.</p>; })()}
     </div>
   );

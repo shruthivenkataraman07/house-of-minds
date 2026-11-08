@@ -23,6 +23,7 @@ ACTIONS = (
     "explain_reversal",
     "open_validation",
     "open_council",
+    "open_answers",
 )
 VIEWS = (
     "overview",
@@ -33,6 +34,7 @@ VIEWS = (
     "investment",
     "evidence",
     "validation",
+    "answers",
 )
 OFFICIAL = "Jan 1–Jun 30, 2025 (official window)"
 HZ = "Jul 1–30, 2025 (modeled contribution, not realized profit)"
@@ -509,6 +511,19 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
             f"captures at least {ss_range} of the gap to the zone's best title (unmeasured).",
             premise=premise,
             action=_act("select_entity", "machines"),
+        )
+
+    if re.search(r"\b(answers?|summary|summarize|six questions|conclusions?|final)\b", q):
+        return _answer(
+            "OK",
+            "open_answers",
+            "The Answers tab gives one evidence-backed conclusion for each of the six questions.",
+            support=[
+                f"Headline: {v['answer']}; recommended plan {_usd(v['recommended_net_usd'], True)}."
+            ],
+            period=f"{OFFICIAL}; economics {HZ}",
+            evidence="ch_executive_verdict",
+            action=_act("open_answers", "answers"),
         )
 
     if re.search(r"spend|100k|\$?100,?000|budget|invest|recommend|what should", q):

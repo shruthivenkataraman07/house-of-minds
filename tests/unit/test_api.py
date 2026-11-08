@@ -220,3 +220,24 @@ def test_openapi_lists_v1_routes():
         "/api/v1/evidence/{evidence_id}",
         "/api/v1/forecast/validation",
     } <= set(spec["paths"])
+
+
+def test_bank_filter_and_downtime_field():
+    page = get("/api/v1/machines?scope=all&bank=B-38&limit=100")["data"]
+    assert page["total"] > 0 and all(r["bank_id"] == "B-38" for r in page["rows"])
+    m = next(r for r in page["rows"] if r["machine_id"] == "M-5076")
+    assert m["downtime_hours"] == pytest.approx(6.0)  # metered value for a manager-list machine
+    assert c.get("/api/v1/machines?bank=DROP").status_code == 422
+
+
+def test_council_hearing_reports_adopted_plan_not_scenario_reruns():
+    h = get("/api/v1/council/B_WHISPER_NETWORK")["data"]
+    assert h["portfolio_changed"] is False  # revisions were admitted as scenarios only
+    assert any(f.startswith("evidence_supported") for f in h["scenario_flips"])
+
+
+def test_ask_routes_to_answers_and_catalog_has_lead_days():
+    a = c.post("/api/v1/ask", json={"question": "Show the six answers"}).json()
+    assert a["action"] == {"type": "open_answers", "view": "answers", "args": {}}
+    cat = {x["action_type_id"]: x for x in get("/api/v1/portfolios")["data"]["catalog"]}
+    assert cat["A-PROMO"]["lead_days"] == 14 and cat["A-REPLACE-LEASE"]["lead_days"] == 14

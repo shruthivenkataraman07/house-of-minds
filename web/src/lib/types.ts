@@ -31,7 +31,9 @@ export interface Executive {
   };
   bottom10: { machine_id: string; manager_rank: number; house_win_usd: number; verdict: string;
     council_verdict: string; lease_net_best_case_usd: number | null; machine_vs_peer_index: number;
-    retire_date: string | null }[];
+    retire_date: string | null; zone_id: string; active_days: number; rank_vs_peers: number;
+    rank_luck_aware: number; luck_z: number; hit_rate_z: number; primary_factors: string | null;
+    recommended_alternative: string }[];
   portfolios: Portfolio[];
   kpis: Record<string, number>;
   promotion: { break_even: number; a08: { low: number; value: number; high: number };
@@ -46,7 +48,7 @@ export interface MachineRow {
   bank_id: string | null; house_win_usd: number; theo_usd: number;
   theo_per_available_hour_usd: number; available_hours: number; availability_rate: number;
   rank_raw: number; rank_luck_aware: number; rank_vs_peers: number; luck_z: number;
-  hit_rate_z: number; payout_anomaly: boolean; manager_rank: number | null; verdict: string | null;
+  hit_rate_z: number; payout_anomaly: boolean; downtime_hours: number | null; manager_rank: number | null; verdict: string | null;
   lease_net_best_case_usd: number | null; robustness: string | null;
 }
 export interface MachinePage { total: number; offset: number; limit: number; rows: MachineRow[] }
@@ -91,7 +93,8 @@ export interface CouncilSummary {
     council_agrees: boolean; council_deciding_claims: string | null }[];
   claims: Claim[];
 }
-export interface CouncilDecision { decision_id: string; events: Rec[]; whispers: Rec[]; portfolio_changed: boolean }
+export interface CouncilDecision { decision_id: string; events: Rec[]; whispers: Rec[]; portfolio_changed: boolean;
+  scenario_flips: string[] }
 
 export interface PromoScenario { scenario: string; A08: number; original_evidence: number;
   original_conditional: number; conditional_without_promo: number; evidence_without_promo: number }
@@ -99,7 +102,8 @@ export interface Promotion { a08: { low: number; value: number; high: number }; 
   minus_1506_meaning: string; scenarios: PromoScenario[];
   reoptimised_promo_prohibited: Record<string, { allocation: Record<string, number>; net: number }> }
 export interface Portfolios { options: Portfolio[]; passports: Rec[]; measurement_plans: Rec[];
-  promotion: Promotion; constraints: { check: string; pass: boolean; detail: string }[] }
+  promotion: Promotion; constraints: { check: string; pass: boolean; detail: string }[];
+  catalog: { action_type_id: string; name: string; unit_cost_usd: number; lead_days: number; quantity_limit: number }[] }
 export interface Scenarios { promotion: Promotion; stress: Rec[]; reversals: Rec[]; lease_operating_days: number | null }
 
 export interface Passport { kind: string; id: string; title: string; fields: [string, string][]; links: string[] }

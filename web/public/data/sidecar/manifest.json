@@ -1,7 +1,7 @@
 {
  "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
  "source": "official parquet (local) + reports/audit",
- "exported_at_utc": "2026-11-08T05:22:20+00:00",
+ "exported_at_utc": "2026-11-08T06:44:55+00:00",
  "files": [
   {
    "dataset": "floor_day",
@@ -17,6 +17,11 @@
    "dataset": "machine_bank",
    "file": "machine_bank.json",
    "sha256": "2e124e2ea0cb441bd7899c4874bba66c768e1e363bbbf2070cc2d4b59f12e4df"
+  },
+  {
+   "dataset": "action_catalog",
+   "file": "action_catalog.json",
+   "sha256": "e8f9a1d9dbdbb97da9399bab66b82fdebf276bb0df2eed112758366025dab351"
   },
   {
    "dataset": "measurement_plans",

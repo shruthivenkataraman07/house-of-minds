@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 import { useApi } from "@/lib/api";
-import { verdict } from "@/lib/format";
+import { allocation, verdict } from "@/lib/format";
 import type { CouncilDecision, CouncilSummary } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
@@ -78,10 +78,27 @@ function Hearing() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <Segmented label="Council configuration" value={cfg} onChange={setCfg} options={[{ id: "A_NO_GOSSIP", label: "Independent" }, { id: "B_WHISPER_NETWORK", label: "Whisper Network" }]} />
-        {data && <Pill tone={data.data.portfolio_changed ? "warn" : "pos"}>{data.data.portfolio_changed ? "Portfolio changed" : "Portfolio confirmed · fragility recorded"}</Pill>}
+        {data && <Pill tone={data.data.portfolio_changed ? "warn" : "pos"}>{data.data.portfolio_changed ? "Adopted plan changed" : "Adopted plan confirmed"}</Pill>}
       </div>
       {error && <ErrorLine error={error} retry={reload} />}
       {!data && !error && <Loading rows={6} />}
+      {data && (() => {
+        const all = data.data.events;
+        const cnt = (t: string) => all.filter((e) => e.event_type === t).length;
+        const findings = cnt("INDEPENDENT_FINDING") + cnt("GOSSIP_FINDING");
+        const admitted = all.filter((e) => e.event_type === "CHANGE_ADMITTED").map((e) => String(e.description));
+        const opt = all.find((e) => e.event_type === "OPTIMIZER_EXECUTED" && String(e.description).startsWith("evidence_supported"));
+        const before = opt ? String(opt.description).replace(/^evidence_supported:\s*/, "").split(" -> ")[0] : null;
+        const revisions = all.filter((e) => e.event_type === "ASSUMPTION_REVISION_PROPOSED").map((e) => String(e.description).split(" -> ")[1]);
+        const flip = data.data.scenario_flips.find((f) => f.startsWith("evidence_supported"));
+        return (
+          <div className="panel grid gap-4 p-4 md:grid-cols-3">
+            <div><p className="label">Before council</p><p className="text-[15px] font-semibold">Optimizer plan</p><p className="label">{before ? allocation(before) : "not recorded"}</p></div>
+            <div><p className="label">Challenge</p><p className="text-[15px] font-semibold">{findings} findings · {cnt("ASSUMPTION_REVISION_PROPOSED")} revisions · {cnt("CLAIM_RETRACTED")} retraction{cnt("CLAIM_RETRACTED") === 1 ? "" : "s"}</p><p className="label">{revisions.length ? `Promotion uplift tested at ${revisions.join(" and ")}` : "No assumption revisions"}</p></div>
+            <div><p className="label">After council · final disposition</p><p className={`text-[15px] font-semibold ${data.data.portfolio_changed ? "text-warn" : "text-pos"}`}>{data.data.portfolio_changed ? "Plan changed" : "Plan confirmed"}</p><p className="label">{admitted.length ? `${admitted.length} revisions kept as scenarios${flip ? `; at the weakest value the plan would become ${allocation(flip.replace(/^evidence_supported:\s*/, "").split(" -> ")[1]?.split(" (")[0])}` : ""}` : "No revision admitted"}</p></div>
+          </div>
+        );
+      })()}
       {data && (
         <Panel title="Review timeline" note={`${ev.length} key events of ${data.data.events.length} recorded; no generated dialogue.`} flush>
           <Scroll><table className="tbl min-w-[640px]"><thead><tr><th className="text-right">#</th><th>Actor</th><th>Event</th><th>Finding</th><th>Status</th></tr></thead>

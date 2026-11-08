@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { useApi } from "@/lib/api";
 import { n, num, pct, signed, tone, usd, verdict } from "@/lib/format";
-import type { MachineDetail, MachinePage } from "@/lib/types";
+import type { BankList, MachineDetail, MachinePage } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
 import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, robustTone, verdictTone } from "../ui";
@@ -23,8 +23,13 @@ export function Machines() {
   const [q, setQ] = useState("");
   const [offset, setOffset] = useState(0);
   const zone = ui.zoneId ?? "";
+  const bank = ui.bankId ?? "";
   const limit = 50;
-  const qs = new URLSearchParams({ scope, sort, offset: String(offset), limit: String(limit), ...(zone ? { zone } : {}), ...(q.trim() ? { q: q.trim() } : {}) });
+  const banks = useApi<BankList>("/operations/banks");
+  const bankIds = (banks.data?.data.banks ?? []).filter((b) => !zone || b.zone_id === zone).map((b) => b.bank_id)
+    .sort((a, b) => Number(a.slice(2)) - Number(b.slice(2)));
+  const qs = new URLSearchParams({ scope, sort, offset: String(offset), limit: String(limit), ...(zone ? { zone } : {}),
+    ...(bank ? { bank } : {}), ...(q.trim() ? { q: q.trim() } : {}) });
   const { data, error, loading, reload } = useApi<MachinePage>(`/machines?${qs}`);
   const page = data?.data;
 
@@ -39,32 +44,39 @@ export function Machines() {
         <input id="m-q" value={q} onChange={(e) => { setQ(e.target.value); setOffset(0); }} maxLength={40} placeholder="Machine, game or bank"
           className="w-44 rounded-md border border-line bg-surface px-2.5 py-1 text-[13px]" />
         <label htmlFor="m-zone" className="sr-only">Zone</label>
-        <select id="m-zone" value={zone} onChange={(e) => { ui.set({ zoneId: e.target.value || null }); setOffset(0); }} className="rounded-md border border-line bg-surface px-2 py-1 text-[13px]">
+        <select id="m-zone" value={zone} onChange={(e) => { ui.set({ zoneId: e.target.value || null, bankId: null }); setOffset(0); }} className="rounded-md border border-line bg-surface px-2 py-1 text-[13px]">
           {ZONES.map(([z, l]) => <option key={z} value={z}>{l}</option>)}
+        </select>
+        <label htmlFor="m-bank" className="sr-only">Bank</label>
+        <select id="m-bank" value={bank} onChange={(e) => { ui.set({ bankId: e.target.value || null }); setOffset(0); }} className="rounded-md border border-line bg-surface px-2 py-1 text-[13px]">
+          <option value="">All banks</option>
+          {bankIds.map((b) => <option key={b} value={b}>{b}</option>)}
         </select>
       </div>
       {error && <ErrorLine error={error} retry={reload} />}
       <Panel flush>
         {loading && !page ? <div className="p-4"><Loading rows={8} /></div> : page && (
           <Scroll>
-            <table className="tbl min-w-[900px]">
+            <table className="tbl min-w-[1040px]">
               <caption className="sr-only">Machines with earnings, fair performance, availability and verdicts</caption>
               <thead><tr>
-                <th>Machine</th><th className="text-right">Mgr #</th><th className="text-right">House win</th><th className="text-right" title="Theoretical win per available machine-hour">Theo / h</th>
-                <th className="text-right" title="Rank vs same-game peers; 310 = weakest">Peer rank</th><th className="text-right">Availability</th><th>Location</th><th>Payout</th><th>Action</th><th>Confidence</th>
+                <th>Machine</th><th className="text-right" title="Rank by total house win; 1 = lowest">Earnings #</th><th className="text-right">House win</th><th className="text-right">Theo win</th>
+                <th className="text-right" title="Rank vs same-game peers on theo per available hour; 310 = weakest">Fair rank</th><th className="text-right">Availability</th><th className="text-right" title="Meter downtime for the manager's 10; scheduled minus available hours otherwise">Downtime</th><th>Location</th><th>Payout</th><th>Action</th><th>Robustness</th><th />
               </tr></thead>
               <tbody>{page.rows.map((m) => (
                 <tr key={m.machine_id} className="row-click" aria-selected={ui.machineId === m.machine_id} onClick={() => ui.set({ machineId: m.machine_id })}>
                   <td><span className="font-medium">{m.machine_id}</span> <span className="label">{m.config_id}</span></td>
-                  <td className="num text-right text-muted">{m.manager_rank ?? "—"}</td>
+                  <td className="num text-right text-muted">{m.rank_raw}{m.manager_rank ? <Pill tone="muted">mgr {m.manager_rank}</Pill> : null}</td>
                   <td className="num text-right">{usd(m.house_win_usd)}</td>
-                  <td className="num text-right">{usd(m.theo_per_available_hour_usd, 2)}</td>
+                  <td className="num text-right">{usd(m.theo_usd)}<div className="label">{usd(m.theo_per_available_hour_usd, 2)}/h</div></td>
                   <td className="num text-right">{m.rank_vs_peers}</td>
                   <td className="num text-right">{pct(m.availability_rate)}</td>
+                  <td className="num text-right">{m.downtime_hours === null ? "—" : `${num(m.downtime_hours, 1)} h`}</td>
                   <td className="whitespace-nowrap text-[12.5px]">{m.zone_name}<span className="label"> · {m.bank_id ?? "—"}</span></td>
                   <td>{m.payout_anomaly ? <Pill tone="accent">z {m.hit_rate_z.toFixed(0)}</Pill> : <span className="label">normal</span>}</td>
                   <td>{m.verdict ? <Pill tone={verdictTone(m.verdict)}>{verdict(m.verdict)}</Pill> : m.lease_net_best_case_usd !== null ? <span className="label">best case {signed(m.lease_net_best_case_usd)}</span> : <span className="label">keep</span>}</td>
                   <td>{m.robustness ? <Pill tone={robustTone(m.robustness)}>{m.robustness.toLowerCase()}</Pill> : <span className="label">—</span>}</td>
+                  <td onClick={(e) => e.stopPropagation()}>{m.manager_rank ? <EvidenceLink id={m.machine_id} /> : null}</td>
                 </tr>))}
               </tbody>
             </table>

@@ -1,10 +1,13 @@
 "use client";
 import { useApi } from "@/lib/api";
-import { OPTION, allocation, compact, pct, signed, tone, usd, verdict } from "@/lib/format";
+import { OPTION, allocation, signed, tone, usd, verdict } from "@/lib/format";
 import type { Executive } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
 import { ErrorLine, EvidenceLink, Kpi, Loading, Panel, Pill, Scroll, verdictTone } from "../ui";
+
+const FACTOR: Record<string, string> = { exposure: "Limited floor time", location: "Weak location", game_config: "Low-edge game",
+  luck: "Payout luck", machine_residual: "Machine itself" };
 
 export function Overview() {
   const ui = useUI();
@@ -17,77 +20,91 @@ export function Overview() {
   const mgr = pf.manager_proposal_lease;
   const rec = pf[v.recommended_option];
   const diff = (rec?.expected_net_benefit_usd ?? 0) - (mgr?.expected_net_benefit_usd ?? 0);
-  const weak = x.promotion.scenarios.weakest_event;
   const offered = pf.house_of_minds_with_replacements_allowed;
-  const pickedReplacements = offered ? offered.allocation.split(";").filter((a) => a.includes("REPLACE")).length : null;
+  const picked = offered ? offered.allocation.split(";").filter((a) => a.includes("REPLACE")).length : null;
+  const weak = x.promotion.scenarios.weakest_event;
   const order = ["manager_proposal_lease", "house_of_minds_evidence", "house_of_minds_conditional", "no_action", "manager_proposal_buy"];
+  const factors = Object.entries(x.bottom10.reduce<Record<string, number>>((acc, m) => {
+    (m.primary_factors ?? "").split(",").filter(Boolean).forEach((f) => { acc[f] = (acc[f] ?? 0) + 1; });
+    return acc;
+  }, {})).sort((a, b) => b[1] - a[1]);
+  const vColor = v.answer === "REPLACE_NONE" ? "text-neg" : v.answer === "INSUFFICIENT_EVIDENCE" ? "text-warn" : "text-pos";
 
   return (
     <div className="space-y-4">
       <section className="panel p-4 sm:p-5">
-        <p className="label">Replace the bottom 10? · Jan–Jun 2025 earnings</p>
-        <div className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h1 className={`text-[30px] font-semibold tracking-tight ${v.answer === "REPLACE_NONE" ? "text-neg" : v.answer === "INSUFFICIENT_EVIDENCE" ? "text-warn" : "text-pos"}`}>{verdict(v.answer)}</h1>
-          <p className="text-[13px] text-muted">{v.replacement_justified} of {v.machines_reviewed} replacements justified{pickedReplacements !== null && `; offered every replacement, the optimizer picked ${pickedReplacements === 0 ? "none" : pickedReplacements}`}.</p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-[15px] font-medium text-muted">Replace the bottom 10?</h1>
+            <p className={`mt-0.5 text-[32px] font-semibold leading-tight tracking-tight ${vColor}`}>{verdict(v.answer)}</p>
+            <p className="mt-1 text-[13px] text-muted">
+              {v.replacement_justified} of {v.machines_reviewed} replacements justified{picked !== null && `; offered all, the optimizer chose ${picked === 0 ? "none" : picked}`}.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => ui.go("machines")} className="rounded-md bg-accent px-3 py-1.5 text-[13px] font-medium text-white hover:opacity-90">Investigate machines</button>
+            <button type="button" onClick={() => ui.go("scenarios")} className="rounded-md border border-line bg-surface px-3 py-1.5 text-[13px] hover:border-line-strong">Compare plans</button>
+            <button type="button" onClick={() => ui.go("evidence")} className="rounded-md border border-line bg-surface px-3 py-1.5 text-[13px] hover:border-line-strong">View evidence</button>
+          </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 lg:grid-cols-5">
+        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 md:grid-cols-3 xl:grid-cols-6">
           <Kpi label="Manager plan · July net" value={signed(mgr?.expected_net_benefit_usd)} className={tone(mgr?.expected_net_benefit_usd)} sub={`${usd(mgr?.cost_usd)} to lease ${x.bottom10.filter((m) => m.verdict !== "RETIRED_ALREADY").length}`} />
-          <Kpi label="Recommended · July net" value={signed(rec?.expected_net_benefit_usd)} className={tone(rec?.expected_net_benefit_usd)} sub={`${usd(rec?.cost_usd)} · ${allocation(rec?.allocation)}`} />
+          <Kpi label="Recommended · July net" value={signed(rec?.expected_net_benefit_usd)} className={tone(rec?.expected_net_benefit_usd)} sub={allocation(rec?.allocation)} />
           <Kpi label="Difference" value={signed(diff)} className={tone(diff)} sub="same horizon and definitions" />
-          <Kpi label="Budget kept" value={usd(rec?.remaining_budget_usd)} sub="of $100,000" />
-          <Kpi label="Break-even uplift" value={`${usd(x.promotion.break_even)}/day`} className="text-warn" sub={`weakest event ${usd(x.promotion.a08.low)}/day → ${signed(weak)}`} title="Promotion excess theo per day needed for the recommended plan to break even" />
+          <Kpi label="Spend" value={usd(rec?.cost_usd)} sub={`${usd(rec?.remaining_budget_usd)} of $100,000 kept`} />
+          <Kpi label="Alternative candidates" value={`${x.floor_planning_positive} / ${x.floor_candidates}`} sub={`pay back at planning value; ${x.floor_best_case_positive} only in best case`} title="Floor-wide lease replacement candidates" />
+          <Kpi label="Key uncertainty" value={`${usd(x.promotion.break_even)}/day`} className="text-warn" sub={`promotion break-even; weakest event → ${signed(weak)}`} />
         </div>
-        <p className="mt-3 text-[12.5px] text-warn">Main uncertainty: promotion uplift rests on 2 events with no control group.</p>
       </section>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <Panel title="The manager’s 10" note="Earnings rank, verdict and council agreement." flush
-          right={<button type="button" onClick={() => ui.go("machines")} className="text-[12.5px] text-accent hover:underline">Investigate →</button>}>
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <Panel title="Why the ranking changes" note="Lowest earnings ≠ weakest machine: compare earnings rank with fair rank and floor time." flush
+          right={<button type="button" onClick={() => ui.go("machines")} className="text-[12.5px] text-accent hover:underline">All machines →</button>}>
           <Scroll>
-            <table className="tbl min-w-[560px]">
-              <thead><tr><th>#</th><th>Machine</th><th className="text-right">House win</th><th>Verdict</th><th className="text-right">Best-case lease</th><th className="text-right">Peer index</th><th>Council</th></tr></thead>
+            <table className="tbl min-w-[680px]">
+              <thead><tr><th className="text-right" title="Manager's rank by total house win (1 = lowest)">Earnings #</th><th>Machine</th><th className="text-right">House win</th><th className="text-right" title="Rank vs same-game peers on theo per available hour; 310 = weakest">Fair rank</th><th className="text-right">Days on floor</th><th>Verdict</th><th>Main reason</th></tr></thead>
               <tbody>{x.bottom10.map((m) => (
                 <tr key={m.machine_id} className="row-click" onClick={() => ui.go("machines", { machineId: m.machine_id })}>
-                  <td className="num text-muted">{m.manager_rank}</td>
-                  <td className="font-medium">{m.machine_id}</td>
+                  <td className="num text-right text-muted">{m.manager_rank}</td>
+                  <td className="whitespace-nowrap font-medium">{m.machine_id}</td>
                   <td className="num text-right">{usd(m.house_win_usd)}</td>
+                  <td className="num text-right">{m.rank_vs_peers}<span className="label"> /310</span></td>
+                  <td className={`num text-right ${m.active_days < 150 ? "text-warn" : ""}`}>{m.active_days}</td>
                   <td><Pill tone={verdictTone(m.verdict)}>{verdict(m.verdict)}</Pill></td>
-                  <td className={`num text-right ${tone(m.lease_net_best_case_usd)}`}>{m.lease_net_best_case_usd === null ? "—" : signed(m.lease_net_best_case_usd)}</td>
-                  <td className="num text-right">{m.machine_vs_peer_index.toFixed(2)}</td>
-                  <td>{m.council_verdict === m.verdict ? <span className="text-[12px] text-pos">agrees</span> : <span className="text-[12px] text-neg">differs</span>}</td>
+                  <td className="text-[12.5px] text-muted">{m.verdict === "RETIRED_ALREADY" ? `Retired ${m.retire_date}` : m.verdict === "DO_NOT_REPLACE_INSPECT" ? `Payout fault (hit-rate z ${m.hit_rate_z.toFixed(0)})` : m.verdict === "INSUFFICIENT_EVIDENCE" ? `Best-case lease ${signed(m.lease_net_best_case_usd)}` : `Lease loses ${usd(-(m.lease_net_best_case_usd ?? 0))} even at best`}</td>
                 </tr>))}</tbody>
             </table>
           </Scroll>
         </Panel>
         <div className="space-y-4">
-          <Panel title="Why not">
-            <ul className="space-y-2.5 text-[13px]">
-              <li className="flex justify-between gap-3"><span>{v.retired_already} already retired</span><EvidenceLink id={x.bottom10.find((m) => m.verdict === "RETIRED_ALREADY")?.machine_id ?? ""} /></li>
-              <li className="flex justify-between gap-3"><span>{v.inspect_instead} payout fault: inspect for {usd(x.inspection_cost_usd)}</span><EvidenceLink id={x.bottom10.find((m) => m.verdict === "DO_NOT_REPLACE_INSPECT")?.machine_id ?? ""} /></li>
-              <li className="flex justify-between gap-3"><span>{v.not_economic} lose money even with the zone’s best title</span><EvidenceLink id={x.bottom10.find((m) => m.verdict === "DO_NOT_REPLACE_NOT_ECONOMIC")?.machine_id ?? ""} /></li>
-              <li className="flex justify-between gap-3"><span>{v.insufficient_evidence} borderline (best case {signed(x.bottom10.find((m) => m.verdict === "INSUFFICIENT_EVIDENCE")?.lease_net_best_case_usd)})</span><EvidenceLink id={x.bottom10.find((m) => m.verdict === "INSUFFICIENT_EVIDENCE")?.machine_id ?? ""} /></li>
-            </ul>
-            <p className="label mt-3 border-t border-line pt-2">Floor-wide: {x.floor_planning_positive} of {x.floor_candidates} lease candidates pay back at the planning value.</p>
+          <Panel title="Top decision factors" note="Primary drivers of the earnings gap across the 10.">
+            <ul className="space-y-2">{factors.map(([f, c]) => (
+              <li key={f} className="grid grid-cols-[minmax(0,1fr)_88px_24px] items-center gap-2 text-[12.5px]">
+                <span>{FACTOR[f] ?? f}</span>
+                <span className="h-1.5 rounded bg-surface-2"><span className="block h-1.5 rounded bg-accent/70" style={{ width: `${c * 10}%` }} /></span>
+                <span className="num text-right text-muted">{c}</span>
+              </li>))}</ul>
+            <p className="label mt-3 border-t border-line pt-2">Council matched {v.council_agreement}/10 verdicts; {x.council_verified}/{x.council_claims} claims verified.</p>
           </Panel>
-          <Panel title="Checks">
-            <dl className="grid grid-cols-2 gap-3">
-              <Kpi label="Council agreement" value={`${v.council_agreement}/10`} />
-              <Kpi label="Claims verified" value={`${x.council_verified}/${x.council_claims}`} />
-              <Kpi label="Reconciliation" value={`${x.kpis.reconciliation_checks_passed}/14`} />
-              <Kpi label="Floor hold" value={pct(x.kpis.observed_hold, 2)} sub={`${compact(x.kpis.house_win_usd)} on ${compact(x.kpis.coin_in_usd)}`} />
-            </dl>
+          <Panel title="Evidence">
+            <ul className="space-y-1.5 text-[12.5px]">
+              {(["RETIRED_ALREADY", "DO_NOT_REPLACE_INSPECT", "DO_NOT_REPLACE_NOT_ECONOMIC", "INSUFFICIENT_EVIDENCE"] as const).map((k) => {
+                const m = x.bottom10.find((b) => b.verdict === k);
+                const count = x.bottom10.filter((b) => b.verdict === k).length;
+                return m ? <li key={k} className="flex justify-between gap-2"><span>{count} × {verdict(k).toLowerCase()}</span><EvidenceLink id={m.machine_id}>{m.machine_id}</EvidenceLink></li> : null;
+              })}
+            </ul>
           </Panel>
         </div>
       </div>
 
-      <Panel title="Plans compared" note={`Modeled net contribution, ${data.meta.decision_horizon}.`} flush
-        right={<button type="button" onClick={() => ui.go("scenarios")} className="text-[12.5px] text-accent hover:underline">Scenarios →</button>}>
+      <Panel title="Plans compared" note={`Modeled net contribution, ${data.meta.decision_horizon}.`} flush>
         <Scroll>
           <table className="tbl min-w-[640px]">
             <thead><tr><th>Plan</th><th>Actions</th><th className="text-right">Cost</th><th className="text-right">Net</th><th className="text-right">Tested range</th><th /></tr></thead>
             <tbody>{order.map((o) => pf[o]).filter(Boolean).map((p) => (
               <tr key={p.option}>
-                <td className="font-medium">{OPTION[p.option] ?? p.option}{p.option === v.recommended_option && <span className="ml-1.5"><Pill tone="accent">recommended</Pill></span>}</td>
+                <td className="font-medium whitespace-nowrap">{OPTION[p.option] ?? p.option}{p.option === v.recommended_option && <span className="ml-1.5"><Pill tone="accent">recommended</Pill></span>}</td>
                 <td className="text-[12.5px] text-muted">{allocation(p.allocation)}</td>
                 <td className="num text-right">{usd(p.cost_usd)}</td>
                 <td className={`num text-right font-medium ${tone(p.expected_net_benefit_usd)}`}>{p.feasible ? signed(p.expected_net_benefit_usd) : <Pill tone="neg">over budget</Pill>}</td>

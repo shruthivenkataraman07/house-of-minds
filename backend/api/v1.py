@@ -154,6 +154,7 @@ def machines(
     scope: Annotated[str, Query(pattern="^(bottom10|all)$")] = "bottom10",
     sort: Annotated[str, Query(pattern="^(observed|fair|opportunity)$")] = "observed",
     zone: Zone = None,
+    bank: Annotated[str | None, Query(pattern=r"^B-\d{1,3}$")] = None,
     q: Annotated[str | None, Query(max_length=40)] = None,
     offset: Annotated[int, Query(ge=0)] = 0,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
@@ -164,6 +165,8 @@ def machines(
         rows = [r for r in rows if r["manager_rank"] is not None]
     if zone:
         rows = [r for r in rows if r["zone_id"] == zone]
+    if bank:
+        rows = [r for r in rows if r["bank_id"] == bank]
     if q:
         ql = q.lower()
         rows = [
@@ -413,10 +416,17 @@ def council_decision(
         key=lambda e: e["sequence"],
     )
     wh = [w for w in src.get("council_whispers") if w["config"] == decision_id]
+    # Scenario re-runs may change the optimal plan under a tested assumption; the adopted plan
+    # changes only if a revision was admitted without preserving the baseline.
+    flips = [
+        str(e["description"])
+        for e in ev
+        if e["event_type"] == "OPTIMIZER_EXECUTED"
+        and e.get("portfolio_before")
+        and e["portfolio_before"] != e.get("portfolio_after")
+    ]
     changed = any(
-        e.get("portfolio_before")
-        and e.get("portfolio_after")
-        and e["portfolio_before"] != e["portfolio_after"]
+        e["event_type"] == "CHANGE_ADMITTED" and "baseline preserved" not in str(e["description"])
         for e in ev
     )
     _cached(resp)
@@ -427,6 +437,7 @@ def council_decision(
             "events": ev,
             "whispers": wh,
             "portfolio_changed": changed,
+            "scenario_flips": flips,
         },
     }
 
@@ -488,6 +499,7 @@ def portfolios(resp: Response) -> Any:
             "measurement_plans": src.get("measurement_plans"),
             "promotion": pa,
             "constraints": constraints,
+            "catalog": src.get("action_catalog"),
         },
     }
 

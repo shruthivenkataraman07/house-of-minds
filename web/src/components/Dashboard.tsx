@@ -6,6 +6,7 @@ import type { AskAnswer, Metadata, Passport } from "@/lib/types";
 import { OFFICIAL, VIEWS, type ViewId, useUI } from "@/lib/ui";
 
 import { Drawer, EvidenceLink, ErrorLine, Loading, Pill } from "./ui";
+import { Answers } from "./views/Answers";
 import { Overview } from "./views/CommandCenter";
 import { Council } from "./views/Council";
 import { Investment, Scenarios } from "./views/Decisions";
@@ -16,6 +17,7 @@ import { Operations } from "./views/Operations";
 const PAGES: Record<ViewId, () => React.JSX.Element> = {
   overview: Overview, machines: Machines, operations: Operations, council: Council,
   scenarios: Scenarios, investment: Investment, evidence: Evidence, validation: Validation,
+  answers: Answers,
 };
 
 export default function Dashboard() {
@@ -37,7 +39,11 @@ export default function Dashboard() {
   useEffect(() => {
     mainRef.current?.focus({ preventScroll: true });
     window.scrollTo({ top: 0 });
-    if (window.location.hash.slice(1) !== ui.view) window.history.replaceState(null, "", `#${ui.view}`);
+    // push a history entry per view so browser Back/Forward move between views; selections live in the store
+    if (window.location.hash.slice(1) !== ui.view) {
+      if (window.location.hash) window.history.pushState(null, "", `#${ui.view}`);
+      else window.history.replaceState(null, "", `#${ui.view}`);
+    }
   }, [ui.view]);
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
@@ -139,7 +145,7 @@ function EvidenceDrawer({ id }: { id: string }) {
 
 const SUGGEST = ["Why not replace the bottom 10?", "Explain machine M-5076", "Compare the manager's plan with House of Minds",
   "What if promotion uplift is zero?", "Why did the council challenge this?", "How reliable is the forecast?",
-  "Which machines are affected by downtime?", "Which loyalty groups account for tracked play?"];
+  "Which machines are affected by downtime?", "Show the six answers"];
 
 function AskPalette() {
   const ui = useUI();

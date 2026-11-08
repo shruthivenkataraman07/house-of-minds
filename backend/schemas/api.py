@@ -88,6 +88,14 @@ class BottomMachine(BaseModel):
     lease_net_best_case_usd: float | None
     machine_vs_peer_index: float
     retire_date: str | None
+    zone_id: str
+    active_days: int
+    rank_vs_peers: int
+    rank_luck_aware: int
+    luck_z: float
+    hit_rate_z: float
+    primary_factors: str | None
+    recommended_alternative: str
 
 
 class Executive(BaseModel):
@@ -116,6 +124,7 @@ class MachineRow(BaseModel):
     theo_per_available_hour_usd: float
     available_hours: float
     availability_rate: float
+    downtime_hours: float | None
     rank_raw: int
     rank_luck_aware: int
     rank_vs_peers: int
@@ -197,6 +206,7 @@ class CouncilDecision(BaseModel):
     events: list[Record]
     whispers: list[Record]
     portfolio_changed: bool
+    scenario_flips: list[str]
 
 
 class Portfolios(BaseModel):
@@ -205,6 +215,7 @@ class Portfolios(BaseModel):
     measurement_plans: list[Record]
     promotion: Record
     constraints: list[Record]
+    catalog: list[Record]
 
 
 class Scenarios(BaseModel):
@@ -246,6 +257,7 @@ class AskRequest(BaseModel):
 class AskAction(BaseModel):
     type: Literal[
         "select_entity",
+        "open_answers",
         "set_filters",
         "compare_portfolios",
         "get_evidence",
@@ -262,6 +274,7 @@ class AskAction(BaseModel):
         "investment",
         "evidence",
         "validation",
+        "answers",
     ]
     args: dict[str, str]
 

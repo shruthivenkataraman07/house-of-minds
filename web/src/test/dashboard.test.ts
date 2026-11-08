@@ -51,8 +51,8 @@ describe("formatting preserves units and signs", () => {
 });
 
 describe("navigation state", () => {
-  it("has the eight views", () => {
-    expect(VIEWS.map((v) => v.id)).toEqual(["overview", "machines", "operations", "council", "scenarios", "investment", "evidence", "validation"]);
+  it("has nine views with Answers last and Overview first", () => {
+    expect(VIEWS.map((v) => v.id)).toEqual(["overview", "machines", "operations", "council", "scenarios", "investment", "evidence", "validation", "answers"]);
   });
   it("evidence drawer returns to the previous view and selection", () => {
     useUI.setState({ ...initialUI });

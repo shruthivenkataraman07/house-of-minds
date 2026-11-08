@@ -102,6 +102,7 @@ export function Investment() {
   const sc = Object.fromEntries(promo.scenarios.map((s) => [s.scenario, s]));
   const rec = d.options.find((o) => o.option === "house_of_minds_evidence");
   const noPromo = promo.reoptimised_promo_prohibited;
+  const lead = Object.fromEntries(d.catalog.map((c) => [c.action_type_id, c.lead_days]));
 
   return (
     <div className="space-y-4">
@@ -112,13 +113,15 @@ export function Investment() {
         <Kpi label="Downside (weakest event)" value={signed(rec?.net_low_usd)} className={tone(rec?.net_low_usd)} />
         <Kpi label="Remaining budget" value={usd(100000 - cost)} />
       </div>
-      <Panel title="Allocation" note="Lead days are deducted before benefits accrue (catalog terms)." flush>
-        <Scroll><table className="tbl min-w-[760px]"><thead><tr><th>Action</th><th>Target</th><th>Mode</th><th className="text-right">Qty</th><th className="text-right">Cost</th><th className="text-right">Contribution</th><th className="text-right">Net</th><th>Basis</th><th /></tr></thead>
+      <Panel title="Allocation worksheet" note="Lead time from the official action catalog; benefits accrue after it within Jul 1–30." flush>
+        <Scroll><table className="tbl min-w-[820px]"><thead><tr><th>Action</th><th>Target</th><th>Mode</th><th className="text-right">Qty</th><th className="text-right" title="Catalog lead days before the action takes effect">Lead</th><th className="text-right">Cost</th><th className="text-right">Contribution</th><th className="text-right">Net</th><th>Basis</th><th /></tr></thead>
           <tbody>{[...ev, ...cd].map((p) => (
             <tr key={String(p.passport_id)} className={p.portfolio_mode === "conditional" ? "text-muted" : ""}>
               <td className="font-medium">{String(p.action_name)}</td><td className="text-[12.5px]">{String(p.target_entity)}</td>
               <td>{p.portfolio_mode === "evidence_supported" ? <Pill tone="accent">recommended</Pill> : <Pill>conditional</Pill>}</td>
-              <td className="num text-right">{String(p.quantity)}</td><td className="num text-right">{usd(n(p.total_cost))}</td>
+              <td className="num text-right">{String(p.quantity)}</td>
+              <td className="num text-right">{lead[String(p.action_type_id)] !== undefined ? `${lead[String(p.action_type_id)]} d` : "—"}</td>
+              <td className="num text-right">{usd(n(p.total_cost))}</td>
               <td className="num text-right">{usd(n(p.modeled_incremental_effect))}</td>
               <td className={`num text-right ${tone(n(p.modeled_net_contribution))}`}>{signed(n(p.modeled_net_contribution))}</td>
               <td className="text-[12px]">{String(p.effect_classification).toLowerCase()}</td>

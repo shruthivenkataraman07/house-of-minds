@@ -33,11 +33,13 @@ export function Evidence() {
           </div>}>
           {!d ? <div className="p-4"><Loading rows={8} /></div> : (
             <div className="max-h-[640px] overflow-auto">
-              <table className="tbl min-w-[760px]"><thead><tr><th>Claim</th><th>Source</th><th>Confidence</th><th>Limitation</th><th>Supports</th></tr></thead>
+              <table className="tbl min-w-[980px]"><thead><tr><th>Claim</th><th>Source</th><th>Calculation</th><th>As of</th><th>Uncertainty</th><th>Limitation</th><th>Supports</th></tr></thead>
                 <tbody>{d.claims.map((c) => (
                   <tr key={String(c.claim_id)} className="row-click" onClick={() => ui.openEvidence(String(c.claim_id))}>
                     <td className="text-[12.5px]"><span className="font-medium">{String(c.claim_text)}</span><div className="label">{String(c.claim_id)}</div></td>
                     <td className="text-[12px] text-muted">{String(c.source_table)}</td>
+                    <td className="max-w-[220px] truncate text-[12px] text-muted" title={String(c.result)}>{String(c.result || "—")}</td>
+                    <td className="num whitespace-nowrap text-[12px] text-muted">{String(c.data_as_of || "—")}</td>
                     <td><Pill tone={c.verification_status === "PASS" ? "pos" : c.evidence_classification === "RETRACTED" ? "neg" : "warn"}>{String(c.evidence_classification).replaceAll("_", " ").toLowerCase()}</Pill></td>
                     <td className="max-w-[260px] truncate text-[12px] text-muted" title={String(c.limitation)}>{String(c.limitation || "—")}</td>
                     <td className="text-[12px]">{String(c.decision)}</td></tr>))}</tbody></table>
