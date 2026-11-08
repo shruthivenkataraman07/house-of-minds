@@ -19,6 +19,8 @@ The optimizer is an exact mixed-integer program (`optimization/portfolio.py`, Sc
 
 **Stop rule (MP-A-PROMO):** if the first weekend's excess falls below break-even and outside the forecast's 80% range, cancel the second weekend before its 14-day lead time closes.
 
+**Caveat:** as recorded, this stop rule cannot be carried out. The second weekend (July 25–27) must be ordered 14 days ahead, by about July 11, which is before the first weekend (July 18–20) has been observed. The dashboard's Investment view flags this. A workable version would decide on the second weekend from pre-registered early signals, or commit to both weekends knowingly.
+
 ## Alternatives compared
 
 | Plan | Cost | Net | Range | Why not chosen |

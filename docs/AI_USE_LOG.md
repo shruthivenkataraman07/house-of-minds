@@ -23,3 +23,14 @@ AI assistant (Claude Code) built the FastAPI dashboard API (`backend/api/v1.py`,
 
 ## Plain-language explanations and typeset formulas (2026-11-08)
 AI assistant (Claude Code) rewrote the dashboard's calculation explanations in plain language (`web/src/lib/explain.ts`, `web/src/components/explain.tsx`). It added typeset formulas, rendered with KaTeX from fixed templates in `web/src/lib/formulas.ts`, to the evidence passports and the "How this is calculated" panels. The passport API now exposes the recorded numeric operands (`values`). No calculation or recorded value was changed; substituted numbers come from API fields only.
+
+## Design and communication pass (2026-11-08)
+AI assistant (Claude Code), guided by the `impeccable`, `design-taste-frontend` and `frontend-design` skills, refined the dashboard's presentation in `web/src`. The changes:
+- a focal Overview verdict and plan comparison;
+- page takeaways written as conclusions;
+- one color per meaning, AA contrast and larger type;
+- phone card layouts, and scroll cues on wide tables;
+- true minus signs;
+- a cold-start loading message;
+- explanatory motion (count-ups, bars growing from zero, rank dots sliding to fair rank, a sequenced council strip and validation chart), all honoring reduced motion.
+No number, model, calculation or data file was changed. A browser check confirmed that every dollar and percentage figure on all nine routes matches the previous deployment.

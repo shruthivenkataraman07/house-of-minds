@@ -3,7 +3,7 @@
 | Requirement (official guide) | Status | Where |
 |---|---|---|
 | Public interactive dashboard | Done, live | https://house-of-minds.onrender.com |
-| Code and all transformations in a public repository | Done, pushed | https://github.com/shruthivenkataraman07/house-of-minds |
+| Code and all transformations in a public repository | Done, public | https://github.com/shruthivenkataraman07/house-of-minds |
 | Time-based model validation against a simple baseline | Done | [Analytical methods §11](../docs/ANALYTICAL_METHODS.md#11-forecast-validation), Validation view |
 | Investment plan within $100,000, at most 3 action types, priced, with effect, uncertainty and measurement | Done | [Financial decisions](../docs/FINANCIAL_DECISIONS.md) |
 | Write-up, at most 400 words | Done | [WRITEUP.md](WRITEUP.md) |
