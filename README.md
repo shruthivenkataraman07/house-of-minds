@@ -44,11 +44,11 @@ $70,000 stays unspent. The conditional plan depends on effects nobody has measur
 
 | | |
 |---|---|
-| ![Overview: replacement verdict, the manager's ten machines and the July plan](docs/screenshots/01-overview.png) | ![Machine M-1158: luck, paying-spin test, comparable machines and earnings gap](docs/screenshots/02-machine-forensics.png) |
+| ![Overview: Replace none, with the manager's plan at −$15,843 against House of Minds at +$62,237 and each plan's July return](docs/screenshots/01-overview.png) | ![Machine M-1158: luck, paying-spin test, comparable machines and earnings gap](docs/screenshots/02-machine-forensics.png) |
 | **Overview.** Verdict, the ten machines, July plan | **Machines.** One machine, four statistical questions |
 | ![Council: six specialist agents and their checks on each machine](docs/screenshots/03-council.png) | ![Investment: how the $100,000 is used and what each action is expected to return](docs/screenshots/04-investment.png) |
 | **Council.** Six rule-based reviewers, every check visible | **Investment.** Budget use, action economics, risk |
-| ![Evidence passport with typeset luck-score formula and the machine's own numbers](docs/screenshots/05-evidence-passport-math.png) | ![Validation: forecast error formulas with the holdout values](docs/screenshots/06-validation.png) |
+| ![Evidence passport with typeset luck-score formula and the machine's own numbers](docs/screenshots/05-evidence-passport-math.png) | ![Validation: chronological train, selection and holdout split, error against the baseline, and actual vs forecast with event days](docs/screenshots/06-validation.png) |
 | **Evidence passport.** Formula, symbols, real values, meaning | **Validation.** Chronological holdout against a baseline |
 
 ## What makes it different
