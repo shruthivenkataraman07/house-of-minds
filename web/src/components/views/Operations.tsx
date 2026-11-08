@@ -60,7 +60,10 @@ function DemandTab() {
   const { data, error, loading, reload } = useApi<Demand>(ok ? `/operations/demand?start=${period.from}&end=${period.to}` : null);
   if (!ok) return <p className="text-[13px] text-neg">Start date is after end date; adjust the period.</p>;
   if (error) return <ErrorLine error={error} retry={reload} />;
-  if (!data) return <Loading rows={5} />;
+  if (!data || data.data.period.start !== period.from || data.data.period.end !== period.to) {
+    return <div aria-busy="true"><p className="label mb-2">Loading {period.from} → {period.to}…</p><Loading rows={5} /></div>;
+  }
+  if (data.data.totals.days === 0) return <p className="panel p-4 text-[13px] text-muted">No gaming days in {period.from} → {period.to}; choose another period.</p>;
   const d = data.data;
   const t = d.totals;
   const months = [...new Set(d.zone_monthly.map((r) => r.month))].sort();
@@ -97,7 +100,7 @@ function DemandTab() {
       )}
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title="Is weekly demand trending down?" note={`Average ${TERM.coin_in.toLowerCase()} per gaming day, by week (partial weeks averaged over their own days).`}>
-          <div className="h-56" role="img" aria-label="Weekly coin-in per day and per available hour">
+          <div className="h-56" role="img" aria-label="Weekly amount wagered per day">
             <ResponsiveContainer><LineChart data={d.weekly} margin={{ left: 0, right: 0, top: 4 }}>
               <CartesianGrid stroke="var(--line)" vertical={false} />
               <XAxis dataKey="week_start" {...AX} tickFormatter={(x: string) => x.slice(5)} minTickGap={24} />
@@ -134,15 +137,15 @@ function BanksTab() {
   const det = useApi<BankDetail>(ok && ui.bankId ? `/operations/banks/${ui.bankId}?start=${period.from}&end=${period.to}` : null);
   if (!ok) return <p className="text-[13px] text-neg">Start date is after end date; adjust the period.</p>;
   if (list.error) return <ErrorLine error={list.error} retry={list.reload} />;
-  if (!list.data) return <Loading rows={6} />;
+  if (!list.data || list.data.data.period.start !== period.from || list.data.data.period.end !== period.to) return <Loading rows={6} />;
   const b = det.data?.data;
   return (
     <div className="grid gap-4 xl:grid-cols-2">
-      <Panel title="Banks by theo per available hour" note="All-play machine meters; hold = Σ house win / Σ coin-in." flush
+      <Panel title="Which banks earn least per available hour?" note="All-play machine meters; share kept = Σ casino win / Σ wagered. Select a bank." flush
         right={<select aria-label="Zone" value={ui.zoneId ?? ""} onChange={(e) => ui.set({ zoneId: e.target.value || null })} className="rounded border border-line bg-surface px-1.5 py-0.5 text-[12.5px]">
           <option value="">All zones</option>{["Z-B40", "Z-PIT", "Z-ENT", "Z-HL", "Z-BAR", "Z-GAR", "Z-HTL"].map((x) => <option key={x} value={x}>{x}</option>)}</select>}>
         <div className="max-h-[480px] overflow-auto">
-          <table className="tbl min-w-[520px]"><thead><tr><th>Bank</th><th>Zone</th><th className="text-right">Coin-in</th><th className="text-right">House win</th><th className="text-right">Hold</th><th className="text-right">Theo / h</th></tr></thead>
+          <table className="tbl min-w-[520px]"><thead><tr><th>Bank</th><th>Zone</th><th className="text-right">Wagered</th><th className="text-right">Casino win</th><th className="text-right">Share kept</th><th className="text-right">Expected win / h</th></tr></thead>
             <tbody>{list.data.data.banks.map((r) => (
               <tr key={r.bank_id} className="row-click" aria-selected={ui.bankId === r.bank_id} onClick={() => ui.set({ bankId: r.bank_id })}>
                 <td className="font-medium">{r.bank_id}</td><td className="text-[12.5px]">{r.zone_name}</td>
@@ -156,19 +159,19 @@ function BanksTab() {
         {b && (
           <div className="space-y-3">
             <div className="grid grid-cols-3 gap-3">
-              <Kpi label="Coin-in" value={compact(b.totals.coin_in_usd)} />
-              <Kpi label="House win" value={compact(b.totals.house_win_usd)} sub={`hold ${pct(b.totals.hold, 2)}`} />
-              <Kpi label="Theo" value={compact(b.totals.theo_usd)} sub={`${num(b.totals.machine_days)} machine-days`} />
+              <Kpi label="Wagered" value={compact(b.totals.coin_in_usd)} />
+              <Kpi label="Casino win" value={compact(b.totals.house_win_usd)} sub={`share kept ${pct(b.totals.hold, 2)}`} />
+              <Kpi label="Expected win" value={compact(b.totals.theo_usd)} sub={`${num(b.totals.machine_days)} machine-days`} />
             </div>
             <div className="h-48" role="img" aria-label={`Daily house win and theo for bank ${b.bank_id}`}>
               <ResponsiveContainer><LineChart data={b.daily} margin={{ left: 0, right: 0 }}><CartesianGrid stroke="var(--line)" vertical={false} />
                 <XAxis dataKey="gaming_date" {...AX} tickFormatter={(x: string) => x.slice(5)} minTickGap={28} /><YAxis {...AX} width={48} tickFormatter={(v: number) => compact(v)} />
-                <Tooltip {...TT} formatter={(v, k) => [usd(Number(v)), k === "house_win_usd" ? "House win (actual)" : "Theo (expected)"]} />
+                <Tooltip {...TT} formatter={(v, k) => [usd(Number(v)), k === "house_win_usd" ? "Casino win (actual)" : "Expected casino win"]} />
                 <Line isAnimationActive={false} dataKey="house_win_usd" stroke="var(--chart-2)" dot={false} />
                 <Line isAnimationActive={false} dataKey="theo_usd" stroke="var(--chart-1)" dot={false} strokeWidth={1.75} />
               </LineChart></ResponsiveContainer>
             </div>
-            <p className="label">Grey: actual house win (luck-driven) · blue: theoretical win.</p>
+            <p className="label">Grey: actual casino win (varies with payout luck) · blue: expected casino win.</p>
             <p className="flex flex-wrap gap-x-2 text-[12.5px]"><span className="label">Machines</span>{b.machines.map((m) => (
               <button key={m} type="button" onClick={() => ui.go("machines", { machineId: m })} className="text-accent hover:underline">{m}</button>))}</p>
           </div>
@@ -221,7 +224,7 @@ function DowntimeTab() {
             <Bar isAnimationActive={false} dataKey="h" fill="var(--chart-1)" radius={[2, 2, 0, 0]} /></BarChart></ResponsiveContainer></div>
         </Panel>
         <Panel title="By manufacturer" flush>
-          <Scroll><table className="tbl min-w-[440px]"><thead><tr><th>Manufacturer</th><th className="text-right">Down h</th><th className="text-right">Rate</th><th className="text-right">Faults</th><th className="text-right">Theo at risk</th></tr></thead>
+          <Scroll><table className="tbl min-w-[440px]"><thead><tr><th>Manufacturer</th><th className="text-right">Down h</th><th className="text-right">Rate</th><th className="text-right">Faults</th><th className="text-right">Expected win at risk</th></tr></thead>
             <tbody>{d.by_manufacturer.map((r) => <tr key={String(r.manufacturer)}><td>{String(r.manufacturer)}</td><td className="num text-right">{num(n(r.downtime_hours))}</td><td className="num text-right">{pct(n(r.downtime_rate), 2)}</td><td className="num text-right">{num(n(r.faults))}</td><td className="num text-right">{usd(n(r.theo_at_risk_usd))}</td></tr>)}</tbody></table></Scroll>
         </Panel>
       </div>
@@ -256,7 +259,7 @@ function PlayersTab() {
         <Kpi label="Tracked wagers" value={compact(n(p.tracked_coin_in_usd))} sub={`${num(n(p.players_with_tracked_play))} players`} />
         <Kpi label="Tracked payouts" value={compact(n(p.tracked_payout_usd))} />
         <Kpi label="Net player outcome" value={compact(n(p.tracked_player_net_usd))} className="text-neg" sub={`${pct(n(p.share_players_ahead))} finished ahead`} />
-        <Kpi label="Top 10% share of theo" value={pct(n(p.top10pct_share_of_theo))} sub={`Gini ${n(p.gini_theo).toFixed(2)}`} />
+        <Kpi label="Top 10% share of expected win" value={pct(n(p.top10pct_share_of_theo))} sub={`Gini ${n(p.gini_theo).toFixed(2)}`} />
       </div>
       <Panel title="How concentrated is tracked play?" note="Share of tracked expected win by player group (aggregate shares; no individual records).">
         <CompositionBar label="Share of tracked expected win by player group" segments={[
@@ -265,7 +268,7 @@ function PlayersTab() {
           { key: "rest", label: "Other 90%", value: Math.round((1 - n(p.top10pct_share_of_theo)) * 1000) / 10, display: pct(1 - n(p.top10pct_share_of_theo)), tone: "muted" }]} />
       </Panel>
       <Panel title="By loyalty tier" note="Select a tier to drill in." flush>
-        <Scroll><table className="tbl min-w-[600px]"><thead><tr><th>Tier</th><th className="text-right">Players</th><th className="text-right">Wagered</th><th className="text-right">Net (player)</th><th className="text-right">Theo</th><th className="text-right">Share of theo</th><th className="text-right">Ahead</th></tr></thead>
+        <Scroll><table className="tbl min-w-[600px]"><thead><tr><th>Tier</th><th className="text-right">Players</th><th className="text-right">Wagered</th><th className="text-right">Net (player view)</th><th className="text-right">Expected win</th><th className="text-right">Share of theo</th><th className="text-right">Ahead</th></tr></thead>
           <tbody>{tiers.map((t) => (
             <tr key={String(t.tier)} className="row-click" aria-selected={ui.tier === t.tier} onClick={() => ui.set({ tier: String(t.tier) })}>
               <td className="font-medium">{String(t.tier)}</td><td className="num text-right">{num(n(t.players))}</td><td className="num text-right">{compact(n(t.coin_in))}</td>
@@ -290,7 +293,7 @@ function CompsTab() {
         <Kpi label="Points awarded" value={num(rows.reduce((s, r) => s + r.awarded, 0))} />
         <Kpi label="Points redeemed" value={num(rows.reduce((s, r) => s + r.redeemed, 0))} />
         <Kpi label="Comp cost" value={usd(rows.reduce((s, r) => s + r.cost, 0))} sub="economic cost, counted once" />
-        <Kpi label="Cost per carded theo" value={`${pct(f.rate, 2)} → ${pct(l.rate, 2)}`} sub={`${f.month} → ${l.month}`} />
+        <Kpi label="Cost per tracked expected win" value={`${pct(f.rate, 2)} → ${pct(l.rate, 2)}`} sub={`${f.month} → ${l.month}`} />
       </div>
       <Panel title="Points per comp dollar" note={`${f.ppd.toFixed(1)} in ${f.month} → ${l.ppd.toFixed(1)} in ${l.month}; change effective May 1, 2025.`}>
         <div className="h-52" role="img" aria-label="Points per comp dollar by month"><ResponsiveContainer><BarChart data={rows} margin={{ left: 0 }}>

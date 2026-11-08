@@ -14,8 +14,8 @@ import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, S
 const ZONES: [string, string][] = [["", "All zones"], ["Z-B40", "Back Forty"], ["Z-PIT", "Center Pit"], ["Z-ENT", "Main Entrance"],
   ["Z-HL", "High-Limit Room"], ["Z-BAR", "Bar Row"], ["Z-GAR", "Garage Entrance"], ["Z-HTL", "Hotel Corridor"]];
 const SORT_LINE: Record<string, string> = {
-  observed: "Lowest observed house win first: rewards floor time and luck, not machine quality.",
-  fair: "Weakest theo per available hour versus same-game peers first.",
+  observed: "Lowest casino win first: rewards floor time and luck, not machine quality.",
+  fair: "Weakest expected win per available hour versus comparable machines first.",
   opportunity: "Highest best-case July lease net first.",
 };
 
@@ -65,7 +65,7 @@ export function Machines() {
             <table className="tbl min-w-[1040px]">
               <caption className="sr-only">Machines with earnings, fair performance, availability and verdicts</caption>
               <thead><tr>
-                <th>Machine</th><th className="text-right" title="Rank by total house win; 1 = lowest">Earnings #</th><th className="text-right">House win</th><th className="text-right">Theo win</th>
+                <th>Machine</th><th className="text-right" title="Rank by total casino win; 1 = lowest">Earnings #</th><th className="text-right">Casino win</th><th className="text-right">Expected win</th>
                 <th className="text-right" title="Rank vs same-game peers on expected win per available hour; 1 = weakest, 310 = strongest">Fair rank</th><th className="text-right">Availability</th><th className="text-right" title="Meter downtime for the manager's 10; scheduled minus available hours otherwise">Downtime</th><th>Location</th><th>Payout</th><th>Action</th><th>Robustness</th><th />
               </tr></thead>
               <tbody>{page.rows.map((m) => (
@@ -125,9 +125,9 @@ function MachineDrawer({ id }: { id: string }) {
         <div className="space-y-5">
           {i && <p className="text-[13px]">{String(i.recommended_alternative)}</p>}
           <div className="grid grid-cols-2 gap-4">
-            <Kpi label="House win (actual)" value={usd(n(m.house_win_usd))} sub={`luck z ${n(m.luck_z).toFixed(2)}`} />
-            <Kpi label="Theoretical win" value={usd(n(m.theo_usd))} sub={`coin-in ${usd(n(m.coin_in_usd))}`} />
-            <Kpi label="Theo per available hour" value={usd(n(m.theo_per_available_hour), 2)} sub={i ? `zone ${usd(n(i.zone_theo_per_available_hour), 2)} · peer index ${n(i.machine_vs_peer_index).toFixed(2)}` : `peer rank ${m.rank_vs_peers}`} />
+            <Kpi label="Casino win (actual)" value={usd(n(m.house_win_usd))} sub={`luck z ${n(m.luck_z).toFixed(2)}`} />
+            <Kpi label="Expected casino win" value={usd(n(m.theo_usd))} sub={`coin-in ${usd(n(m.coin_in_usd))}`} />
+            <Kpi label="Expected win per available hour" value={usd(n(m.theo_per_available_hour), 2)} sub={i ? `zone ${usd(n(i.zone_theo_per_available_hour), 2)} · peer index ${n(i.machine_vs_peer_index).toFixed(2)}` : `peer rank ${m.rank_vs_peers}`} />
             <Kpi label="Availability" value={pct(n(m.availability_rate))} sub={i ? `${i.active_days} active days · ${num(n(i.downtime_hours), 1)} h down` : `${num(n(m.available_hours))} available h`} />
           </div>
           {i && <p className="label">RTP {pct(n(i.rtp))} · {String(i.volatility_class)} volatility · hit-rate z {n(i.hit_rate_z).toFixed(2)} (Bonferroni p {n(i.hit_p_bonferroni) < 0.001 ? "< 0.001" : n(i.hit_p_bonferroni).toFixed(2)}){i.retire_date ? ` · retired ${String(i.retire_date).slice(0, 10)}` : ""}</p>}

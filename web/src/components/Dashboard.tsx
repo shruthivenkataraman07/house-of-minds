@@ -171,7 +171,8 @@ function AskPalette() {
     const { view, args } = a.action;
     if (args.evidence_id) { ui.set({ askOpen: false }); ui.openEvidence(args.evidence_id); return; }
     ui.go(view as ViewId, { machineId: args.machine_id ?? ui.machineId, zoneId: args.zone_id ?? ui.zoneId,
-      bankId: args.bank_id ?? ui.bankId, tab: args.tab ?? null, scenario: args.scenario ?? ui.scenario, askOpen: false });
+      bankId: args.bank_id ?? ui.bankId, tab: args.tab ?? null, scenario: args.scenario ?? ui.scenario, askOpen: false,
+      ...(args.start && args.end ? { period: { from: args.start, to: args.end } } : {}) });
   };
   const toneOf = { OK: "pos", UNAVAILABLE: "warn", AMBIGUOUS: "warn", UNSUPPORTED: "muted", REFUSED: "neg" } as const;
   const a = res?.a;

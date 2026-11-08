@@ -68,6 +68,7 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 # user-facing answer and passport sentences are kept on one line for readability
 "backend/services/ask.py" = ["E501"]
 "backend/services/dashboard.py" = ["E501"]
+"scripts/qa_parity.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

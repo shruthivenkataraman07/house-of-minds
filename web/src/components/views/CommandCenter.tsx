@@ -103,7 +103,7 @@ export function Overview() {
           right={<button type="button" onClick={() => ui.go("machines")} className="text-[12.5px] text-accent hover:underline">All machines →</button>}>
           <Scroll>
             <table className="tbl min-w-[680px]">
-              <thead><tr><th className="text-right" title="Manager's rank by total house win (1 = lowest)">Earnings #</th><th>Machine</th><th className="text-right">House win</th><th className="text-right" title="Rank vs same-game peers on expected win per available hour; 1 = weakest, 310 = strongest">Fair rank</th><th className="text-right">Days on floor</th><th>Verdict</th><th>Main reason</th></tr></thead>
+              <thead><tr><th className="text-right" title="Manager's rank by total casino win (1 = lowest)">Earnings #</th><th>Machine</th><th className="text-right">House win</th><th className="text-right" title="Rank vs same-game peers on expected win per available hour; 1 = weakest, 310 = strongest">Fair rank</th><th className="text-right">Days on floor</th><th>Verdict</th><th>Main reason</th></tr></thead>
               <tbody>{x.bottom10.map((m) => (
                 <tr key={m.machine_id} className="row-click" onClick={() => ui.go("machines", { machineId: m.machine_id })}>
                   <td className="num text-right text-muted">{m.manager_rank}</td>

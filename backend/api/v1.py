@@ -55,6 +55,13 @@ def _meta(src: DataSource, names: list[str], period: str | None = None) -> Meta:
 
 
 def _period(start: str, end: str) -> dict[str, str]:
+    from datetime import date
+
+    for v in (start, end):
+        try:
+            date.fromisoformat(v)
+        except ValueError as exc:  # e.g. 2025-02-30 passes the pattern but is not a date
+            raise HTTPException(422, f"{v} is not a valid calendar date") from exc
     if start > end:
         raise HTTPException(422, "start must be on or before end")
     return {"start": start, "end": end}
@@ -68,9 +75,12 @@ def _cached(resp: Response) -> None:
 def health() -> Health:
     src = get_source()
     try:
-        snap = src.snapshot.meta()["snapshot_id"]
+        m = src.snapshot.meta()
+        snap = m["snapshot_id"]
     except DataUnavailable as e:
         raise HTTPException(503, f"snapshot unavailable: {e}") from e
+    if m["sidecar_snapshot_id"] != snap:
+        raise HTTPException(503, "snapshot versions differ between export and sidecar")
     err = src.live.last_error if src.live else None
     return Health(
         status="degraded" if err else "ok", data_mode=src.mode, snapshot_id=snap, live_error=err

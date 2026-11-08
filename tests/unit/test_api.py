@@ -281,3 +281,81 @@ def test_fair_sort_lists_weakest_vs_peers_first():
         4,
         5,
     ]  # 1 = weakest vs comparable machines
+
+
+def test_impossible_calendar_date_rejected():
+    r = c.get("/api/v1/operations/demand?start=2025-02-30&end=2025-02-30")
+    assert r.status_code == 422 and "not a valid calendar date" in r.json()["detail"]
+
+
+def _copy_snapshot(tmp_path):
+    import shutil
+
+    shutil.copytree(srcmod.DATA / "current", tmp_path / "current")
+    shutil.copytree(srcmod.DATA / "sidecar", tmp_path / "sidecar")
+    return srcmod.Snapshot(root=tmp_path)
+
+
+def test_snapshot_rejects_tampered_file(tmp_path):
+    snap = _copy_snapshot(tmp_path)
+    p = tmp_path / "current" / "ch_executive_verdict.json"
+    p.write_text(p.read_text().replace("REPLACE_NONE", "REPLACE_ALL"))
+    with pytest.raises(DataUnavailable, match="checksum"):
+        snap.get("ch_executive_verdict")
+
+
+def test_snapshot_refuses_mixed_versions(tmp_path):
+    import json as _json
+
+    snap = _copy_snapshot(tmp_path)
+    mf = tmp_path / "sidecar" / "manifest.json"
+    m = _json.loads(mf.read_text())
+    m["snapshot_id"] = "chf-v1:other"
+    mf.write_text(_json.dumps(m))
+    with pytest.raises(DataUnavailable, match="does not match"):
+        snap.get("floor_day")
+    assert snap.get("ch_executive_verdict")[0]["answer"] == "REPLACE_NONE"  # export itself intact
+
+
+def test_snapshot_missing_manifest_is_unavailable(tmp_path):
+    snap = srcmod.Snapshot(root=tmp_path)
+    with pytest.raises(DataUnavailable, match="manifest missing"):
+        snap.get("ch_executive_verdict")
+
+
+def test_optimizer_constraints_reject_infeasible_fixtures():
+    from optimization.action_catalog import ActionCatalog, SelectedAction, price_selection
+    from pipelines.ingestion.loader import open_local_repository
+
+    cat = ActionCatalog.load(open_local_repository())
+    over = price_selection(
+        cat, [SelectedAction(action_type_id="A-REPLACE-BUY", quantity=10, extra_cost_cents=0)]
+    )
+    assert not over.valid and any("budget" in v for v in over.violations)
+    many = price_selection(
+        cat,
+        [
+            SelectedAction(action_type_id=a, quantity=1, extra_cost_cents=0)
+            for a in ("A-INSPECT", "A-MOVE-MACHINE", "A-SURVEY", "A-COMP-CHANGE")
+        ],
+    )
+    assert not many.valid
+    too_many_promos = price_selection(
+        cat, [SelectedAction(action_type_id="A-PROMO", quantity=3, extra_cost_cents=0)]
+    )
+    assert not too_many_promos.valid
+
+
+def test_ask_month_demand_and_business_wording():
+    a = c.post("/api/v1/ask", json={"question": "Show March 2025 demand."}).json()
+    assert a["action"]["args"] == {"tab": "demand", "start": "2025-03-01", "end": "2025-03-31"}
+    t = get("/api/v1/operations/demand?start=2025-03-01&end=2025-03-31")["data"]["totals"]
+    assert f"{t['coin_in_usd']:,.0f}" in a["conclusion"]
+    verb = c.post("/api/v1/ask", json={"question": "Results may show demand changes"}).json()
+    assert "start" not in (verb["action"] or {}).get("args", {})
+    for q in [
+        "Should we replace the bottom 10 machines?",
+        "Explain the $100,000 investment recommendation.",
+    ]:
+        text = c.post("/api/v1/ask", json={"question": q}).json()["conclusion"]
+        assert "REPLACE_" not in text and "INV-" not in text and "_" not in text.split("(")[0]

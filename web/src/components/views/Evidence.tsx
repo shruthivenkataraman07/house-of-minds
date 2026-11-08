@@ -101,14 +101,14 @@ export function Validation() {
           <span key={k}><span className="label">{k} </span>{v}</span>))}
       </div>
       <div className="panel grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
-        <Kpi label="Holdout MAE" value={usd(n(all?.candidate_mae))} sub={`baseline ${usd(n(all?.baseline_mae))} per day`} />
+        <Kpi label="Holdout MAE (mean absolute error)" value={usd(n(all?.candidate_mae))} sub={`baseline ${usd(n(all?.baseline_mae))} per day`} />
         <Kpi label="Improvement · all days" value={`${n(all?.mae_improvement_pct).toFixed(1)}%`} className="text-pos" sub={`non-event ${n(ne?.mae_improvement_pct).toFixed(1)}%`} />
         <Kpi label="Improvement · event days" value={`${n(ev?.mae_improvement_pct).toFixed(1)}%`} className="text-neg" sub={`${n(ev?.n)} days`} />
         <Kpi label="80% interval coverage" value={pct(n(all?.candidate_coverage80), 0)} className="text-warn" sub={`event days ${pct(n(ev?.candidate_coverage80), 0)}`} />
       </div>
-      <Panel title="Actual vs forecast, daily floor theo" note="Black: actual · blue: Holt-Winters with 80% band · grey: baseline · amber: event days."
+      <Panel title="Actual vs forecast: daily expected casino win (holdout)" note="Black: actual · blue: Holt-Winters with 80% band · grey: baseline · amber: event days."
         right={<label className="label flex items-center gap-1"><input type="checkbox" checked={marks} onChange={(e) => setMarks(e.target.checked)} />Event days</label>}>
-        <div className="h-64" role="img" aria-label="Holdout actual, model and baseline daily theo">
+        <div className="h-64" role="img" aria-label="Holdout actual, model and baseline daily expected casino win">
           <ResponsiveContainer><ComposedChart data={rows} margin={{ left: 0, right: 4 }}>
             <CartesianGrid stroke="var(--line)" vertical={false} />
             <XAxis dataKey="d" stroke="var(--muted)" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(x: string) => x.slice(5)} minTickGap={24} />

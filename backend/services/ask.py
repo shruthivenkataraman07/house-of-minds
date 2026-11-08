@@ -12,7 +12,7 @@ import re
 from statistics import median
 from typing import Any
 
-from .dashboard import ZONE_NAMES
+from .dashboard import ZONE_NAMES, floor_totals
 from .source import DataSource
 
 ACTIONS = (
@@ -108,6 +108,46 @@ def _answer(
         "premise_correction": premise,
         "action": action,
     }
+
+
+VERDICT_LABEL = {
+    "REPLACE_NONE": "Replace none",
+    "REPLACE_ALL": "Replace all",
+    "REPLACE_SOME": "Replace some",
+    "INSUFFICIENT_EVIDENCE": "insufficient evidence",
+    "RETIRED_ALREADY": "already retired",
+    "DO_NOT_REPLACE_INSPECT": "inspect, don't replace",
+    "DO_NOT_REPLACE_NOT_ECONOMIC": "not economic to replace",
+    "DO_NOT_REPLACE_EXPOSURE": "limited floor time",
+    "REPLACE_JUSTIFIED_CONDITIONAL": "replace (conditional)",
+}
+ACTION_LABEL = {
+    "INV-PROMO": "promotion weekend",
+    "INV-INSPECT-M1158": "inspection of M-1158",
+    "INV-MOVE-M-1154-Z-PIT": "move M-1154 to Center Pit",
+    "INV-MOVE-M-1184-Z-PIT": "move M-1184 to Center Pit",
+}
+MONTHS = {
+    m: i for i, m in enumerate(["january", "february", "march", "april", "may", "june"], start=1)
+}
+MONTH_DAYS = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30}
+
+
+def _verdict(code: str) -> str:
+    return VERDICT_LABEL.get(code, code.replace("_", " ").lower())
+
+
+def _plan(alloc: str) -> str:
+    """Business wording for an optimizer allocation string such as INV-PROMOx2."""
+    if not alloc or alloc == "HOLD":
+        return "no spending (hold)"
+    out = []
+    for part in alloc.split(";"):
+        m = re.match(r"^(.*)x(\d+)$", part)
+        name, qty = (m.group(1), int(m.group(2))) if m else (part, 1)
+        label = ACTION_LABEL.get(name, name.replace("INV-", "").lower())
+        out.append(f"{qty} {label}s" if qty > 1 else label)
+    return ", ".join(out)
 
 
 def _act(t: str, view: str, **args: Any) -> dict[str, Any]:
@@ -255,7 +295,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
         if inv:
             conclusion = (
                 f"{mid} is #{inv['manager_rank']} on the manager's list. Verdict: "
-                f"{inv['verdict']}. {inv['recommended_alternative']}."
+                f"{_verdict(inv['verdict']).capitalize()}. {inv['recommended_alternative'][:1].upper()}{inv['recommended_alternative'][1:]}."
             )
             if inv["lease_net_planning_usd"] is not None:
                 support.append(
@@ -269,7 +309,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
                     f"Hit-rate z = {inv['hit_rate_z']:.1f} vs game math (Bonferroni p < 0.001)."
                 )
             support.append(
-                f"Council: {inv['council_verdict']} ({'agrees' if inv['council_agrees'] else 'disagrees'})."
+                f"Council: {_verdict(inv['council_verdict'])} ({'agrees' if inv['council_agrees'] else 'disagrees'})."
             )
         else:
             conclusion = f"{mid} is not on the manager's bottom-10 list." + (
@@ -326,7 +366,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
             "open_answers",
             "The Answers tab gives one evidence-backed conclusion for each of the six questions.",
             support=[
-                f"Headline: {v['answer']}; recommended plan {_usd(v['recommended_net_usd'], True)}."
+                f"Headline: {_verdict(v['answer'])}; recommended plan {_usd(v['recommended_net_usd'], True)}."
             ],
             period=f"{OFFICIAL}; economics {HZ}",
             evidence="ch_executive_verdict",
@@ -432,6 +472,38 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
             action=_act("set_filters", "operations", tab="downtime", zone_id=zone_id),
         )
 
+    month = next(
+        (
+            i
+            for name, i in MONTHS.items()
+            # "may" is also a verb: only "in May" / "May 2025" count as the month
+            if (
+                re.search(r"\bin may\b|\bmay 2025\b", q)
+                if name == "may"
+                else re.search(rf"\b{name[:3]}(?:{name[3:]})?\b", q)
+            )
+        ),
+        None,
+    )
+    if month and re.search(r"demand|traffic|coin.?in|wager|busy|show|visits", q):
+        start, end = f"2025-{month:02d}-01", f"2025-{month:02d}-{MONTH_DAYS[month]:02d}"
+        t = floor_totals(src, start, end)
+        full = floor_totals(src, "2025-01-01", "2025-06-30")
+        per_day, avg = t["coin_in_per_day_usd"], full["coin_in_per_day_usd"]
+        return _answer(
+            "OK",
+            "set_filters",
+            f"{start[:7]}: {_usd(t['coin_in_usd'])} wagered over {t['days']} gaming days "
+            f"({_usd(per_day)} per day, {(per_day / avg - 1) * 100:+.1f}% vs the Jan–Jun daily average).",
+            support=[
+                f"Casino win {_usd(t['house_win_usd'])}; share of wagers kept {_pct(t['hold'], 2)} (ratio of sums).",
+                f"Wagered per available machine-hour {_usd(t['coin_in_per_available_hour_usd'])}.",
+            ],
+            period=f"{start}..{end} (exploratory; verdicts stay on Jan–Jun)",
+            evidence="property_day (daily grain) · ch_floor_demand_monthly",
+            action=_act("set_filters", "operations", tab="demand", start=start, end=end),
+        )
+
     if re.search(r"demand|traffic|coin.?in|zone|busy|visits|walkway", q) or zone_id or bank_id:
         ex = src.get("ch_demand_explanations")
         e0 = ex[0]
@@ -499,7 +571,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
         return _answer(
             "OK",
             "get_evidence",
-            f"The recommendation ({v['recommended_allocation']}) is documented in passport "
+            f"The recommendation ({_plan(v['recommended_allocation'])}) is documented in passport "
             f"{pp['passport_id'] if pp else 'n/a'}: cost, effect, assumptions, council claims and reversals.",
             support=[
                 f"Effect classification: {pp['effect_classification'] if pp else 'n/a'}.",
@@ -522,7 +594,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
         return _answer(
             "OK",
             "get_evidence",
-            f"{v['answer']}. Of the 10: {v['retired_already']} retired, {v['inspect_instead']} need "
+            f"{_verdict(v['answer'])}. Of the 10: {v['retired_already']} retired, {v['inspect_instead']} need "
             f"inspection (payout fault), {v['not_economic']} lose money on a lease even with the zone's best "
             f"title, {v['insufficient_evidence']} has insufficient evidence.",
             support=[
@@ -542,7 +614,7 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
         return _answer(
             "OK",
             "compare_portfolios",
-            f"Spend {_usd(v['recommended_cost_usd'])} on {v['recommended_allocation']} (modeled net "
+            f"Spend {_usd(v['recommended_cost_usd'])} on {_plan(v['recommended_allocation'])} (modeled net "
             f"{_usd(v['recommended_net_usd'], True)}) and keep {_usd(100000 - float(v['recommended_cost_usd']))}.",
             support=[
                 f"Conditional upside: {_usd(v['conditional_upside_cost_usd'])} for "

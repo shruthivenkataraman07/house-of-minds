@@ -68,3 +68,14 @@ describe("navigation state", () => {
     expect(initialUI.period).toEqual(OFFICIAL);
   });
 });
+
+describe("missing values are never shown as zero", () => {
+  it("renders an em dash for null, undefined and NaN", () => {
+    for (const v of [null, undefined, Number.NaN]) {
+      expect(usd(v)).toBe("—");
+      expect(signed(v as number | null | undefined)).not.toBe("$0");
+      expect(pct(v)).toBe("—");
+      expect(compact(v)).toBe("—");
+    }
+  });
+});

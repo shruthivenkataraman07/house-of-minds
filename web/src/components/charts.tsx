@@ -24,7 +24,7 @@ export function ValueBars({ rows, format, label, selected }: {
   const x = (v: number) => L + ((v - min) / (max - min || 1)) * (W - L - R);
   const H = rows.length * rowH + 22;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="group" aria-label={label}>
+    <div className="overflow-x-auto"><svg viewBox={`0 0 ${W} ${H}`} className="w-full min-w-[520px]" role="group" aria-label={label}>
       <line x1={x(0)} x2={x(0)} y1={4} y2={H - 18} stroke="var(--line-strong)" />
       <text x={x(0)} y={H - 4} textAnchor="middle" fontSize="11" fill="var(--muted)">$0</text>
       {rows.map((r, i) => {
@@ -45,7 +45,7 @@ export function ValueBars({ rows, format, label, selected }: {
             <text x={W - 4} y={y + 16} fontSize="12.5" textAnchor="end" fill={v === null ? "var(--muted)" : v < 0 ? "var(--neg)" : "var(--text)"} style={{ fontVariantNumeric: "tabular-nums" }}>{v === null ? "n/a" : format(v)}</text>
           </g>);
       })}
-    </svg>
+    </svg></div>
   );
 }
 
@@ -81,7 +81,7 @@ export function RankDumbbell({ rows, max, aLabel, bLabel, label, selected }: {
   const x = (v: number) => L + ((v - 1) / (max - 1)) * (W - L - R);
   const ticks = [1, Math.round(max / 4), Math.round(max / 2), Math.round((3 * max) / 4), max];
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="group" aria-label={label}>
+    <div className="overflow-x-auto"><svg viewBox={`0 0 ${W} ${H}`} className="w-full min-w-[520px]" role="group" aria-label={label}>
       {ticks.map((t) => <g key={t}><line x1={x(t)} x2={x(t)} y1={6} y2={H - 26} stroke="var(--line)" /><text x={x(t)} y={H - 12} fontSize="10.5" textAnchor="middle" fill="var(--muted)">{t}</text></g>)}
       <text x={W - R} y={H - 1} fontSize="10.5" textAnchor="end" fill="var(--muted)">← weaker · position among {max} machines · stronger →</text>
       {rows.map((r, i) => {
@@ -95,7 +95,7 @@ export function RankDumbbell({ rows, max, aLabel, bLabel, label, selected }: {
             <circle cx={x(r.b)} cy={y} r={5} fill="var(--accent)"><title>{`${bLabel}: ${r.b}`}</title></circle>
           </g>);
       })}
-    </svg>
+    </svg></div>
   );
 }
 

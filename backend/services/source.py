@@ -101,6 +101,12 @@ class Snapshot:
                 e = next((f for f in m["files"] if f["dataset"] == name), None)
                 if e is None:
                     continue
+                if (
+                    sub == "sidecar"
+                    and m["snapshot_id"] != self._manifest("current")["snapshot_id"]
+                ):
+                    # never mix snapshot versions: refuse rather than serve inconsistent data
+                    raise DataUnavailable("sidecar snapshot does not match the export snapshot")
                 text = (self.root / sub / e["file"]).read_text()
                 if hashlib.sha256(text.encode()).hexdigest() != e["sha256"]:
                     raise DataUnavailable(f"checksum mismatch: {sub}/{name}")
