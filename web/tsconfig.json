@@ -38,9 +38,6 @@
   ],
   "exclude": [
     "node_modules",
-    "artifact",
-    "out",
-    "src/lib/bundle.ts",
-    "src/lib/nlp/ask.ts"
+    "out"
   ]
 }
