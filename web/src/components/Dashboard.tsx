@@ -5,7 +5,7 @@ import { postJSON, useApi } from "@/lib/api";
 import type { AskAnswer, Metadata, Passport } from "@/lib/types";
 import { OFFICIAL, VIEWS, type ViewId, useUI } from "@/lib/ui";
 
-import { signed, usd } from "@/lib/format";
+import { OPTION, humanizeIds, signed, usd } from "@/lib/format";
 import { PassportMath } from "./PassportMath";
 import { GlossaryDrawer } from "./explain";
 import { Drawer, EvidenceLink, ErrorLine, Loading, Pill } from "./ui";
@@ -111,7 +111,7 @@ export default function Dashboard() {
           {meta ? `Snapshot ${meta.snapshot_id} · ${meta.note}` : "Loading snapshot…"} · Modeled values are July contribution, not realized profit · Agents are rule-based.
         </footer>
       </div>
-      {ui.evidenceId && <EvidenceDrawer id={ui.evidenceId} />}
+      {ui.evidenceId && <EvidenceDrawer key={ui.evidenceId} id={ui.evidenceId} />}
       {ui.askOpen && <AskPalette />}
       <GlossaryDrawer />
     </div>
@@ -130,11 +130,25 @@ const REC_LABEL: Record<string, string> = { numeric: "Recorded result", unit: "U
 const AGENT_NAME: Record<string, string> = { AG1_STATISTICIAN: "Statistician", AG2_DEMAND: "Demand Strategist", AG3_OPERATIONS: "Operations Chief",
   AG4_GUEST: "Guest Analyst", AG5_LOYALTY: "Loyalty Strategist", AG6_CFO: "CFO" };
 
-/** Recorded metadata stays available, but as labelled values, never as raw JSON. */
+/** The equation is shown once, above; the legacy calculation text stays available as technical detail. */
+function CalcPointer({ raw }: { raw: string }) {
+  return (
+    <>
+      <button type="button" onClick={() => document.getElementById("passport-math")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        className="text-accent hover:underline">View mathematical calculation ↑</button>
+      <details className="mt-1"><summary className="cursor-pointer text-[12px] text-muted">Technical details</summary>
+        <p className="mt-1 text-[12px] text-muted">{humanizeIds(raw)}</p>
+        {humanizeIds(raw) !== raw && <p className="mt-1 font-mono text-[11px] text-muted [overflow-wrap:anywhere]">{raw}</p>}
+      </details>
+    </>
+  );
+}
+
+/** Recorded metadata stays available, but as labelled values, never as raw JSON or raw action IDs. */
 function FieldValue({ v }: { v: string }) {
   let rec: unknown = null;
-  if (/^\s*[[{]/.test(v)) { try { rec = JSON.parse(v); } catch { rec = null; } }
-  if (!rec || typeof rec !== "object") return <>{v}</>;
+  if (/^\s*[[{]/.test(v)) { try { rec = JSON.parse(v.replace(/\bNaN\b/g, "null")); } catch { rec = null; } }
+  if (!rec || typeof rec !== "object") return <>{humanizeIds(v)}</>;
   const entries = Array.isArray(rec) ? rec.map((x, i) => [String(i + 1), x] as const) : Object.entries(rec as Record<string, unknown>);
   const r = rec as Record<string, unknown>;
   const head = !Array.isArray(rec) && typeof r.numeric === "number"
@@ -158,7 +172,7 @@ function EvidenceDrawer({ id }: { id: string }) {
   const { data, error, loading, reload } = useApi<Passport>(`/evidence/${encodeURIComponent(id)}`);
   const p = data?.data;
   return (
-    <Drawer label="Evidence passport" onClose={ui.back} title={<><span className="label block">Evidence passport · {p?.kind ?? "…"}</span>{p?.title ?? id}</>}>
+    <Drawer label="Evidence passport" onClose={ui.back} title={<><span className="label block">Evidence passport · {p?.kind ?? "…"}</span>{p ? (p.kind === "portfolio" ? OPTION[p.title] ?? p.title : humanizeIds(p.title)) : id}</>}>
       {loading && <Loading rows={6} />}
       {error && <ErrorLine error={error} retry={reload} />}
       {p && (
@@ -168,7 +182,8 @@ function EvidenceDrawer({ id }: { id: string }) {
           <dl className="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-2.5 sm:grid-cols-[110px_minmax(0,1fr)]">
             {p.fields.map(([k, v], i) => (
               <div key={i} className="contents"><dt className="label pt-px">{k}</dt>
-                <dd className={`text-[13px] [overflow-wrap:anywhere] ${v.includes("not recorded") ? "italic text-muted" : ""}`}><FieldValue v={v} /></dd></div>
+                <dd className={`text-[13px] [overflow-wrap:anywhere] ${v.includes("not recorded") ? "italic text-muted" : ""}`}>
+                  {k === "Calculation" && p.kind !== "claim" ? <CalcPointer raw={v} /> : <FieldValue v={v} />}</dd></div>
             ))}
           </dl>
           {p.links.length > 0 && <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1 border-t border-line pt-3"><span className="label">Linked</span>{p.links.map((l) => <EvidenceLink key={l} id={l}>{l}</EvidenceLink>)}</div>}

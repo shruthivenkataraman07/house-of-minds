@@ -29,17 +29,24 @@ export const F = {
     title: "Net benefit of this action",
     tex: String.raw`N=G-q\times k`,
     vars: [["G", "modeled extra July contribution (after revenue share and comps)"], ["q", "quantity"], ["k", "catalog cost per unit"], ["N", "estimated net benefit"]],
-    calc: has(q, k, g, net) ? String.raw`N=${usd(g)}-${tn(q)}\times${usd(k)}=${usd(net)}` : null,
+    calc: has(q, k, g, net) && Math.abs(g! - q! * k! - net!) <= 1 ? String.raw`N=${usd(g)}-${tn(q)}\times${usd(k)}=${usd(net)}` : null,
+    result: has(q, k, g, net) && Math.abs(g! - q! * k! - net!) > 1
+      ? `Recorded: contribution ${fmtUsd(g!)}, cost ${fmtUsd(q! * k!)}, net ${fmtUsd(net!)}. The recorded net is ${fmtUsd(Math.abs(g! - q! * k! - net!))} ${g! - q! * k! > net! ? "below" : "above"} contribution − cost; that difference is not itemised in the exported record, so no substitution is shown.`
+      : has(net) ? `Estimated July net ${net! < 0 ? "loss" : "gain"} of ${fmtUsd(Math.abs(net!))}.` : undefined,
     meaning: "A planning estimate for July, not booked profit. Its size depends on the listed assumptions.",
     fallback: "Net = modeled contribution − quantity × unit cost.",
   }),
-  portfolioNet: (g?: number, cost?: number, net?: number, lo?: number, hi?: number): FormulaSpec => ({
+  portfolioNet: (g?: number, cost?: number, net?: number, lo?: number, hi?: number, feasible = true): FormulaSpec => ({
     title: "Net benefit of this plan",
     tex: String.raw`\begin{gathered}N=G-K\\ K\le\$100{,}000\end{gathered}`,
     vars: [["G", "modeled extra July contribution of all its actions"], ["K", "total catalog cost"], ["N", "estimated net benefit"]],
     calc: has(g, cost, net) ? String.raw`N=${usd(g)}-${usd(cost)}=${usd(net)}` : null,
-    result: has(lo, hi) ? `range across tested assumptions: ${fmtUsd(lo!)} to ${fmtUsd(hi!)}` : undefined,
-    meaning: "The range shows how far the answer moves when the uncertain assumptions move.",
+    result: !feasible ? `Not modeled: its cost of ${has(cost) ? fmtUsd(cost!) : "?"} exceeds the $100,000 budget, so the optimizer cannot select it.`
+      : has(net) ? `${net! < 0 ? `Estimated July net loss of ${fmtUsd(-net!)}` : net! > 0 ? `Estimated July net gain of ${fmtUsd(net!)}` : "No change: $0"}${has(lo, hi) && lo !== hi ? `; range across tested assumptions ${fmtUsd(lo!)} to ${fmtUsd(hi!)}` : ""}.` : undefined,
+    meaning: !feasible ? "The exact net is not recorded because the plan breaks the budget constraint."
+      : has(net) && net! < 0 ? "The plan is projected to cost more than the extra contribution it brings in July."
+      : has(net) && net! > 0 ? "The plan's modeled extra contribution exceeds its cost in July. Modeled, not booked profit."
+      : "Nothing is spent and nothing changes; the baseline every plan is compared with.",
     fallback: "Net = modeled contribution − total cost, within the $100,000 budget.",
   }),
   casinoWin: (): FormulaSpec => ({

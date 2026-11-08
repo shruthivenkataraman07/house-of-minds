@@ -54,11 +54,13 @@ export function PassportMath({ p }: { p: Passport }) {
       {v.action_type_id === "A-PROMO" && <Formula spec={F.promotion()} />}
     </>;
   } else if (p.kind === "portfolio") {
-    body = <Formula spec={F.portfolioNet(num(v.expected_incremental_contribution_usd), num(v.cost_usd), num(v.expected_net_benefit_usd), num(v.net_low_usd), num(v.net_high_usd))} />;
+    const cost = num(v.cost_usd);
+    body = <Formula spec={F.portfolioNet(num(v.expected_incremental_contribution_usd), cost, num(v.expected_net_benefit_usd), num(v.net_low_usd), num(v.net_high_usd),
+      !(cost !== undefined && cost > 100000 && num(v.expected_net_benefit_usd) === undefined))} />;
   }
   if (!body) return null;
   return (
-    <section aria-label="How it is calculated" className="mb-4 space-y-3">
+    <section id="passport-math" aria-label="How it is calculated" className="mb-4 scroll-mt-4 space-y-3">
       <h3 className="text-[13px] font-semibold uppercase tracking-wide text-muted">How it is calculated</h3>
       {body}
     </section>

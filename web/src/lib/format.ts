@@ -45,6 +45,18 @@ const ACTION: Record<string, string> = {
   "INV-PROMO": "Promotion weekend", "INV-INSPECT-M1158": "Inspect M-1158",
   "INV-MOVE-M-1154-Z-PIT": "Move M-1154 → Center Pit", "INV-MOVE-M-1184-Z-PIT": "Move M-1184 → Center Pit",
 };
+/** Replaces every allocation identifier run (INV-…xN;INV-…xN) inside recorded text with readable actions. */
+export function humanizeIds(s: string): string {
+  return s
+    .replace(/INV-[A-Z0-9-]*[A-Z0-9](?:x\d+)?(?:;INV-[A-Z0-9-]*[A-Z0-9](?:x\d+)?)*/g, (run) => {
+      const leases = [...run.matchAll(/INV-REPLACE-LEASE-(M-\d+)x\d+/g)].map((m) => m[1]);
+      const rest = run.split(";").filter((x) => !x.startsWith("INV-REPLACE-LEASE-")).join(";");
+      return [leases.length ? `lease new titles for ${leases.join(", ")}` : "", rest ? allocation(rest) : ""].filter(Boolean).join(" · ");
+    })
+    .replace(/\bevidence_supported\b/g, "recommended")
+    .replace(/\bHOLD\b/g, "hold (no spend)");
+}
+
 export function allocation(a: string | null | undefined): string {
   if (!a || a === "HOLD") return "Hold";
   const parts = a.split(";").map((x) => {
