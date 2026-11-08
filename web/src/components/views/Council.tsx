@@ -19,7 +19,7 @@ export function Council() {
   const { data, error, reload } = useApi<CouncilSummary>("/council");
   return (
     <div className="space-y-4">
-      <PageHead title="Council" line="Six rule-based agents; a deterministic verifier recomputes every claim." />
+      <PageHead title="Council" line={data ? `Six rule-based agents checked the manager’s ten: ${data.data.agents.reduce((a, g) => a + g.manager_verified, 0)} of ${data.data.agents.reduce((a, g) => a + g.manager_claims, 0)} claims verified, and the council matched ${data.data.machines.filter((m) => m.council_agrees).length} of ${data.data.machines.length} verdicts.` : "Six rule-based agents check every claim before it can change the plan."} />
       <Tabs label="Decision under review" value={tab} onChange={(t) => ui.set({ tab: t })} tabs={[
         { id: "manager", label: "Replacement proposal" }, { id: "portfolio", label: "$100K hearing" }, { id: "agents", label: "Agents" }]} />
       {error && <ErrorLine error={error} retry={reload} />}

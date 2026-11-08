@@ -7,10 +7,10 @@ import type { Executive } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
 import { CompositionBar, type ChartTone, ValueBars } from "../charts";
-import { ErrorLine, EvidenceLink, Kpi, Loading, Panel, Pill, Scroll, verdictTone } from "../ui";
+import { CountUp, Reveal, useFirstPlay } from "../motion";
+import { ErrorLine, EvidenceLink, Kpi, Loading, Panel, Pill, Scroll, VERDICT_TONE, verdictTone } from "../ui";
 
-const VTONE: Record<string, ChartTone> = { RETIRED_ALREADY: "muted", DO_NOT_REPLACE_INSPECT: "accent",
-  DO_NOT_REPLACE_NOT_ECONOMIC: "neg", INSUFFICIENT_EVIDENCE: "warn", REPLACE_JUSTIFIED_CONDITIONAL: "pos", DO_NOT_REPLACE_EXPOSURE: "muted" };
+const VTONE = VERDICT_TONE as Record<string, ChartTone>;
 
 const FACTOR: Record<string, string> = { exposure: "Limited floor time", location: "Weak location", game_config: "Low-edge game",
   luck: "Payout luck", machine_residual: "Machine itself" };
@@ -35,34 +35,17 @@ export function Overview() {
     (m.primary_factors ?? "").split(",").filter(Boolean).forEach((f) => { acc[f] = (acc[f] ?? 0) + 1; });
     return acc;
   }, {})).sort((a, b) => b[1] - a[1]);
-  const vColor = v.answer === "REPLACE_NONE" ? "text-neg" : v.answer === "INSUFFICIENT_EVIDENCE" ? "text-warn" : "text-pos";
+  const vColor = v.answer === "REPLACE_NONE" ? "text-neg" : v.answer === "INSUFFICIENT_EVIDENCE" ? "text-insufficient" : "text-pos";
+  const reason = (m: (typeof x.bottom10)[number]) => m.verdict === "RETIRED_ALREADY" ? `Retired ${m.retire_date}` : m.verdict === "DO_NOT_REPLACE_INSPECT" ? `Payout fault (hit-rate z ${m.hit_rate_z.toFixed(0)})` : m.verdict === "INSUFFICIENT_EVIDENCE" ? `Best-case lease ${signed(m.lease_net_best_case_usd)}` : `Lease loses ${usd(-(m.lease_net_best_case_usd ?? 0))} even at best`;
 
   return (
     <div className="space-y-4">
-      <section className="panel p-4 sm:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-[15px] font-medium text-muted">Replace the bottom 10?</h1>
-            <p className={`mt-0.5 text-[32px] font-semibold leading-tight tracking-tight ${vColor}`}>{verdict(v.answer)}</p>
-            <p className="mt-1 text-[13px] text-muted">
-              {v.replacement_justified} of {v.machines_reviewed} replacements justified{picked !== null && `; offered all, the optimizer chose ${picked === 0 ? "none" : picked}`}.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => ui.go("machines")} className="rounded-md bg-accent px-3 py-1.5 text-[13px] font-medium text-white hover:opacity-90">Investigate machines</button>
-            <button type="button" onClick={() => ui.go("scenarios")} className="rounded-md border border-line bg-surface px-3 py-1.5 text-[13px] hover:border-line-strong">Compare plans</button>
-            <button type="button" onClick={() => ui.go("evidence")} className="rounded-md border border-line bg-surface px-3 py-1.5 text-[13px] hover:border-line-strong">View evidence</button>
-          </div>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line pt-4 md:grid-cols-3 xl:grid-cols-6">
-          <Kpi label="Manager plan · July net" value={signed(mgr?.expected_net_benefit_usd)} className={tone(mgr?.expected_net_benefit_usd)} sub={`${usd(mgr?.cost_usd)} to lease ${x.bottom10.filter((m) => m.verdict !== "RETIRED_ALREADY").length}`} />
-          <Kpi label="Recommended · July net" value={signed(rec?.expected_net_benefit_usd)} className={tone(rec?.expected_net_benefit_usd)} sub={allocation(rec?.allocation)} />
-          <Kpi label="Difference" value={signed(diff)} className={tone(diff)} sub="same horizon and definitions" />
+      <Hero v={v} mgr={mgr} rec={rec} diff={diff} picked={picked} leased={x.bottom10.filter((m) => m.verdict !== "RETIRED_ALREADY").length}
+        vColor={vColor} onGo={(view) => ui.go(view)} secondary={<>
           <Kpi label="Spend" value={usd(rec?.cost_usd)} sub={`${usd(rec?.remaining_budget_usd)} of $100,000 kept`} />
           <Kpi label="Alternative candidates" value={`${x.floor_planning_positive} / ${x.floor_candidates}`} sub={`pay back at planning value; ${x.floor_best_case_positive} only in best case`} title="Floor-wide lease replacement candidates" />
           <Kpi label="Key uncertainty" value={`${usd(x.promotion.break_even)}/day`} className="text-warn" sub={`promotion break-even; weakest event → ${signed(weak)}`} />
-        </div>
-      </section>
+        </>} />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title="What does each plan return in July?" note="Estimated additional net benefit; whiskers show the tested assumption range.">
@@ -101,21 +84,34 @@ export function Overview() {
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <Panel title="Why the ranking changes" note="Lowest earnings ≠ weakest machine: compare earnings rank with fair rank and floor time." flush
           right={<button type="button" onClick={() => ui.go("machines")} className="text-[12.5px] text-accent hover:underline">All machines →</button>}>
-          <Scroll>
+          <ul className="divide-y divide-line sm:hidden" aria-label="The manager's 10, earnings rank vs fair rank">
+            {x.bottom10.map((m) => (
+              <li key={m.machine_id}>
+                <button type="button" onClick={() => ui.go("machines", { machineId: m.machine_id })} className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 px-4 py-3 text-left hover:bg-surface-2">
+                  <span className="num pt-px text-[13px] text-muted">#{m.manager_rank}</span>
+                  <span className="min-w-0">
+                    <span className="flex flex-wrap items-center gap-2"><span className="text-[14px] font-medium">{m.machine_id}</span><Pill tone={verdictTone(m.verdict)}>{verdict(m.verdict)}</Pill></span>
+                    <span className="mt-1 block text-[13px] text-muted">{reason(m)}</span>
+                  </span>
+                  <span className="text-right"><span className="num block text-[14px] font-medium">{m.rank_vs_peers}<span className="label"> /310</span></span><span className="label block">fair rank</span></span>
+                </button>
+              </li>))}
+          </ul>
+          <div className="hidden sm:block"><Scroll>
             <table className="tbl min-w-[680px]">
               <thead><tr><th className="text-right" title="Manager's rank by total casino win (1 = lowest)">Earnings #</th><th>Machine</th><th className="text-right">House win</th><th className="text-right" title="Rank vs same-game peers on expected win per available hour; 1 = weakest, 310 = strongest">Fair rank</th><th className="text-right">Days on floor</th><th>Verdict</th><th>Main reason</th></tr></thead>
               <tbody>{x.bottom10.map((m) => (
-                <tr key={m.machine_id} className="row-click" onClick={() => ui.go("machines", { machineId: m.machine_id })}>
+                <tr key={m.machine_id} className="row-click" tabIndex={0} onClick={() => ui.go("machines", { machineId: m.machine_id })} onKeyDown={(e) => { if (e.key === "Enter") ui.go("machines", { machineId: m.machine_id }); }}>
                   <td className="num text-right text-muted">{m.manager_rank}</td>
                   <td className="whitespace-nowrap font-medium">{m.machine_id}</td>
                   <td className="num text-right">{usd(m.house_win_usd)}</td>
                   <td className="num text-right">{m.rank_vs_peers}<span className="label"> /310</span></td>
                   <td className={`num text-right ${m.active_days < 150 ? "text-warn" : ""}`}>{m.active_days}</td>
                   <td><Pill tone={verdictTone(m.verdict)}>{verdict(m.verdict)}</Pill></td>
-                  <td className="text-[12.5px] text-muted">{m.verdict === "RETIRED_ALREADY" ? `Retired ${m.retire_date}` : m.verdict === "DO_NOT_REPLACE_INSPECT" ? `Payout fault (hit-rate z ${m.hit_rate_z.toFixed(0)})` : m.verdict === "INSUFFICIENT_EVIDENCE" ? `Best-case lease ${signed(m.lease_net_best_case_usd)}` : `Lease loses ${usd(-(m.lease_net_best_case_usd ?? 0))} even at best`}</td>
+                  <td className="text-[13px] text-muted">{reason(m)}</td>
                 </tr>))}</tbody>
             </table>
-          </Scroll>
+          </Scroll></div>
         </Panel>
         <div className="space-y-4">
           <Panel title="Top decision factors" note="Primary drivers of the earnings gap across the 10.">
@@ -140,21 +136,89 @@ export function Overview() {
       </div>
 
       <Panel title="Plans compared" note={`Modeled net contribution, ${data.meta.decision_horizon}.`} flush>
-        <Scroll>
+        <ul className="divide-y divide-line sm:hidden">
+          {order.map((o) => pf[o]).filter(Boolean).map((p) => (
+            <li key={p.option} className={`px-4 py-3 ${p.option === v.recommended_option ? "bg-accent-soft" : ""}`}>
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[14px] font-medium">{OPTION[p.option] ?? p.option}</span>
+                <span className={`num text-[15px] font-semibold ${tone(p.expected_net_benefit_usd)}`}>{p.feasible ? signed(p.expected_net_benefit_usd) : <Pill tone="neg">over budget</Pill>}</span>
+              </div>
+              <p className="mt-0.5 text-[13px] text-muted">{allocation(p.allocation)} · {usd(p.cost_usd)}</p>
+              <div className="mt-1 flex items-center justify-between gap-3">
+                <span className="label">{p.net_low_usd !== null && p.net_low_usd !== p.net_high_usd ? `Tested range ${signed(p.net_low_usd)} to ${signed(p.net_high_usd)}` : "No tested range"}</span>
+                <EvidenceLink id={p.option} />
+              </div>
+            </li>))}
+        </ul>
+        <div className="hidden sm:block"><Scroll>
           <table className="tbl min-w-[640px]">
             <thead><tr><th>Plan</th><th>Actions</th><th className="text-right">Cost</th><th className="text-right">Net</th><th className="text-right">Tested range</th><th /></tr></thead>
             <tbody>{order.map((o) => pf[o]).filter(Boolean).map((p) => (
-              <tr key={p.option}>
-                <td className="font-medium whitespace-nowrap">{OPTION[p.option] ?? p.option}{p.option === v.recommended_option && <span className="ml-1.5"><Pill tone="accent">recommended</Pill></span>}</td>
-                <td className="text-[12.5px] text-muted">{allocation(p.allocation)}</td>
+              <tr key={p.option} aria-selected={p.option === v.recommended_option || undefined}>
+                <td className="font-medium whitespace-nowrap">{OPTION[p.option] ?? p.option}</td>
+                <td className="text-[13px] text-muted">{allocation(p.allocation)}</td>
                 <td className="num text-right">{usd(p.cost_usd)}</td>
                 <td className={`num text-right font-medium ${tone(p.expected_net_benefit_usd)}`}>{p.feasible ? signed(p.expected_net_benefit_usd) : <Pill tone="neg">over budget</Pill>}</td>
-                <td className="num text-right text-[12.5px] text-muted">{p.net_low_usd !== null && p.net_low_usd !== p.net_high_usd ? `${signed(p.net_low_usd)} to ${signed(p.net_high_usd)}` : "—"}</td>
+                <td className="num text-right text-[13px] text-muted">{p.net_low_usd !== null && p.net_low_usd !== p.net_high_usd ? `${signed(p.net_low_usd)} to ${signed(p.net_high_usd)}` : "—"}</td>
                 <td className="text-right"><EvidenceLink id={p.option} /></td>
               </tr>))}</tbody>
           </table>
-        </Scroll>
+        </Scroll></div>
       </Panel>
     </div>
+  );
+}
+
+type Plan = Executive["portfolios"][number] | undefined;
+
+/** One focal point: the verdict, why, and the plan comparison that decides it. */
+function Hero({ v, mgr, rec, diff, picked, leased, vColor, onGo, secondary }: {
+  v: Executive["verdict"]; mgr: Plan; rec: Plan; diff: number; picked: number | null; leased: number; vColor: string;
+  onGo: (view: "machines" | "scenarios" | "evidence") => void; secondary: React.ReactNode;
+}) {
+  const play = useFirstPlay("overview-hero");
+  const money = (n: number) => signed(Math.round(n));
+  return (
+    <section className="panel overflow-hidden" aria-labelledby="verdict-q">
+      <div className="p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <Reveal play={play} className="min-w-0 max-w-[640px]">
+            <h1 id="verdict-q" className="text-[15px] font-medium text-muted">Replace the bottom 10?</h1>
+            <p className={`mt-1 text-[40px] font-semibold leading-none tracking-[-0.03em] ${vColor}`}>{verdict(v.answer)}</p>
+            <p className="mt-3 text-[16px] leading-snug text-ink">Low earnings come from floor time, location and luck, not from the machines.</p>
+            <p className="mt-1 text-[13px] text-muted">
+              {v.replacement_justified} of {v.machines_reviewed} replacements justified{picked !== null && `; offered all, the optimizer chose ${picked === 0 ? "none" : picked}`}.
+            </p>
+          </Reveal>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => onGo("machines")} className="rounded-md bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90">Investigate machines</button>
+            <button type="button" onClick={() => onGo("scenarios")} className="rounded-md border border-line bg-surface px-3 py-1.5 text-[13px] transition-colors hover:border-line-strong">Compare plans</button>
+            <button type="button" onClick={() => onGo("evidence")} className="rounded-md border border-line bg-surface px-3 py-1.5 text-[13px] transition-colors hover:border-line-strong">View evidence</button>
+          </div>
+        </div>
+
+        <div className="mt-6 grid items-center gap-3 rounded-lg bg-surface-2 p-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] sm:gap-5 sm:p-5" aria-label="July net benefit: manager's plan compared with House of Minds">
+          <div className="min-w-0">
+            <p className="label">Manager’s plan · July net</p>
+            <p className={`num mt-1 text-[30px] font-semibold leading-none tracking-[-0.02em] ${tone(mgr?.expected_net_benefit_usd)}`}>
+              <CountUp play={play} value={mgr?.expected_net_benefit_usd ?? 0} format={money} delay={0.35} /></p>
+            <p className="label mt-1.5">{usd(mgr?.cost_usd)} to lease {leased}</p>
+          </div>
+          <span aria-hidden className="hidden text-[22px] text-muted sm:block">→</span>
+          <div className="min-w-0">
+            <p className="label">House of Minds · July net</p>
+            <p className={`num mt-1 text-[30px] font-semibold leading-none tracking-[-0.02em] ${tone(rec?.expected_net_benefit_usd)}`}>
+              <CountUp play={play} value={rec?.expected_net_benefit_usd ?? 0} format={money} delay={0.35} /></p>
+            <p className="label mt-1.5">{allocation(rec?.allocation)}</p>
+          </div>
+          <Reveal play={play} delay={1.0} className="border-t border-line pt-3 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+            <p className="label">Difference</p>
+            <p className={`num mt-1 text-[22px] font-semibold leading-none ${tone(diff)}`}>{signed(diff)}</p>
+            <p className="label mt-1.5">same horizon and definitions</p>
+          </Reveal>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-x-6 gap-y-4 border-t border-line px-5 py-4 sm:grid-cols-3 sm:px-6 [&_p.num]:text-[17px]">{secondary}</div>
+    </section>
   );
 }

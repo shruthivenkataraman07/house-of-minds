@@ -37,7 +37,7 @@ export function Scenarios() {
 
   return (
     <div className="space-y-4">
-      <PageHead title="Scenarios" line="Compare July net benefit under alternative assumptions." />
+      <PageHead title="Scenarios" line={`The recommended plan earns money only while promotion uplift stays above ${usd(promo.break_even_A08)} a day.`} />
       <Tabs label="Scenario view" value={tab} onChange={(t) => ui.set({ tab: t })} tabs={[
         { id: "compare", label: "Plans × uplift" }, { id: "stress", label: "Stress tests" }, { id: "reversals", label: "Decision flips" }]} />
       {tab === "compare" && (
@@ -153,7 +153,7 @@ export function Investment() {
 
   return (
     <div className="space-y-4">
-      <PageHead title="Investment" line="Only evidence-supported actions qualify; the plan is conditional on promotion uplift." />
+      <PageHead title="Investment" line={`Spend ${usd(cost)} on evidence-supported actions and keep ${usd(100000 - cost)}; the return depends on promotion uplift.`} />
       <div className="panel grid grid-cols-2 gap-4 p-4 lg:grid-cols-4">
         <Kpi label="Spend" value={usd(cost)} sub="of $100,000" />
         <Kpi label="Modeled July net" value={signed(net)} className={tone(net)} />

@@ -21,7 +21,7 @@ export function Operations() {
   const tab = ui.tab === "banks" ? "demand" : ui.tab ?? "demand"; // banks live inside Demand
   return (
     <div className="space-y-4">
-      <PageHead title="Operations" line="What happened, how much, and why it matters, for four operating questions." />
+      <PageHead title="Operations" line="Demand softened in May–June, and Back Forty fell sharply while its walkway was closed." />
       <Tabs label="Operations" value={tab} onChange={(t) => ui.set({ tab: t })} tabs={[
         { id: "demand", label: "Demand" }, { id: "downtime", label: "Downtime" },
         { id: "players", label: "Players" }, { id: "comps", label: "Comps" }]} />

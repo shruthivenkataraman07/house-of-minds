@@ -57,7 +57,7 @@ export function Answers() {
 
   return (
     <div className="space-y-4">
-      <PageHead title="Answers" line="Six questions. Six evidence-backed conclusions." />
+      <PageHead title="Answers" line={`Replace none of the ten. ${allocation(rec?.allocation)} for ${usd(rec?.cost_usd)} beats the manager’s plan by ${signed(diff)}.`} />
       <ol className="grid gap-3 lg:grid-cols-2">
         <Answer n={1} q="Which machines are genuinely weak?" go="machines" evidence={b10[0]?.machine_id}
           lines={[
