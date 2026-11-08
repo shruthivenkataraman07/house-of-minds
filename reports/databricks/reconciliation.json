@@ -1,0 +1,308 @@
+[
+  {
+    "test_id": "R01",
+    "description": "House win equals coin-in minus payout (integer cents)",
+    "input_data": [
+      "machine_day"
+    ],
+    "calculated_result": {
+      "rows_checked": 56110.0,
+      "violations": 0.0,
+      "house_win_usd": 23638155.1,
+      "coin_in_minus_payout_usd": 23638155.1,
+      "negative_days": 7117.0
+    },
+    "expected_relationship": "house_win_cents == coin_in_cents - payout_cents, every row",
+    "tolerance": "exact (0 cents)",
+    "status": "pass",
+    "explanation": "7117.0 machine-days have negative house win; these are valid outcomes and are kept."
+  },
+  {
+    "test_id": "R02",
+    "description": "Prepared view dollars equal source cents / 100",
+    "input_data": [
+      "prepared_daily_view",
+      "machine_day"
+    ],
+    "calculated_result": {
+      "rows_checked": 56110.0,
+      "max_coin_in_diff_usd": 0.0,
+      "max_payout_diff_usd": 0.0,
+      "max_house_win_diff_usd": 0.0,
+      "max_theo_diff_usd": 0.0,
+      "max_carded_diff_usd": 0.0,
+      "max_avail_hours_diff": 0.0
+    },
+    "expected_relationship": "usd == cents / 100 and hours == seconds / 3600, row by row",
+    "tolerance": "<= $0.005 (half a cent rounding)",
+    "status": "pass",
+    "explanation": "Confirms one conversion factor and no unit drift between layers."
+  },
+  {
+    "test_id": "R03",
+    "description": "property_day equals the sum of machine_day by gaming date",
+    "input_data": [
+      "property_day",
+      "machine_day"
+    ],
+    "calculated_result": {
+      "days_compared": 181.0,
+      "max_coin_in_diff": 0.0,
+      "max_payout_diff": 0.0,
+      "max_house_win_diff": 0.0,
+      "max_theo_diff": 0.0,
+      "max_avail_hours_diff": 0.0,
+      "active_count_mismatches": 0.0,
+      "property_coin_in_usd": 248905219.25,
+      "source_coin_in_usd": 248905219.25
+    },
+    "expected_relationship": "daily property totals == sum over machines (source cents)",
+    "tolerance": "<= $0.01 per day; exact machine counts",
+    "status": "pass",
+    "explanation": "Validates the prepared property view against the source meters rather than against the other prepared view."
+  },
+  {
+    "test_id": "R04",
+    "description": "Availability within scheduled time within gaming day",
+    "input_data": [
+      "machine_day",
+      "calendar_day"
+    ],
+    "calculated_result": {
+      "active_rows": 55092.0,
+      "avail_gt_sched": 0.0,
+      "occ_gt_avail": 0.0,
+      "sched_gt_day": 0.0,
+      "partial_days": 0.0,
+      "inactive_with_activity": 0.0,
+      "total_downtime_hours": 5021.078889,
+      "floor_availability": 0.996202
+    },
+    "expected_relationship": "occupied <= available <= scheduled <= calendar day length; inactive rows carry no time or play",
+    "tolerance": "exact",
+    "status": "pass",
+    "explanation": "0.0 active machine-days are shorter than the gaming day (install or retirement mid-day); exposure uses scheduled_seconds, not 24 h."
+  },
+  {
+    "test_id": "R05",
+    "description": "Active flag agrees with placements and install/retire dates",
+    "input_data": [
+      "machine_day",
+      "placements",
+      "machines",
+      "calendar_day"
+    ],
+    "calculated_result": {
+      "rows_checked": 56110,
+      "active_vs_placement_mismatch": 0,
+      "active_before_install": 0,
+      "active_after_retire": 0,
+      "off_floor_rows": 1018
+    },
+    "expected_relationship": "active <=> a placement interval overlaps the gaming day; never active before install or after retirement",
+    "tolerance": "exact",
+    "status": "pass",
+    "explanation": "1018 off-floor rows are excluded from all metrics (documented: 1,018)."
+  },
+  {
+    "test_id": "R06",
+    "description": "Placement intervals are consistent and join 1:1",
+    "input_data": [
+      "placements",
+      "machine_day",
+      "calendar_day"
+    ],
+    "calculated_result": {
+      "placements": 314,
+      "machine_overlaps": 0,
+      "slot_overlaps": 0,
+      "interval_joined_rows": 55092,
+      "location_or_config_mismatches": 0,
+      "active_rows": 55092,
+      "starts_not_on_gaming_day_boundary": 0
+    },
+    "expected_relationship": "no overlapping intervals per machine or per slot; interval join reproduces machine_day location/config with no fan-out",
+    "tolerance": "exact",
+    "status": "pass",
+    "explanation": "Interval join [effective_from_utc, effective_to_utc) is the only valid way to attach location history."
+  },
+  {
+    "test_id": "R07",
+    "description": "Money totals survive the location join (no duplication)",
+    "input_data": [
+      "machine_day",
+      "placements",
+      "floor_locations",
+      "calendar_day"
+    ],
+    "calculated_result": {
+      "source_coin_in_usd": 248905219.25,
+      "interval_join_coin_in_usd": 248905219.25,
+      "naive_join_coin_in_usd": 252161160.25,
+      "naive_join_overstatement_usd": 3255941.0
+    },
+    "expected_relationship": "coin-in after interval join == source coin-in",
+    "tolerance": "exact",
+    "status": "pass",
+    "explanation": "A naive machine_id join would overstate coin-in by $3,255,941.00; the pipeline uses the interval join only."
+  },
+  {
+    "test_id": "R08",
+    "description": "Theo equals coin-in x (1 - configured RTP)",
+    "input_data": [
+      "machine_day",
+      "game_math"
+    ],
+    "calculated_result": {
+      "rows_checked": 55092.0,
+      "max_abs_diff_cents": 0.0,
+      "theo_usd": 23545364.4785,
+      "recomputed_theo_usd": 23545364.4785,
+      "house_win_usd": 23638155.1,
+      "luck_residual_usd": 92790.6215
+    },
+    "expected_relationship": "theo_cents == coin_in_cents x (1 - configured_rtp) per machine-day; luck residual == house win - theo",
+    "tolerance": "<= 0.0001 cents",
+    "status": "pass",
+    "explanation": "Theo is a deterministic function of wagers, so it is a luck-free demand measure. Realized win differs from theo by the luck residual."
+  },
+  {
+    "test_id": "R09",
+    "description": "Carded play is a strict subset and reconciles across machine meters, sessions and player_period",
+    "input_data": [
+      "machine_day",
+      "sessions",
+      "player_period"
+    ],
+    "calculated_result": {
+      "carded_exceeds_total": 0.0,
+      "machine_vs_session_mismatch": 0.0,
+      "machine_day_carded_coin_in_usd": 163804869.65,
+      "sessions_coin_in_usd": 163804869.65,
+      "player_period_coin_in_usd": 163804869.65,
+      "all_play_coin_in_usd": 248905219.25,
+      "carded_share": 0.658101,
+      "player_period_vs_sessions_diff_usd": 0.0
+    },
+    "expected_relationship": "carded <= all play per machine-day; sessions == machine_day carded columns; player_period total == sessions total",
+    "tolerance": "exact cents; <= $0.01 for player_period total",
+    "status": "pass",
+    "explanation": "Carded play is 65.8% of all coin-in, so guest-level results describe tracked play only and are never scaled to all play."
+  },
+  {
+    "test_id": "R10",
+    "description": "Comp cost counted once: ledger cost == linked POS cogs, and is contained in POS cogs",
+    "input_data": [
+      "loyalty_ledger",
+      "fnb_transactions",
+      "property_day",
+      "player_period"
+    ],
+    "calculated_result": {
+      "redemptions": 59361.0,
+      "redemptions_without_pos": 0.0,
+      "cost_vs_cogs_mismatch": 0.0,
+      "comps_with_cash": 0.0,
+      "ledger_comp_cost_usd": 190669.3,
+      "pos_comp_cogs_usd": 190669.3,
+      "property_comp_cost_usd": 190669.3,
+      "property_comp_face_usd": 682749.5,
+      "max_daily_comp_diff_usd": 0.0,
+      "max_daily_cogs_diff_usd": 0.0,
+      "days_comp_exceeds_cogs": 0.0,
+      "player_period_comp_cost_usd": 190669.3,
+      "players_comp_exceeds_cogs": 0.0
+    },
+    "expected_relationship": "economic_cost_cents == linked cogs_cents; comp cost is a subset of pos_cogs; comp face value is not revenue",
+    "tolerance": "exact cents per redemption; <= $0.01 per day",
+    "status": "pass",
+    "explanation": "Contribution must subtract POS cogs once (comps included) and must not subtract comp cost a second time. Face value ($682,750) is menu price, not cost."
+  },
+  {
+    "test_id": "R11",
+    "description": "Supplied machine costs recompute from cost_rules",
+    "input_data": [
+      "prepared_daily_view",
+      "machine_day",
+      "machines",
+      "cost_rules",
+      "operations"
+    ],
+    "calculated_result": {
+      "active_rows": 55092.0,
+      "max_lease_diff": 0.0,
+      "max_service_diff": 0.0,
+      "max_power_diff": 0.0,
+      "max_repair_diff": 0.0,
+      "lease_rows_off": 0.0,
+      "repair_rows_off": 0.0,
+      "supplied_costs_usd": 2496767.35,
+      "recomputed_costs_usd": 2496767.35
+    },
+    "expected_relationship": "lease/service/power per active machine-day and repair direct cost by gaming date of fault opening match the prepared view",
+    "tolerance": "<= $0.01 per machine-day",
+    "status": "pass",
+    "explanation": "Confirms the cost_rules interpretation used for contribution and for pricing downtime. Revenue-share lease = 20% of positive daily win."
+  },
+  {
+    "test_id": "R12",
+    "description": "Meter downtime reconciles to operations tickets",
+    "input_data": [
+      "machine_day",
+      "operations",
+      "calendar_day"
+    ],
+    "calculated_result": {
+      "meter_downtime_hours": 5021.078889,
+      "ticket_outage_hours": 5021.078889,
+      "fault_repair_hours": 4934.078889,
+      "install_hours": 60.0,
+      "move_hours": 12.0,
+      "maintenance_hours": 15.0,
+      "unexplained_hours": 0.0
+    },
+    "expected_relationship": "scheduled - available (meters) ~= sum of ticket outage intervals clipped to the window",
+    "tolerance": "<= 1% pass, <= 10% warning",
+    "status": "pass",
+    "explanation": "Ticket intervals can include time when a machine was not scheduled (e.g. install before first gaming day) or overlap; differences are reported, not forced."
+  },
+  {
+    "test_id": "R13",
+    "description": "Gaming days run 06:00-06:00 local and are contiguous",
+    "input_data": [
+      "calendar_day"
+    ],
+    "calculated_result": {
+      "n_days": 181,
+      "length_mismatch": 0,
+      "non_24h_days": 1,
+      "min_seconds": 82800,
+      "dst_day_seconds": 82800,
+      "gaps_between_days": 0,
+      "non_6am_starts": 0
+    },
+    "expected_relationship": "181 contiguous days; each starts at 06:00 Los Angeles time; only 2025-03-08 is 23 h",
+    "tolerance": "exact",
+    "status": "pass",
+    "explanation": "Exposure uses scheduled_seconds, so the DST day is not overstated by 1 h."
+  },
+  {
+    "test_id": "R14",
+    "description": "Player-period accounting identities (player sign)",
+    "input_data": [
+      "player_period"
+    ],
+    "calculated_result": {
+      "rows_checked": 148893.0,
+      "net_violations": 0.0,
+      "residual_violations": 0.0,
+      "contribution_violations": 0.0,
+      "tracked_player_net_usd": -15585460.6,
+      "tracked_theo_usd": 15485020.9805
+    },
+    "expected_relationship": "net = payout - coin-in; residual = net + theo; contribution = -net + POS cash - POS cogs (comp cost not subtracted again)",
+    "tolerance": "<= $0.005",
+    "status": "pass",
+    "explanation": "Player tables use the opposite sign to machine tables."
+  }
+]

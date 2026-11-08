@@ -1,0 +1,236 @@
+{
+  "payout_anomaly": {
+    "observation": "Payout frequency far above configured hit probability.",
+    "method": "Binomial z-test of payout-positive spins vs configured hit_probability per machine x config, Bonferroni-adjusted over all machines; monthly repeat to test persistence.",
+    "machines_tested": 310,
+    "flagged": [
+      {
+        "machine_id": "M-1158",
+        "config_id": "G-STD90",
+        "configured_hit_probability": 0.3154,
+        "observed_hit_rate": 0.3857,
+        "paid_spins": 674454,
+        "hit_rate_z": 124.2,
+        "hit_p_bonferroni": 0.0,
+        "observed_hold": 0.0304,
+        "configured_hold": 0.1,
+        "luck_z": -4.57,
+        "house_win_shortfall_vs_theo_usd": 36164.75,
+        "shortfall_per_active_day_usd": 199.81,
+        "months_with_abs_hit_z_gt_3": 6,
+        "months_observed": 6,
+        "monthly": [
+          {
+            "mon": "2025-01",
+            "hit_z": 54.3981,
+            "observed_hold": 0.0528
+          },
+          {
+            "mon": "2025-02",
+            "hit_z": 50.0958,
+            "observed_hold": 0.0458
+          },
+          {
+            "mon": "2025-03",
+            "hit_z": 47.4965,
+            "observed_hold": 0.0097
+          },
+          {
+            "mon": "2025-04",
+            "hit_z": 47.835,
+            "observed_hold": 0.0121
+          },
+          {
+            "mon": "2025-05",
+            "hit_z": 54.4329,
+            "observed_hold": -0.0014
+          },
+          {
+            "mon": "2025-06",
+            "hit_z": 49.5702,
+            "observed_hold": 0.0614
+          }
+        ]
+      }
+    ],
+    "other_machines_hit_z_sd": 1.006,
+    "other_machines_hit_z_mean": 0.123,
+    "competing_explanation": "Luck (a cold streak) rather than a payout-setting issue.",
+    "test_result": "Hit frequency does not depend on jackpot size, so it is far less noisy than dollar win; a persistent excess in every month is inconsistent with chance. Other machines' hit z-scores have SD ~1, so the test is calibrated.",
+    "limitations": "Cannot distinguish misconfigured paytable from meter or game-software fault; physical inspection is needed to confirm."
+  },
+  "walkway_closure": {
+    "observation": "Walkway W-ENT-B40 (Z-ENT<->Z-B40) closed for renovation, gaming dates 2025-03-03 to 2025-04-06.",
+    "target_zone": "Z-B40",
+    "hypothesis": "The closure cut Back Forty demand beyond any floor-wide trend.",
+    "alternative": "Back Forty's dip reflects floor-wide seasonality or machine changes.",
+    "method": "Daily log ratio of target-zone to rest-of-floor theo per available hour on a fixed set of machines that never moved; OLS with weekday effects and closure/post indicators; HAC (Newey-West, 7 lags) errors.",
+    "closure_effect_log_ratio": -0.374,
+    "closure_effect_pct": -31.2,
+    "closure_effect_ci95_pct": [
+      -32.5,
+      -29.9
+    ],
+    "closure_p_value": 0.0,
+    "post_vs_pre_pct": -1.9,
+    "post_p_value": 0.05854319535308532,
+    "estimated_lost_theo_usd": 162185.0,
+    "estimated_lost_theo_ci95_usd": [
+      152669.0,
+      171878.0
+    ],
+    "closure_days": 35,
+    "traffic_entries_ratio_target_vs_rest_by_period": {
+      "closure": 0.1727,
+      "post": 0.2361,
+      "pre": 0.2518
+    },
+    "occupancy_by_period": {
+      "closure": {
+        "occ_t": 0.2078,
+        "occ_c": 0.3977
+      },
+      "post": {
+        "occ_t": 0.2556,
+        "occ_c": 0.3671
+      },
+      "pre": {
+        "occ_t": 0.2804,
+        "occ_c": 0.3905
+      }
+    },
+    "limitations": "Single event, so effect size has wide uncertainty; traffic counters count crossings not people; theo per hour also reflects bet size."
+  },
+  "downtime_by_manufacturer": {
+    "observation": "Ridgeline machines have the highest downtime share.",
+    "by_manufacturer": [
+      {
+        "manufacturer": "Halcyon",
+        "machines": 115,
+        "sched_h": 480542.0,
+        "down_h": 966.2017,
+        "faults": 222,
+        "active_days": 20027,
+        "lost_theo": 17749.8862,
+        "mean_age": 4.2907,
+        "downtime_share": 0.002,
+        "faults_per_1000_machine_days": 11.085,
+        "mean_hours_per_fault": 4.3523,
+        "lost_theo_per_month_usd": 2958.3144
+      },
+      {
+        "manufacturer": "Northwind",
+        "machines": 101,
+        "sched_h": 437323.0,
+        "down_h": 1299.9111,
+        "faults": 305,
+        "active_days": 18226,
+        "lost_theo": 23642.2147,
+        "mean_age": 4.4376,
+        "downtime_share": 0.003,
+        "faults_per_1000_machine_days": 16.7343,
+        "mean_hours_per_fault": 4.262,
+        "lost_theo_per_month_usd": 3940.3691
+      },
+      {
+        "manufacturer": "Ridgeline",
+        "machines": 94,
+        "sched_h": 404043.0,
+        "down_h": 2754.9661,
+        "faults": 680,
+        "active_days": 16839,
+        "lost_theo": 48921.2764,
+        "mean_age": 4.5381,
+        "downtime_share": 0.0068,
+        "faults_per_1000_machine_days": 40.3824,
+        "mean_hours_per_fault": 4.0514,
+        "lost_theo_per_month_usd": 8153.5461
+      }
+    ],
+    "competing_explanation": "Machine age (older machines fail more), not manufacturer.",
+    "method": "Poisson regression of fault counts with log(active days) offset on manufacturer and age.",
+    "poisson_rate_ratios": {
+      "C(manufacturer, Treatment('Halcyon'))[T.Northwind]": {
+        "rate_ratio": 1.515,
+        "p_value": 2.495974832243701e-06,
+        "ci95": [
+          1.274,
+          1.801
+        ]
+      },
+      "C(manufacturer, Treatment('Halcyon'))[T.Ridgeline]": {
+        "rate_ratio": 3.635,
+        "p_value": 1.4100507729290234e-62,
+        "ci95": [
+          3.124,
+          4.229
+        ]
+      },
+      "age_years": {
+        "rate_ratio": 1.053,
+        "p_value": 5.801355316733745e-06,
+        "ci95": [
+          1.03,
+          1.076
+        ]
+      }
+    },
+    "excess_downtime_hours_6mo": 1757.4,
+    "excess_lost_theo_6mo_usd": 30603.0,
+    "excess_lost_theo_per_30d_usd": 5072.0,
+    "floor_downtime_share": 0.0038,
+    "limitations": "Lost theo assumes downtime hours would have been played at the machine's average rate; downtime may cluster in quiet hours (overstates) or busy hours (understates)."
+  },
+  "comp_rate_change": {
+    "observation": "Points required per comp dollar fell around gaming date 2025-05-01.",
+    "change_point_gaming_date": "2025-05-01",
+    "points_per_comp_usd_by_tier": [
+      {
+        "tier": "Base",
+        "pre": 15.019,
+        "post": 7.016,
+        "ratio_post_pre": 0.467
+      },
+      {
+        "tier": "Gold",
+        "pre": 12.0,
+        "post": 5.649,
+        "ratio_post_pre": 0.471
+      },
+      {
+        "tier": "Platinum",
+        "pre": 9.021,
+        "post": 4.238,
+        "ratio_post_pre": 0.47
+      }
+    ],
+    "redemption_tier_mix": [
+      {
+        "tier": "Base",
+        "pre_share": 0.4195,
+        "post_share": 0.3031
+      },
+      {
+        "tier": "Gold",
+        "pre_share": 0.5179,
+        "post_share": 0.4723
+      },
+      {
+        "tier": "Platinum",
+        "pre_share": 0.0627,
+        "post_share": 0.2246
+      }
+    ],
+    "competing_explanation": "Tier mix: more Platinum/Gold redemptions (cheaper tiers) rather than a price change.",
+    "test_result": "The rate roughly halves within every tier, so tier mix cannot explain the step; mix explains only the gradual pre-change drift.",
+    "comp_cost_per_day_pre_usd": 1027.09,
+    "comp_cost_per_day_post_usd": 1105.23,
+    "comp_cost_per_carded_theo_pre": 0.01194,
+    "comp_cost_per_carded_theo_post": 0.01306,
+    "comp_cost_change_pct": 7.6,
+    "points_redeemed_per_point_awarded_pre": 0.0531,
+    "points_redeemed_per_point_awarded_post": 0.0255,
+    "economic_cost_per_face_usd": 0.2793,
+    "limitations": "Redemption timing lags the change; two months post-change may not show the full cost response. Unredeemed points are not valued: the data cannot show how many will ever be redeemed."
+  }
+}

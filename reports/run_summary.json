@@ -1,0 +1,24 @@
+{
+  "elapsed_seconds": 5.7,
+  "reconciliation": {
+    "R01": "pass",
+    "R02": "pass",
+    "R03": "pass",
+    "R04": "pass",
+    "R05": "pass",
+    "R06": "pass",
+    "R07": "pass",
+    "R08": "pass",
+    "R09": "pass",
+    "R10": "pass",
+    "R11": "pass",
+    "R12": "pass",
+    "R13": "pass",
+    "R14": "pass"
+  },
+  "evidence_records": 31,
+  "evidence_store": "/Users/shruthivenkataraman/house-of-minds/data/processed/evidence_ledger.jsonl",
+  "dataset_fingerprint": "4792a8a179571d7b",
+  "backend": "duckdb",
+  "guide_example_lease_cost_usd": 3380.0
+}

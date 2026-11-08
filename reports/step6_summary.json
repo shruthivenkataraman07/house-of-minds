@@ -1,0 +1,18 @@
+{
+ "vault_run_id": "S6-428BA95439",
+ "snapshot": "chf-v1:bc5e8ccc5d88a490",
+ "runtime_s": 127.0,
+ "passports": 5,
+ "claims": 83,
+ "nodes": 217,
+ "edges": 311,
+ "impacts": 80,
+ "gates": {
+  "PASS": 40,
+  "FAIL": 0,
+  "BLOCKED": 0
+ },
+ "failed": [],
+ "export_dir": "/Users/shruthivenkataraman/house-of-minds/exports/public_snapshot_chf-v1_bc5e8ccc5d88a490",
+ "summary_words": 247
+}

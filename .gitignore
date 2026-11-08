@@ -1,0 +1,57 @@
+# Secrets and local config
+.env
+.env.*
+!.env.example
+.databrickscfg
+*.pem
+*.key
+secrets/
+credentials*.json
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/playwright/.cache/
+
+# Data (challenge data is re-downloadable; keep folder skeleton)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+*.duckdb
+*.duckdb.wal
+*.parquet
+*.csv.gz
+tmp/
+
+# ML artifacts
+mlruns/
+mlartifacts/
+mlflow.db
+*.joblib
+*.pkl
+models/artifacts/
+
+# Databricks
+.databricks/
+databricks/.bundle/
+
+# OS / editor
+.DS_Store
+.idea/
+
+# Third-party coding-agent skills (reinstall: databricks aitools install)
+.claude/skills/

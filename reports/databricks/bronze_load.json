@@ -1,0 +1,188 @@
+[
+  {
+    "table": "prepared_daily_view",
+    "rows": 56110,
+    "expected_rows": 56110,
+    "status": "pass"
+  },
+  {
+    "table": "player_period",
+    "rows": 148893,
+    "expected_rows": 148893,
+    "status": "pass"
+  },
+  {
+    "table": "property_day",
+    "rows": 181,
+    "expected_rows": 181,
+    "status": "pass"
+  },
+  {
+    "table": "calendar_day",
+    "rows": 181,
+    "expected_rows": 181,
+    "status": "pass"
+  },
+  {
+    "table": "floor_locations",
+    "rows": 378,
+    "expected_rows": 378,
+    "status": "pass"
+  },
+  {
+    "table": "floor_walkways",
+    "rows": 10,
+    "expected_rows": 10,
+    "status": "pass"
+  },
+  {
+    "table": "machines",
+    "rows": 310,
+    "expected_rows": 310,
+    "status": "pass"
+  },
+  {
+    "table": "game_math",
+    "rows": 10,
+    "expected_rows": 10,
+    "status": "pass"
+  },
+  {
+    "table": "placements",
+    "rows": 314,
+    "expected_rows": 314,
+    "status": "pass"
+  },
+  {
+    "table": "machine_day",
+    "rows": 56110,
+    "expected_rows": 56110,
+    "status": "pass"
+  },
+  {
+    "table": "operations",
+    "rows": 1226,
+    "expected_rows": 1226,
+    "status": "pass"
+  },
+  {
+    "table": "cost_rules",
+    "rows": 9,
+    "expected_rows": 9,
+    "status": "pass"
+  },
+  {
+    "table": "action_catalog",
+    "rows": 13,
+    "expected_rows": 13,
+    "status": "pass"
+  },
+  {
+    "table": "players",
+    "rows": 113890,
+    "expected_rows": 113890,
+    "status": "pass"
+  },
+  {
+    "table": "sessions",
+    "rows": 776297,
+    "expected_rows": 776297,
+    "status": "pass"
+  },
+  {
+    "table": "trips",
+    "rows": 351729,
+    "expected_rows": 351729,
+    "status": "pass"
+  },
+  {
+    "table": "loyalty_ledger",
+    "rows": 782773,
+    "expected_rows": 782773,
+    "status": "pass"
+  },
+  {
+    "table": "fnb_transactions",
+    "rows": 227833,
+    "expected_rows": 227833,
+    "status": "pass"
+  },
+  {
+    "table": "zone_traffic_hourly",
+    "rows": 30401,
+    "expected_rows": 30401,
+    "status": "pass"
+  },
+  {
+    "table": "events",
+    "rows": 8,
+    "expected_rows": 8,
+    "status": "pass"
+  },
+  {
+    "table": "weather_daily",
+    "rows": 181,
+    "expected_rows": 181,
+    "status": "pass"
+  },
+  {
+    "table": "city_visitation_monthly",
+    "rows": 6,
+    "expected_rows": 6,
+    "status": "pass"
+  },
+  {
+    "table": "benchmark_public",
+    "rows": 700,
+    "expected_rows": 700,
+    "status": "pass"
+  },
+  {
+    "table": "benchmark_property_monthly",
+    "rows": 78,
+    "expected_rows": 78,
+    "status": "pass"
+  },
+  {
+    "table": "benchmark_state_monthly",
+    "rows": 6,
+    "expected_rows": 6,
+    "status": "pass"
+  },
+  {
+    "table": "visitor_profile_summary",
+    "rows": 74,
+    "expected_rows": 74,
+    "status": "pass"
+  },
+  {
+    "table": "visitor_profile_segments",
+    "rows": 1406,
+    "expected_rows": 1406,
+    "status": "pass"
+  },
+  {
+    "table": "machine_hour",
+    "rows": 1321908,
+    "expected_rows": 1321908,
+    "status": "pass"
+  },
+  {
+    "table": "security_incidents",
+    "rows": 3865,
+    "expected_rows": 3865,
+    "status": "pass"
+  },
+  {
+    "table": "shift_roster",
+    "rows": 10317,
+    "expected_rows": 10317,
+    "status": "pass"
+  },
+  {
+    "table": "visitor_profile_monthly",
+    "rows": 42,
+    "expected_rows": 42,
+    "status": "pass"
+  }
+]

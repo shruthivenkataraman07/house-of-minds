@@ -1,0 +1,103 @@
+{
+ "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+ "vault_run_id": "S6-428BA95439",
+ "datasets": [
+  {
+   "dataset": "dash_executive_kpis",
+   "row_grain": "kpi",
+   "primary_key": "kpi",
+   "rows": 11,
+   "key_unique": true,
+   "filters": "period",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  },
+  {
+   "dataset": "dash_machine_intelligence",
+   "row_grain": "machine",
+   "primary_key": "machine_id",
+   "rows": 310,
+   "key_unique": true,
+   "filters": "zone_id, manufacturer, config_id, explanation",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  },
+  {
+   "dataset": "dash_investment_portfolios",
+   "row_grain": "portfolio x action line",
+   "primary_key": "line_id",
+   "rows": 13,
+   "key_unique": true,
+   "filters": "mode, role, portfolio_id",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  },
+  {
+   "dataset": "dash_scenario_surface",
+   "row_grain": "scenario or reversal",
+   "primary_key": "scenario_id",
+   "rows": 20,
+   "key_unique": true,
+   "filters": "row_type, scenario_kind, mode",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  },
+  {
+   "dataset": "dash_council_activity",
+   "row_grain": "council event",
+   "primary_key": "event_id",
+   "rows": 99,
+   "key_unique": true,
+   "filters": "config, event_type, actor",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  },
+  {
+   "dataset": "dash_evidence_validation",
+   "row_grain": "material claim",
+   "primary_key": "claim_id",
+   "rows": 83,
+   "key_unique": true,
+   "filters": "category, evidence_classification",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  },
+  {
+   "dataset": "dash_model_evaluation",
+   "row_grain": "holdout gaming day",
+   "primary_key": "gaming_date",
+   "rows": 61,
+   "key_unique": true,
+   "filters": "weekday, is_event_day",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  },
+  {
+   "dataset": "dash_decision_passports",
+   "row_grain": "portfolio x action",
+   "primary_key": "passport_id",
+   "rows": 5,
+   "key_unique": true,
+   "filters": "portfolio_mode, action_type_id",
+   "units": "USD unless stated; modeled values labelled",
+   "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
+   "null_policy": "nulls mean unknown/not applicable, never zero",
+   "validation_status": "VALIDATED"
+  }
+ ],
+ "created_at_utc": "2026-11-08T03:59:14+00:00"
+}

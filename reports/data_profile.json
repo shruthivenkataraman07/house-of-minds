@@ -1,0 +1,5924 @@
+{
+  "tables": [
+    {
+      "table": "prepared_daily_view",
+      "source_path": "1_prepared_views/prepared_daily_view.parquet",
+      "documented_grain": "machine x gaming date",
+      "origin": "synthetic",
+      "money_unit": "usd",
+      "rows": 56110,
+      "column_count": 44,
+      "primary_key": [
+        "machine_id",
+        "gaming_date"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "gaming_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 316
+        },
+        {
+          "name": "gaming_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "2025-03": 9610,
+            "2025-05": 9610,
+            "2025-01": 9610,
+            "2025-04": 9300,
+            "2025-06": 9300,
+            "2025-02": 8680
+          }
+        },
+        {
+          "name": "local_weekday",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "Sat": 8060,
+            "Fri": 8060,
+            "Mon": 8060,
+            "Sun": 8060,
+            "Wed": 8060,
+            "Thu": 8060,
+            "Tue": 7750
+          }
+        },
+        {
+          "name": "is_weekend",
+          "type": "BOOLEAN",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2
+        },
+        {
+          "name": "federal_holiday",
+          "type": "VARCHAR",
+          "null_count": 54560,
+          "null_pct": 97.2376,
+          "distinct_count": 5,
+          "values": {
+            "nan": 54560,
+            "Juneteenth": 310,
+            "Washington's Birthday": 310,
+            "Memorial Day": 310,
+            "Martin Luther King Jr. Day": 310,
+            "New Year's Day": 310
+          }
+        },
+        {
+          "name": "events_active",
+          "type": "VARCHAR",
+          "null_count": 45880,
+          "null_pct": 81.768,
+          "distinct_count": 8,
+          "values": {
+            "nan": 45880,
+            "Gilded Ace Locals Appreciation Week": 2170,
+            "NAB Show": 1550,
+            "College basketball tournament opening rounds": 1240,
+            "CES": 1240,
+            "CinemaCon": 1240,
+            "EDC Las Vegas festival weekend": 930,
+            "Gilded Ace Winter Slot Tournament": 930,
+            "Super Bowl LIX weekend": 930
+          }
+        },
+        {
+          "name": "zone_id",
+          "type": "VARCHAR",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 7,
+          "values": {
+            "Z-PIT": 13803,
+            "Z-BAR": 8744,
+            "Z-B40": 8541,
+            "Z-ENT": 6663,
+            "Z-GAR": 6516,
+            "Z-HTL": 6481,
+            "Z-HL": 4344,
+            "nan": 1018
+          }
+        },
+        {
+          "name": "zone_name",
+          "type": "VARCHAR",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 7,
+          "values": {
+            "Center Pit": 13803,
+            "Bar Row": 8744,
+            "Back Forty": 8541,
+            "Main Entrance": 6663,
+            "Garage Entrance": 6516,
+            "Hotel Corridor": 6481,
+            "High-Limit Room": 4344,
+            "nan": 1018
+          }
+        },
+        {
+          "name": "bank_id",
+          "type": "VARCHAR",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 51
+        },
+        {
+          "name": "location_id",
+          "type": "VARCHAR",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 296
+        },
+        {
+          "name": "config_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "G-PEN89": 11946,
+            "G-STD90": 8688,
+            "G-NEO88": 7602,
+            "G-CLS93": 5611,
+            "G-VID95": 4525,
+            "G-HIGH92": 4344,
+            "G-LOW92": 4344,
+            "G-HL90": 4344,
+            "G-JKP88": 3258,
+            "G-NEW91": 1448
+          }
+        },
+        {
+          "name": "theme",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "Prairie Thunder": 11946,
+            "Desert Gold": 8688,
+            "Neon Nights": 7602,
+            "Classic Sevens": 5611,
+            "Royal Draw": 4525,
+            "Platinum Reels": 4344,
+            "Comet Cash": 4344,
+            "Lucky Lanterns": 4344,
+            "Jackpot Summit": 3258,
+            "Aurora Link": 1448
+          }
+        },
+        {
+          "name": "configured_rtp",
+          "type": "DECIMAL(10,8)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "min": 0.88,
+          "max": 0.95,
+          "mean": 0.904387,
+          "negative_count": 0
+        },
+        {
+          "name": "volatility_class",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "medium": 22082,
+            "high": 16290,
+            "low": 14480,
+            "very_high": 3258
+          }
+        },
+        {
+          "name": "manufacturer",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "Halcyon": 20815,
+            "Northwind": 18281,
+            "Ridgeline": 17014
+          }
+        },
+        {
+          "name": "lease_class",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "owned": 34209,
+            "leased_revenue_share": 11765,
+            "leased_fixed": 10136
+          }
+        },
+        {
+          "name": "active",
+          "type": "BOOLEAN",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2
+        },
+        {
+          "name": "meter_status",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "reported": 55092,
+            "not_installed": 843,
+            "retired": 175
+          }
+        },
+        {
+          "name": "available_hours",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1346,
+          "min": 0,
+          "max": 24,
+          "mean": 23.469737,
+          "negative_count": 0
+        },
+        {
+          "name": "occupied_hours",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 33143,
+          "min": 0,
+          "max": 19.631389,
+          "mean": 8.550154,
+          "negative_count": 0
+        },
+        {
+          "name": "availability_ratio",
+          "type": "DOUBLE",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 1312,
+          "min": 0.042685,
+          "max": 1,
+          "mean": 0.996201,
+          "negative_count": 0
+        },
+        {
+          "name": "occupancy_ratio",
+          "type": "DOUBLE",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 34513,
+          "min": 0,
+          "max": 0.817975,
+          "mean": 0.364499,
+          "negative_count": 0
+        },
+        {
+          "name": "paid_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9110,
+          "min": 0,
+          "max": 12216,
+          "mean": 5297.09583,
+          "negative_count": 0
+        },
+        {
+          "name": "coin_in_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 26383,
+          "min": 0,
+          "max": 17550,
+          "mean": 4436.022443,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "payout_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 26524,
+          "min": 0,
+          "max": 19682,
+          "mean": 4014.740049,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "house_win_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 16590,
+          "min": -11619,
+          "max": 4699,
+          "mean": 421.282394,
+          "negative_count": 7117,
+          "unit": "dollars"
+        },
+        {
+          "name": "theo_usd",
+          "type": "DECIMAL(18,4)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 35957,
+          "min": 0,
+          "max": 1755,
+          "mean": 419.628667,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "observed_hold",
+          "type": "DOUBLE",
+          "null_count": 1035,
+          "null_pct": 1.8446,
+          "distinct_count": 58146,
+          "min": -15.354331,
+          "max": 1,
+          "mean": 0.092463,
+          "negative_count": 7117
+        },
+        {
+          "name": "theo_hold",
+          "type": "DOUBLE",
+          "null_count": 1035,
+          "null_pct": 1.8446,
+          "distinct_count": 10,
+          "min": 0.05,
+          "max": 0.12,
+          "mean": 0.095844,
+          "negative_count": 0
+        },
+        {
+          "name": "luck_residual_usd",
+          "type": "DECIMAL(18,4)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 46158,
+          "min": -12586.56,
+          "max": 3329.08,
+          "mean": 1.653727,
+          "negative_count": 21916,
+          "unit": "dollars"
+        },
+        {
+          "name": "carded_coin_in_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 22577,
+          "min": 0,
+          "max": 13680,
+          "mean": 2919.352516,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "carded_share",
+          "type": "DOUBLE",
+          "null_count": 1035,
+          "null_pct": 1.8446,
+          "distinct_count": 53133,
+          "min": 0,
+          "max": 1,
+          "mean": 0.66161,
+          "negative_count": 0
+        },
+        {
+          "name": "faults_opened",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "min": 0,
+          "max": 2,
+          "mean": 0.021511,
+          "negative_count": 0
+        },
+        {
+          "name": "zone_entries_observed",
+          "type": "BIGINT",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 1058,
+          "min": 81,
+          "max": 6224,
+          "mean": 2412.404324,
+          "negative_count": 0
+        },
+        {
+          "name": "zone_counter_coverage_hours",
+          "type": "DOUBLE",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 48,
+          "min": 3,
+          "max": 24,
+          "mean": 23.843492,
+          "negative_count": 0
+        },
+        {
+          "name": "lease_cost_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 5469,
+          "min": 0,
+          "max": 939.8,
+          "mean": 29.845342,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "service_cost_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "min": 0,
+          "max": 6,
+          "mean": 4.966102,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "power_cost_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": 0,
+          "max": 6,
+          "mean": 5.891142,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "repair_cost_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1161,
+          "min": 0,
+          "max": 1900.65,
+          "mean": 3.795138,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "contribution_after_supplied_costs_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 20643,
+          "min": -11631,
+          "max": 4422,
+          "mean": 376.784669,
+          "negative_count": 7701,
+          "unit": "dollars"
+        },
+        {
+          "name": "lag_coin_in_7d_mean_usd",
+          "type": "DOUBLE",
+          "null_count": 310,
+          "null_pct": 0.5525,
+          "distinct_count": 46395,
+          "min": 0,
+          "max": 9746.428571,
+          "mean": 4430.213324,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "lag_downtime_7d_hours",
+          "type": "DOUBLE",
+          "null_count": 310,
+          "null_pct": 0.5525,
+          "distinct_count": 1653,
+          "min": 0,
+          "max": 38.867778,
+          "mean": 0.619938,
+          "negative_count": 0
+        },
+        {
+          "name": "lag_house_win_28d_usd",
+          "type": "DOUBLE",
+          "null_count": 310,
+          "null_pct": 0.5525,
+          "distinct_count": 41566,
+          "min": -28155,
+          "max": 43260,
+          "mean": 10922.088379,
+          "negative_count": 716,
+          "unit": "dollars"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "federal_holiday",
+          "detail": "54560 nulls: Not a holiday."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "events_active",
+          "detail": "45880 nulls: No event that day."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "zone_id",
+          "detail": "1018 nulls: Null on the 1,018 documented off-floor machine-days."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "zone_name",
+          "detail": "1018 nulls: Null on the 1,018 documented off-floor machine-days."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "bank_id",
+          "detail": "1018 nulls: Null on the 1,018 documented off-floor machine-days."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "location_id",
+          "detail": "1018 nulls: Null on documented off-floor machine-days (not installed / retired)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "availability_ratio",
+          "detail": "1018 nulls: Null on off-floor machine-days."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "occupancy_ratio",
+          "detail": "1018 nulls: Null when no available hours."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "house_win_usd",
+          "detail": "7117 negative values: machines can lose money on a day (documented)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "observed_hold",
+          "detail": "1035 nulls: Undefined when coin-in is zero."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "theo_hold",
+          "detail": "1035 nulls: Undefined when coin-in is zero."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "luck_residual_usd",
+          "detail": "21916 negative values: machines can lose money on a day (documented)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "carded_share",
+          "detail": "1035 nulls: Undefined when coin-in is zero."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "zone_entries_observed",
+          "detail": "1018 nulls: Null on the 1,018 documented off-floor machine-days."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "zone_counter_coverage_hours",
+          "detail": "1018 nulls: Null on the 1,018 documented off-floor machine-days."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "lag_coin_in_7d_mean_usd",
+          "detail": "310 nulls: No prior gaming days for the first window day of each machine (310 machines)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "lag_downtime_7d_hours",
+          "detail": "310 nulls: No prior gaming days for the first window day of each machine (310 machines)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "lag_house_win_28d_usd",
+          "detail": "310 nulls: No prior gaming days for the first window day of each machine (310 machines)."
+        }
+      ]
+    },
+    {
+      "table": "player_period",
+      "source_path": "1_prepared_views/player_period.parquet",
+      "documented_grain": "tracked player x month",
+      "origin": "synthetic",
+      "money_unit": "usd",
+      "rows": 148893,
+      "column_count": 23,
+      "primary_key": [
+        "player_id",
+        "period_month"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "player_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 112118
+        },
+        {
+          "name": "period_month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "2025-03": 26346,
+            "2025-05": 25970,
+            "2025-01": 24687,
+            "2025-04": 24555,
+            "2025-02": 24031,
+            "2025-06": 23304
+          }
+        },
+        {
+          "name": "home_region",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "Regional": 46812,
+            "Domestic": 43622,
+            "Local": 42250,
+            "International": 16209
+          }
+        },
+        {
+          "name": "age_band",
+          "type": "VARCHAR",
+          "null_count": 17413,
+          "null_pct": 11.695,
+          "distinct_count": 4,
+          "values": {
+            "50-64": 36879,
+            "35-49": 35686,
+            "21-34": 35363,
+            "65+": 23552,
+            "nan": 17413
+          }
+        },
+        {
+          "name": "opening_tier",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "Base": 138011,
+            "Gold": 10069,
+            "Platinum": 813
+          }
+        },
+        {
+          "name": "tier_end",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "Base": 115875,
+            "Gold": 28706,
+            "Platinum": 4312
+          }
+        },
+        {
+          "name": "observed_visits",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 31,
+          "min": 0,
+          "max": 30,
+          "mean": 2.362294,
+          "negative_count": 0
+        },
+        {
+          "name": "incomplete_visits",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": 0,
+          "max": 1,
+          "mean": 7.4e-05,
+          "negative_count": 0
+        },
+        {
+          "name": "sessions",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 85,
+          "min": 0,
+          "max": 101,
+          "mean": 5.198989,
+          "negative_count": 0
+        },
+        {
+          "name": "carded_play_hours",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 20898,
+          "min": 0,
+          "max": 53.811111,
+          "mean": 2.196033,
+          "negative_count": 0
+        },
+        {
+          "name": "tracked_coin_in_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 44317,
+          "min": 0,
+          "max": 18853.5,
+          "mean": 1100.151583,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "tracked_payout_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 45538,
+          "min": 0,
+          "max": 22781.75,
+          "mean": 995.476007,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "tracked_net_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 24703,
+          "min": -3628.2,
+          "max": 10232,
+          "mean": -104.675576,
+          "negative_count": 109404,
+          "unit": "dollars"
+        },
+        {
+          "name": "theo_usd",
+          "type": "DECIMAL(18,4)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 83743,
+          "min": 0,
+          "max": 1883.757,
+          "mean": 104.001001,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "luck_residual_usd",
+          "type": "DECIMAL(18,4)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 95637,
+          "min": -1744.443,
+          "max": 10472.66,
+          "mean": -0.674576,
+          "negative_count": 93162,
+          "unit": "dollars"
+        },
+        {
+          "name": "linked_pos_cash_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 284,
+          "min": 0,
+          "max": 220,
+          "mean": 8.966728,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "linked_pos_cogs_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 595,
+          "min": 0,
+          "max": 110.1,
+          "mean": 3.971622,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "comps_redeemed",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 15,
+          "min": 0,
+          "max": 16,
+          "mean": 0.398682,
+          "negative_count": 0
+        },
+        {
+          "name": "comp_face_value_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 244,
+          "min": 0,
+          "max": 191,
+          "mean": 4.585504,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "comp_cost_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 338,
+          "min": 0,
+          "max": 53.8,
+          "mean": 1.280579,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "points_earned",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7444,
+          "min": 0,
+          "max": 18850,
+          "mean": 1098.89115,
+          "negative_count": 0
+        },
+        {
+          "name": "points_redeemed",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 879,
+          "min": 0,
+          "max": 2090,
+          "mean": 48.175394,
+          "negative_count": 0
+        },
+        {
+          "name": "tracked_contribution_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 24844,
+          "min": -10232,
+          "max": 3635.9,
+          "mean": 109.670682,
+          "negative_count": 21205,
+          "unit": "dollars"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "age_band",
+          "detail": "17413 nulls: Documented as missing for some players."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "luck_residual_usd",
+          "detail": "93162 negative values: machines can lose money on a day (documented)."
+        }
+      ]
+    },
+    {
+      "table": "property_day",
+      "source_path": "1_prepared_views/property_day.parquet",
+      "documented_grain": "gaming date",
+      "origin": "synthetic",
+      "money_unit": "usd",
+      "rows": 181,
+      "column_count": 24,
+      "primary_key": [
+        "gaming_date"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "gaming_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "gaming_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "local_weekday",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "Fri": 26,
+            "Wed": 26,
+            "Sat": 26,
+            "Mon": 26,
+            "Thu": 26,
+            "Sun": 26,
+            "Tue": 25
+          }
+        },
+        {
+          "name": "events_active",
+          "type": "VARCHAR",
+          "null_count": 148,
+          "null_pct": 81.768,
+          "distinct_count": 8,
+          "values": {
+            "nan": 148,
+            "Gilded Ace Locals Appreciation Week": 7,
+            "NAB Show": 5,
+            "College basketball tournament opening rounds": 4,
+            "CinemaCon": 4,
+            "CES": 4,
+            "Gilded Ace Winter Slot Tournament": 3,
+            "EDC Las Vegas festival weekend": 3,
+            "Super Bowl LIX weekend": 3
+          }
+        },
+        {
+          "name": "active_machines",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": 300,
+          "max": 308,
+          "mean": 304.375691,
+          "negative_count": 0
+        },
+        {
+          "name": "coin_in_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 179,
+          "min": 991699.2,
+          "max": 2170909.05,
+          "mean": 1375166.957182,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "payout_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": 899481.25,
+          "max": 1949704.4,
+          "mean": 1244569.415193,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "house_win_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 186,
+          "min": 82606.15,
+          "max": 221204.65,
+          "mean": 130597.541989,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "theo_usd",
+          "type": "DECIMAL(18,4)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 178,
+          "min": 93918.6945,
+          "max": 206690.1775,
+          "mean": 130084.886622,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "observed_hold",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 187,
+          "min": 0.067613,
+          "max": 0.113675,
+          "mean": 0.094938,
+          "negative_count": 0
+        },
+        {
+          "name": "available_machine_hours",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 191,
+          "min": 6861.839167,
+          "max": 7392,
+          "mean": 7275.618349,
+          "negative_count": 0
+        },
+        {
+          "name": "occupied_machine_hours",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": 1965.603333,
+          "max": 3822.8625,
+          "mean": 2650.547815,
+          "negative_count": 0
+        },
+        {
+          "name": "carded_coin_in_share",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 186,
+          "min": 0.619856,
+          "max": 0.693962,
+          "mean": 0.658417,
+          "negative_count": 0
+        },
+        {
+          "name": "pos_cash_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 177,
+          "min": 10030,
+          "max": 20765,
+          "mean": 13758.331492,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "pos_cogs_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 183,
+          "min": 3664.6,
+          "max": 7841.8,
+          "mean": 5181.967956,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "comp_face_value_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 186,
+          "min": 1824.5,
+          "max": 5871.5,
+          "mean": 3772.096685,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "comp_cost_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 175,
+          "min": 499.5,
+          "max": 1642,
+          "mean": 1053.421547,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "faults_opened",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 15,
+          "min": 0,
+          "max": 15,
+          "mean": 6.668508,
+          "negative_count": 0
+        },
+        {
+          "name": "incidents_reported",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 30,
+          "min": 8,
+          "max": 39,
+          "mean": 21.353591,
+          "negative_count": 0
+        },
+        {
+          "name": "entrance_zone_entries_observed",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 174,
+          "min": 5125,
+          "max": 10964,
+          "mean": 7024.59116,
+          "negative_count": 0
+        },
+        {
+          "name": "total_zone_entries_observed",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 186,
+          "min": 8678,
+          "max": 22534,
+          "mean": 14662.143646,
+          "negative_count": 0
+        },
+        {
+          "name": "counter_coverage_share",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 66,
+          "min": 0.875,
+          "max": 1,
+          "mean": 0.993879,
+          "negative_count": 0
+        },
+        {
+          "name": "machine_supplied_costs_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 185,
+          "min": 11016.09,
+          "max": 17772.94,
+          "mean": 13794.294751,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "tech_labor_cost_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "min": 768,
+          "max": 1920,
+          "mean": 1690.872928,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "contribution_after_supplied_costs_usd",
+          "type": "DECIMAL(18,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": 75512.18,
+          "max": 216095.36,
+          "mean": 123688.737845,
+          "negative_count": 0,
+          "unit": "dollars"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "events_active",
+          "detail": "148 nulls: No event that day."
+        }
+      ]
+    },
+    {
+      "table": "calendar_day",
+      "source_path": "2_machine_decision/calendar_day.parquet",
+      "documented_grain": "gaming date",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 181,
+      "column_count": 10,
+      "primary_key": [
+        "gaming_date"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "gaming_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "gaming_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "gaming_day_start_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01 14:00:00",
+          "max": "2025-06-30 13:00:00"
+        },
+        {
+          "name": "gaming_day_end_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 181,
+          "min": "2025-01-02 14:00:00",
+          "max": "2025-07-01 13:00:00"
+        },
+        {
+          "name": "scheduled_seconds",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": 82800,
+          "max": 86400,
+          "mean": 86380.110497,
+          "negative_count": 0
+        },
+        {
+          "name": "local_weekday",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "Wed": 26,
+            "Fri": 26,
+            "Mon": 26,
+            "Thu": 26,
+            "Sat": 26,
+            "Sun": 26,
+            "Tue": 25
+          }
+        },
+        {
+          "name": "utc_offset_start",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "-07:00": 114,
+            "-08:00": 67
+          }
+        },
+        {
+          "name": "utc_offset_end",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "-07:00": 115,
+            "-08:00": 66
+          }
+        },
+        {
+          "name": "month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "2025-01": 31,
+            "2025-03": 31,
+            "2025-05": 31,
+            "2025-04": 30,
+            "2025-06": 30,
+            "2025-02": 28
+          }
+        },
+        {
+          "name": "is_weekend",
+          "type": "BOOLEAN",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2
+        },
+        {
+          "name": "federal_holiday",
+          "type": "VARCHAR",
+          "null_count": 176,
+          "null_pct": 97.2376,
+          "distinct_count": 5,
+          "values": {
+            "nan": 176,
+            "Washington's Birthday": 1,
+            "Memorial Day": 1,
+            "Martin Luther King Jr. Day": 1,
+            "Juneteenth": 1,
+            "New Year's Day": 1
+          }
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "federal_holiday",
+          "detail": "176 nulls: Not a holiday."
+        }
+      ]
+    },
+    {
+      "table": "floor_locations",
+      "source_path": "2_machine_decision/floor_locations.parquet",
+      "documented_grain": "zone, bank, slot, outlet or entrance",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 378,
+      "column_count": 10,
+      "primary_key": [
+        "location_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "location_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 360
+        },
+        {
+          "name": "parent_location_id",
+          "type": "VARCHAR",
+          "null_count": 7,
+          "null_pct": 1.8519,
+          "distinct_count": 58
+        },
+        {
+          "name": "node_type",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 5,
+          "values": {
+            "slot": 314,
+            "bank": 51,
+            "zone": 7,
+            "entrance": 3,
+            "outlet": 3
+          }
+        },
+        {
+          "name": "zone_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "Z-PIT": 96,
+            "Z-BAR": 59,
+            "Z-B40": 58,
+            "Z-HTL": 46,
+            "Z-ENT": 45,
+            "Z-GAR": 44,
+            "Z-HL": 30
+          }
+        },
+        {
+          "name": "bank_id",
+          "type": "VARCHAR",
+          "null_count": 13,
+          "null_pct": 3.4392,
+          "distinct_count": 51
+        },
+        {
+          "name": "outlet_id",
+          "type": "VARCHAR",
+          "null_count": 375,
+          "null_pct": 99.2063,
+          "distinct_count": 3,
+          "values": {
+            "nan": 375,
+            "O-BAR": 1,
+            "O-REST": 1,
+            "O-CAFE": 1
+          }
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR",
+          "null_count": 365,
+          "null_pct": 96.5608,
+          "distinct_count": 13
+        },
+        {
+          "name": "x_m",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 216,
+          "min": 0,
+          "max": 134.5,
+          "mean": 68.688889,
+          "negative_count": 0
+        },
+        {
+          "name": "y_m",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 43,
+          "min": -4.1,
+          "max": 112.1,
+          "mean": 58.852646,
+          "negative_count": 15
+        },
+        {
+          "name": "capacity",
+          "type": "INTEGER",
+          "null_count": 10,
+          "null_pct": 2.6455,
+          "distinct_count": 7,
+          "min": 1,
+          "max": 80,
+          "mean": 2.11413,
+          "negative_count": 0
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "parent_location_id",
+          "detail": "7 nulls: Hierarchy: column applies only to some node types (zone/bank/slot/outlet/entrance)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "bank_id",
+          "detail": "13 nulls: Hierarchy: column applies only to some node types (zone/bank/slot/outlet/entrance)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "outlet_id",
+          "detail": "375 nulls: Hierarchy: column applies only to some node types (zone/bank/slot/outlet/entrance)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "name",
+          "detail": "365 nulls: Hierarchy: column applies only to some node types (zone/bank/slot/outlet/entrance)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "capacity",
+          "detail": "10 nulls: Hierarchy: column applies only to some node types (zone/bank/slot/outlet/entrance)."
+        }
+      ]
+    },
+    {
+      "table": "floor_walkways",
+      "source_path": "2_machine_decision/floor_walkways.parquet",
+      "documented_grain": "walkway between zones",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 10,
+      "column_count": 7,
+      "primary_key": [
+        "walkway_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "closed_from_utc": {
+          "min": "2025-03-03 14:00:00",
+          "max": "2025-03-03 14:00:00",
+          "distinct_days": 1
+        },
+        "closed_to_utc": {
+          "min": "2025-04-07 13:00:00",
+          "max": "2025-04-07 13:00:00",
+          "distinct_days": 1
+        }
+      },
+      "columns": [
+        {
+          "name": "walkway_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "W-GAR-B40": 1,
+            "W-HTL-HL": 1,
+            "W-ENT-B40": 1,
+            "W-PIT-HTL": 1,
+            "W-PIT-HL": 1,
+            "W-BAR-GAR": 1,
+            "W-PIT-BAR": 1,
+            "W-B40-BAR": 1,
+            "W-ENT-PIT": 1,
+            "W-BAR-HL": 1
+          }
+        },
+        {
+          "name": "zone_a",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "Z-PIT": 3,
+            "Z-BAR": 2,
+            "Z-ENT": 2,
+            "Z-HTL": 1,
+            "Z-B40": 1,
+            "Z-GAR": 1
+          }
+        },
+        {
+          "name": "zone_b",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "Z-HL": 3,
+            "Z-B40": 2,
+            "Z-BAR": 2,
+            "Z-PIT": 1,
+            "Z-HTL": 1,
+            "Z-GAR": 1
+          }
+        },
+        {
+          "name": "length_m",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 35,
+          "max": 100,
+          "mean": 53.4,
+          "negative_count": 0
+        },
+        {
+          "name": "closed_from_utc",
+          "type": "TIMESTAMP",
+          "null_count": 9,
+          "null_pct": 90.0,
+          "distinct_count": 1,
+          "min": "2025-03-03 14:00:00",
+          "max": "2025-03-03 14:00:00"
+        },
+        {
+          "name": "closed_to_utc",
+          "type": "TIMESTAMP",
+          "null_count": 9,
+          "null_pct": 90.0,
+          "distinct_count": 1,
+          "min": "2025-04-07 13:00:00",
+          "max": "2025-04-07 13:00:00"
+        },
+        {
+          "name": "closure_reason",
+          "type": "VARCHAR",
+          "null_count": 9,
+          "null_pct": 90.0,
+          "distinct_count": 1,
+          "values": {
+            "nan": 9,
+            "renovation": 1
+          }
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "closed_from_utc",
+          "detail": "9 nulls: Walkway never closed."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "closed_to_utc",
+          "detail": "9 nulls: Walkway never closed."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "closure_reason",
+          "detail": "9 nulls: Walkway never closed."
+        }
+      ]
+    },
+    {
+      "table": "machines",
+      "source_path": "2_machine_decision/machines.parquet",
+      "documented_grain": "machine",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 310,
+      "column_count": 6,
+      "primary_key": [
+        "machine_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "install_date": {
+          "min": "2016-01-02 00:00:00",
+          "max": "2025-05-13 00:00:00",
+          "distinct_days": 289
+        },
+        "retire_date": {
+          "min": "2025-02-25 00:00:00",
+          "max": "2025-05-13 00:00:00",
+          "distinct_days": 2
+        }
+      },
+      "columns": [
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 316
+        },
+        {
+          "name": "manufacturer",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "Halcyon": 115,
+            "Northwind": 101,
+            "Ridgeline": 94
+          }
+        },
+        {
+          "name": "theme",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "Prairie Thunder": 66,
+            "Desert Gold": 48,
+            "Neon Nights": 42,
+            "Classic Sevens": 31,
+            "Royal Draw": 25,
+            "Platinum Reels": 24,
+            "Lucky Lanterns": 24,
+            "Comet Cash": 24,
+            "Jackpot Summit": 18,
+            "Aurora Link": 8
+          }
+        },
+        {
+          "name": "install_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 284,
+          "min": "2016-01-02",
+          "max": "2025-05-13"
+        },
+        {
+          "name": "retire_date",
+          "type": "DATE",
+          "null_count": 308,
+          "null_pct": 99.3548,
+          "distinct_count": 2,
+          "min": "2025-02-25",
+          "max": "2025-05-13"
+        },
+        {
+          "name": "lease_class",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "owned": 189,
+            "leased_revenue_share": 65,
+            "leased_fixed": 56
+          }
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "retire_date",
+          "detail": "308 nulls: Machine still on the floor."
+        }
+      ]
+    },
+    {
+      "table": "game_math",
+      "source_path": "2_machine_decision/game_math.parquet",
+      "documented_grain": "game configuration",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 10,
+      "column_count": 11,
+      "primary_key": [
+        "config_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "config_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "G-LOW92": 1,
+            "G-STD90": 1,
+            "G-CLS93": 1,
+            "G-HIGH92": 1,
+            "G-NEO88": 1,
+            "G-NEW91": 1,
+            "G-VID95": 1,
+            "G-HL90": 1,
+            "G-JKP88": 1,
+            "G-PEN89": 1
+          }
+        },
+        {
+          "name": "theme",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "Desert Gold": 1,
+            "Jackpot Summit": 1,
+            "Comet Cash": 1,
+            "Classic Sevens": 1,
+            "Platinum Reels": 1,
+            "Neon Nights": 1,
+            "Aurora Link": 1,
+            "Royal Draw": 1,
+            "Lucky Lanterns": 1,
+            "Prairie Thunder": 1
+          }
+        },
+        {
+          "name": "configured_rtp",
+          "type": "DECIMAL(10,8)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "min": 0.88,
+          "max": 0.95,
+          "mean": 0.908,
+          "negative_count": 0
+        },
+        {
+          "name": "payout_multiplier_variance",
+          "type": "DECIMAL(18,8)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "min": 0.9936,
+          "max": 516.4156,
+          "mean": 96.75588,
+          "negative_count": 0
+        },
+        {
+          "name": "hit_probability",
+          "type": "DECIMAL(10,6)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "min": 0.046,
+          "max": 0.65663,
+          "mean": 0.421362,
+          "negative_count": 0
+        },
+        {
+          "name": "max_multiplier",
+          "type": "DECIMAL(12,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8,
+          "min": 2,
+          "max": 2500,
+          "mean": 886.2,
+          "negative_count": 0
+        },
+        {
+          "name": "min_bet_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 5,
+          "min": 25,
+          "max": 500,
+          "mean": 95.5,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "max_bet_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 100,
+          "max": 2500,
+          "mean": 500,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "bet_options_cents",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9,
+          "values": {
+            "25|50|100": 2,
+            "40|80|200": 1,
+            "50|100|200": 1,
+            "25|125|500": 1,
+            "100|200|300": 1,
+            "100|200|500": 1,
+            "40|80|120|200": 1,
+            "50|100|200|400": 1,
+            "500|1000|2500": 1
+          },
+          "unit": "integer cents"
+        },
+        {
+          "name": "payout_increment_cents",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 5,
+          "min": 20,
+          "max": 500,
+          "mean": 136.5,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "volatility_class",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "high": 3,
+            "low": 3,
+            "medium": 3,
+            "very_high": 1
+          }
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "placements",
+      "source_path": "2_machine_decision/placements.parquet",
+      "documented_grain": "machine x location/config interval",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 314,
+      "column_count": 6,
+      "primary_key": [
+        "placement_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "effective_from_utc": {
+          "min": "2025-01-01 14:00:00",
+          "max": "2025-06-10 13:00:00",
+          "distinct_days": 8
+        },
+        "effective_to_utc": {
+          "min": "2025-02-04 14:00:00",
+          "max": "2025-06-10 13:00:00",
+          "distinct_days": 6
+        }
+      },
+      "columns": [
+        {
+          "name": "placement_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 311
+        },
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 316
+        },
+        {
+          "name": "location_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 296
+        },
+        {
+          "name": "config_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "G-PEN89": 66,
+            "G-STD90": 48,
+            "G-NEO88": 43,
+            "G-CLS93": 31,
+            "G-LOW92": 26,
+            "G-VID95": 25,
+            "G-HL90": 24,
+            "G-HIGH92": 24,
+            "G-JKP88": 19,
+            "G-NEW91": 8
+          }
+        },
+        {
+          "name": "effective_from_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8,
+          "min": "2025-01-01 14:00:00",
+          "max": "2025-06-10 13:00:00"
+        },
+        {
+          "name": "effective_to_utc",
+          "type": "TIMESTAMP",
+          "null_count": 308,
+          "null_pct": 98.0892,
+          "distinct_count": 6,
+          "min": "2025-02-04 14:00:00",
+          "max": "2025-06-10 13:00:00"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "effective_to_utc",
+          "detail": "308 nulls: Placement still open."
+        }
+      ]
+    },
+    {
+      "table": "machine_day",
+      "source_path": "2_machine_decision/machine_day.parquet",
+      "documented_grain": "machine x gaming date",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 56110,
+      "column_count": 20,
+      "primary_key": [
+        "machine_id",
+        "gaming_date"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "gaming_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 316
+        },
+        {
+          "name": "gaming_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "location_id",
+          "type": "VARCHAR",
+          "null_count": 1018,
+          "null_pct": 1.8143,
+          "distinct_count": 296
+        },
+        {
+          "name": "config_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "G-PEN89": 11946,
+            "G-STD90": 8688,
+            "G-NEO88": 7602,
+            "G-CLS93": 5611,
+            "G-VID95": 4525,
+            "G-HIGH92": 4344,
+            "G-LOW92": 4344,
+            "G-HL90": 4344,
+            "G-JKP88": 3258,
+            "G-NEW91": 1448
+          }
+        },
+        {
+          "name": "active",
+          "type": "BOOLEAN",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2
+        },
+        {
+          "name": "meter_status",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "reported": 55092,
+            "not_installed": 843,
+            "retired": 175
+          }
+        },
+        {
+          "name": "scheduled_seconds",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "min": 0,
+          "max": 86400,
+          "mean": 84813.202638,
+          "negative_count": 0
+        },
+        {
+          "name": "available_seconds",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1294,
+          "min": 0,
+          "max": 86400,
+          "mean": 84491.051791,
+          "negative_count": 0
+        },
+        {
+          "name": "occupied_seconds",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 32425,
+          "min": 0,
+          "max": 70673,
+          "mean": 30780.555266,
+          "negative_count": 0
+        },
+        {
+          "name": "paid_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9110,
+          "min": 0,
+          "max": 12216,
+          "mean": 5297.09583,
+          "negative_count": 0
+        },
+        {
+          "name": "payout_positive_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6120,
+          "min": 0,
+          "max": 7484,
+          "mean": 2392.286027,
+          "negative_count": 0
+        },
+        {
+          "name": "coin_in_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 26383,
+          "min": 0,
+          "max": 1755000,
+          "mean": 443602.244252,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "payout_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 26524,
+          "min": 0,
+          "max": 1968200,
+          "mean": 401474.004901,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "house_win_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 16590,
+          "min": -1161900,
+          "max": 469900,
+          "mean": 42128.239351,
+          "negative_count": 7117,
+          "unit": "integer cents"
+        },
+        {
+          "name": "theo_cents",
+          "type": "DECIMAL(24,8)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 33175,
+          "min": 0,
+          "max": 175500,
+          "mean": 41962.866652,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "sum_bet_squared",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 40130,
+          "min": 0,
+          "max": 877500000,
+          "mean": 61287110.273124,
+          "negative_count": 0
+        },
+        {
+          "name": "carded_coin_in_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 22577,
+          "min": 0,
+          "max": 1368000,
+          "mean": 291935.251559,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "carded_payout_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 24915,
+          "min": 0,
+          "max": 1544900,
+          "mean": 264158.633131,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "carded_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7492,
+          "min": 0,
+          "max": 10584,
+          "mean": 3608.253431,
+          "negative_count": 0
+        },
+        {
+          "name": "carded_theo_cents",
+          "type": "DECIMAL(24,8)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 30949,
+          "min": 0,
+          "max": 136800,
+          "mean": 27597.613581,
+          "negative_count": 0,
+          "unit": "integer cents"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "location_id",
+          "detail": "1018 nulls: Null on documented off-floor machine-days (not installed / retired)."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "house_win_cents",
+          "detail": "7117 negative values: machines can lose money on a day (documented)."
+        }
+      ]
+    },
+    {
+      "table": "operations",
+      "source_path": "2_machine_decision/operations.parquet",
+      "documented_grain": "repair, move, install or retirement ticket",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 1226,
+      "column_count": 10,
+      "primary_key": [
+        "operation_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "opened_at_utc": {
+          "min": "2025-01-01 19:45:56",
+          "max": "2025-07-01 04:29:12",
+          "distinct_days": 181
+        },
+        "available_at_utc": {
+          "min": "2025-01-01 22:06:13",
+          "max": "2025-07-01 10:57:20",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "operation_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1228
+        },
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 284
+        },
+        {
+          "name": "location_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 272
+        },
+        {
+          "name": "event_type",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 5,
+          "values": {
+            "fault_repair": 1207,
+            "install": 10,
+            "move": 4,
+            "scheduled_maintenance": 3,
+            "retire": 2
+          }
+        },
+        {
+          "name": "opened_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1152,
+          "min": "2025-01-01 19:45:56",
+          "max": "2025-07-01 04:29:12"
+        },
+        {
+          "name": "opened_at_local",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1243,
+          "min": "2025-01-01 11:45:56",
+          "max": "2025-06-30 21:29:12"
+        },
+        {
+          "name": "recorded_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1212,
+          "min": "2025-01-01 20:00:55",
+          "max": "2025-07-01 04:37:00"
+        },
+        {
+          "name": "work_started_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1165,
+          "min": "2025-01-01 19:45:56",
+          "max": "2025-07-01 04:29:12"
+        },
+        {
+          "name": "available_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1279,
+          "min": "2025-01-01 22:06:13",
+          "max": "2025-07-01 10:57:20"
+        },
+        {
+          "name": "direct_cost_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1168,
+          "min": 5305,
+          "max": 2200000,
+          "mean": 21997.977977,
+          "negative_count": 0,
+          "unit": "integer cents"
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "cost_rules",
+      "source_path": "2_machine_decision/cost_rules.parquet",
+      "documented_grain": "supplied cost rule",
+      "origin": "synthetic",
+      "money_unit": "mixed",
+      "rows": 9,
+      "column_count": 10,
+      "primary_key": [
+        "cost_rule_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "cost_rule_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9,
+          "values": {
+            "CR-LEASE-SHARE": 1,
+            "CR-TECH-LABOR": 1,
+            "CR-SVC-HALCYON": 1,
+            "CR-LEASE-FIXED": 1,
+            "CR-FNB-COGS": 1,
+            "CR-REPAIR": 1,
+            "CR-SVC-RIDGELINE": 1,
+            "CR-POWER": 1,
+            "CR-SVC-NORTHWIND": 1
+          }
+        },
+        {
+          "name": "entity_type",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "manufacturer": 3,
+            "machine_lease_class": 2,
+            "role": 1,
+            "operations": 1,
+            "fnb": 1,
+            "all_machines": 1
+          }
+        },
+        {
+          "name": "entity_id",
+          "type": "VARCHAR",
+          "null_count": 2,
+          "null_pct": 22.2222,
+          "distinct_count": 7,
+          "values": {
+            "nan": 2,
+            "fault_repair": 1,
+            "Ridgeline": 1,
+            "leased_fixed": 1,
+            "Northwind": 1,
+            "Halcyon": 1,
+            "slot_tech": 1,
+            "leased_revenue_share": 1
+          }
+        },
+        {
+          "name": "cost_category",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "service_contract": 3,
+            "lease": 2,
+            "cost_of_goods": 1,
+            "utilities": 1,
+            "repair": 1,
+            "labor": 1
+          }
+        },
+        {
+          "name": "calculation_basis",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 5,
+          "values": {
+            "per_active_machine_day": 5,
+            "operations.direct_cost_cents": 1,
+            "per_scheduled_staff_hour": 1,
+            "fnb_transactions.cogs_cents (comps included once here)": 1,
+            "share_of_positive_daily_house_win": 1
+          }
+        },
+        {
+          "name": "unit",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "cents": 6,
+            "multiplier": 2,
+            "fraction": 1
+          }
+        },
+        {
+          "name": "payer",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "property": 9
+          }
+        },
+        {
+          "name": "rate",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "1": 2,
+            "600": 2,
+            "0.2": 1,
+            "4500": 1,
+            "500": 1,
+            "4800": 1,
+            "400": 1
+          }
+        },
+        {
+          "name": "effective_from",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "min": "2025-01-01",
+          "max": "2025-01-01"
+        },
+        {
+          "name": "effective_to",
+          "type": "DATE",
+          "null_count": 9,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "min": "None",
+          "max": "None"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "entity_id",
+          "detail": "2 nulls: Rule applies to all entities."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "effective_to",
+          "detail": "9 nulls: Open-ended rule."
+        }
+      ]
+    },
+    {
+      "table": "action_catalog",
+      "source_path": "2_machine_decision/action_catalog.parquet",
+      "documented_grain": "action the budget can buy",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 13,
+      "column_count": 10,
+      "primary_key": [
+        "action_type_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "action_type_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 13
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 13
+        },
+        {
+          "name": "unit",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "machine": 4,
+            "event": 1,
+            "technician_shift": 1,
+            "manufacturer": 1,
+            "none": 1,
+            "month": 1,
+            "pilot": 1,
+            "policy": 1,
+            "bank": 1,
+            "zone": 1
+          }
+        },
+        {
+          "name": "unit_cost_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 12,
+          "min": 0,
+          "max": 2200000,
+          "mean": 684769.230769,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "recurring_cost_cents_per_day",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": 0,
+          "max": 5500,
+          "mean": 423.076923,
+          "negative_count": 0
+        },
+        {
+          "name": "lead_days",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9,
+          "min": 0,
+          "max": 21,
+          "mean": 7.384615,
+          "negative_count": 0
+        },
+        {
+          "name": "downtime_minutes",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 0,
+          "max": 480,
+          "mean": 122.307692,
+          "negative_count": 0
+        },
+        {
+          "name": "quantity_limit",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "min": 1,
+          "max": 24,
+          "mean": 6.615385,
+          "negative_count": 0
+        },
+        {
+          "name": "incompatibility_group",
+          "type": "VARCHAR",
+          "null_count": 7,
+          "null_pct": 53.8462,
+          "distinct_count": 2,
+          "values": {
+            "nan": 7,
+            "same_machine": 4,
+            "comp_policy": 2
+          }
+        },
+        {
+          "name": "notes",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 13
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "incompatibility_group",
+          "detail": "7 nulls: Action has no conflict group."
+        }
+      ]
+    },
+    {
+      "table": "players",
+      "source_path": "3_guests/players.parquet",
+      "documented_grain": "loyalty account",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 113890,
+      "column_count": 7,
+      "primary_key": [
+        "player_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "enrolled_at_utc": {
+          "min": "2020-11-24 14:00:00",
+          "max": "2025-07-01 11:53:04",
+          "distinct_days": 1650
+        }
+      },
+      "columns": [
+        {
+          "name": "player_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 112118
+        },
+        {
+          "name": "enrolled_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 104409,
+          "min": "2020-11-24 14:00:00",
+          "max": "2025-07-01 11:53:04"
+        },
+        {
+          "name": "home_region",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "Regional": 46489,
+            "Domestic": 43334,
+            "International": 16100,
+            "Local": 7967
+          }
+        },
+        {
+          "name": "age_band",
+          "type": "VARCHAR",
+          "null_count": 13463,
+          "null_pct": 11.8211,
+          "distinct_count": 4,
+          "values": {
+            "50-64": 28039,
+            "35-49": 27170,
+            "21-34": 27108,
+            "65+": 18110,
+            "nan": 13463
+          }
+        },
+        {
+          "name": "opening_lifetime_points",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 5038,
+          "min": 0,
+          "max": 153730,
+          "mean": 324.620081,
+          "negative_count": 0
+        },
+        {
+          "name": "opening_tier",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "Base": 111837,
+            "Gold": 1900,
+            "Platinum": 153
+          }
+        },
+        {
+          "name": "observed_through_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "min": "2025-07-01 13:00:00",
+          "max": "2025-07-01 13:00:00"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "age_band",
+          "detail": "13463 nulls: Documented as missing for some players."
+        }
+      ]
+    },
+    {
+      "table": "sessions",
+      "source_path": "3_guests/sessions.parquet",
+      "documented_grain": "carded session segment",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 776297,
+      "column_count": 20,
+      "primary_key": [
+        "session_segment_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "gaming_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "session_segment_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 764096
+        },
+        {
+          "name": "logical_session_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 757010
+        },
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 316
+        },
+        {
+          "name": "config_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "G-PEN89": 173262,
+            "G-STD90": 134188,
+            "G-NEO88": 118257,
+            "G-HIGH92": 73566,
+            "G-LOW92": 66780,
+            "G-CLS93": 65265,
+            "G-VID95": 64644,
+            "G-JKP88": 44081,
+            "G-HL90": 18187,
+            "G-NEW91": 18067
+          }
+        },
+        {
+          "name": "location_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 296
+        },
+        {
+          "name": "gaming_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "start_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 775089,
+          "min": "2025-01-01 14:01:24",
+          "max": "2025-07-01 12:55:39"
+        },
+        {
+          "name": "end_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 767347,
+          "min": "2025-01-01 14:25:44",
+          "max": "2025-07-01 13:00:00"
+        },
+        {
+          "name": "start_local",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 760685,
+          "min": "2025-01-01 06:01:24",
+          "max": "2025-07-01 05:55:39"
+        },
+        {
+          "name": "local_hour",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 24,
+          "min": 0,
+          "max": 23,
+          "mean": 14.404836,
+          "negative_count": 0
+        },
+        {
+          "name": "utc_offset",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "-07:00": 486846,
+            "-08:00": 289451
+          }
+        },
+        {
+          "name": "fixed_bet_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 13,
+          "min": 25,
+          "max": 2500,
+          "mean": 89.155529,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "paid_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2114,
+          "min": 1,
+          "max": 4513,
+          "mean": 260.801085,
+          "negative_count": 0
+        },
+        {
+          "name": "payout_positive_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1236,
+          "min": 0,
+          "max": 2071,
+          "mean": 117.736423,
+          "negative_count": 0
+        },
+        {
+          "name": "coin_in_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7126,
+          "min": 25,
+          "max": 712500,
+          "mean": 21100.799005,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "payout_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10301,
+          "min": 0,
+          "max": 1130000,
+          "mean": 19093.131759,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "theo_cents",
+          "type": "DECIMAL(24,8)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 13489,
+          "min": 1.25,
+          "max": 70550,
+          "mean": 1994.728948,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "sum_bet_squared",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10697,
+          "min": 625,
+          "max": 540000000,
+          "mean": 2808869.941949,
+          "negative_count": 0
+        },
+        {
+          "name": "player_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 95165
+        },
+        {
+          "name": "observed_visit_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 307083
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "trips",
+      "source_path": "3_guests/trips.parquet",
+      "documented_grain": "observed property visit",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 351729,
+      "column_count": 8,
+      "primary_key": [
+        "observed_visit_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "first_observed_at_utc": {
+          "min": "2025-01-01 14:01:24",
+          "max": "2025-07-01 12:55:39",
+          "distinct_days": 182
+        }
+      },
+      "columns": [
+        {
+          "name": "observed_visit_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 337527
+        },
+        {
+          "name": "player_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 112118
+        },
+        {
+          "name": "first_observed_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 355977,
+          "min": "2025-01-01 14:01:24",
+          "max": "2025-07-01 12:55:39"
+        },
+        {
+          "name": "first_observed_local",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 350588,
+          "min": "2025-01-01 06:01:24",
+          "max": "2025-07-01 05:55:39"
+        },
+        {
+          "name": "last_observed_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 348988,
+          "min": "2025-01-01 14:25:44",
+          "max": "2025-07-01 13:00:00"
+        },
+        {
+          "name": "grouping_method",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "recorded_visit_key": 351729
+          }
+        },
+        {
+          "name": "observation_complete",
+          "type": "BOOLEAN",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2
+        },
+        {
+          "name": "observed_through_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "min": "2025-07-01 13:00:00",
+          "max": "2025-07-01 13:00:00"
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "loyalty_ledger",
+      "source_path": "3_guests/loyalty_ledger.parquet",
+      "documented_grain": "points award or redemption",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 782773,
+      "column_count": 13,
+      "primary_key": [
+        "loyalty_event_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "event_at_utc": {
+          "min": "2025-01-01 14:25:44",
+          "max": "2025-07-01 13:00:00",
+          "distinct_days": 182
+        }
+      },
+      "columns": [
+        {
+          "name": "loyalty_event_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 793016
+        },
+        {
+          "name": "player_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 95165
+        },
+        {
+          "name": "event_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 750719,
+          "min": "2025-01-01 14:25:44",
+          "max": "2025-07-01 13:00:00"
+        },
+        {
+          "name": "available_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 750719,
+          "min": "2025-01-01 14:25:44",
+          "max": "2025-07-01 13:00:00"
+        },
+        {
+          "name": "event_type",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "award": 723412,
+            "redeem": 59361
+          }
+        },
+        {
+          "name": "benefit_id",
+          "type": "VARCHAR",
+          "null_count": 723412,
+          "null_pct": 92.4166,
+          "distinct_count": 10,
+          "values": {
+            "nan": 723412,
+            "COMP-SODA": 8785,
+            "COMP-BEER": 8589,
+            "COMP-WINE": 8233,
+            "COMP-COCKTAIL": 8191,
+            "COMP-COFFEE": 6399,
+            "COMP-PASTRY": 6217,
+            "COMP-SANDWICH": 5962,
+            "COMP-SALAD": 2437,
+            "COMP-BURGER": 2285,
+            "COMP-PASTA": 2263
+          }
+        },
+        {
+          "name": "points_delta",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2609,
+          "min": -390,
+          "max": 7125,
+          "mean": 199.859353,
+          "negative_count": 59361
+        },
+        {
+          "name": "tier_before",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "Gold": 355143,
+            "Base": 343456,
+            "Platinum": 84174
+          }
+        },
+        {
+          "name": "tier_after",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "Gold": 359019,
+            "Base": 338203,
+            "Platinum": 85551
+          }
+        },
+        {
+          "name": "face_value_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 11,
+          "min": 0,
+          "max": 2600,
+          "mean": 87.221902,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "economic_cost_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 11,
+          "min": 0,
+          "max": 800,
+          "mean": 24.358186,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "redeemed_pos_id",
+          "type": "VARCHAR",
+          "null_count": 723412,
+          "null_pct": 92.4166,
+          "distinct_count": 59259
+        },
+        {
+          "name": "source_segment_id",
+          "type": "VARCHAR",
+          "null_count": 59361,
+          "null_pct": 7.5834,
+          "distinct_count": 712591
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "benefit_id",
+          "detail": "723412 nulls: Award rows have no redeemed benefit."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "redeemed_pos_id",
+          "detail": "723412 nulls: Award rows have no POS ticket."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "source_segment_id",
+          "detail": "59361 nulls: Redemption rows have no earning segment."
+        }
+      ]
+    },
+    {
+      "table": "fnb_transactions",
+      "source_path": "3_guests/fnb_transactions.parquet",
+      "documented_grain": "POS ticket",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 227833,
+      "column_count": 14,
+      "primary_key": [
+        "transaction_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "event_at_utc": {
+          "min": "2025-01-01 14:09:10",
+          "max": "2025-07-01 10:59:13",
+          "distinct_days": 182
+        }
+      },
+      "columns": [
+        {
+          "name": "transaction_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 226271
+        },
+        {
+          "name": "outlet_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "O-BAR": 117392,
+            "O-CAFE": 62712,
+            "O-REST": 47729
+          }
+        },
+        {
+          "name": "event_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 216148,
+          "min": "2025-01-01 14:09:10",
+          "max": "2025-07-01 10:59:13"
+        },
+        {
+          "name": "event_at_local",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 220165,
+          "min": "2025-01-01 06:09:10",
+          "max": "2025-07-01 03:59:13"
+        },
+        {
+          "name": "local_hour",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 22,
+          "min": 0,
+          "max": 23,
+          "mean": 14.894857,
+          "negative_count": 0
+        },
+        {
+          "name": "utc_offset",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "-07:00": 142114,
+            "-08:00": 85719
+          }
+        },
+        {
+          "name": "recorded_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 222942,
+          "min": "2025-01-01 14:09:25",
+          "max": "2025-07-01 11:00:33"
+        },
+        {
+          "name": "player_id",
+          "type": "VARCHAR",
+          "null_count": 76934,
+          "null_pct": 33.7677,
+          "distinct_count": 51525
+        },
+        {
+          "name": "observed_visit_id",
+          "type": "VARCHAR",
+          "null_count": 76934,
+          "null_pct": 33.7677,
+          "distinct_count": 109941
+        },
+        {
+          "name": "item",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 11,
+          "values": {
+            "soda": 29997,
+            "beer": 29599,
+            "wine": 29093,
+            "cocktail": 28703,
+            "coffee": 21242,
+            "pastry": 21057,
+            "sandwich": 20413,
+            "salad": 13253,
+            "burger": 12594,
+            "pasta": 12434,
+            "steak": 9448
+          }
+        },
+        {
+          "name": "face_value_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 11,
+          "min": 450,
+          "max": 5200,
+          "mean": 1392.690041,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "cash_receipt_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 12,
+          "min": 0,
+          "max": 5200,
+          "mean": 1093.01901,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "cogs_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 11,
+          "min": 60,
+          "max": 1900,
+          "mean": 411.677062,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "comp_id",
+          "type": "VARCHAR",
+          "null_count": 168472,
+          "null_pct": 73.9454,
+          "distinct_count": 57330
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "player_id",
+          "detail": "76934 nulls: Uncarded POS sale or unlinked record."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "observed_visit_id",
+          "detail": "76934 nulls: Uncarded sale."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "comp_id",
+          "detail": "168472 nulls: Ticket not paid by a comp."
+        }
+      ]
+    },
+    {
+      "table": "zone_traffic_hourly",
+      "source_path": "4_context/zone_traffic_hourly.parquet",
+      "documented_grain": "sensor x hour",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 30401,
+      "column_count": 10,
+      "primary_key": [
+        "sensor_id",
+        "hour_start_utc"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "hour_start_utc": {
+          "min": "2025-01-01 14:00:00",
+          "max": "2025-07-01 12:00:00",
+          "distinct_days": 182
+        }
+      },
+      "columns": [
+        {
+          "name": "sensor_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "S-HL": 4343,
+            "S-HTL": 4343,
+            "S-ENT": 4343,
+            "S-B40": 4343,
+            "S-PIT": 4343,
+            "S-GAR": 4343,
+            "S-BAR": 4343
+          }
+        },
+        {
+          "name": "zone_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "Z-HTL": 4343,
+            "Z-BAR": 4343,
+            "Z-B40": 4343,
+            "Z-GAR": 4343,
+            "Z-ENT": 4343,
+            "Z-PIT": 4343,
+            "Z-HL": 4343
+          }
+        },
+        {
+          "name": "hour_start_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4548,
+          "min": "2025-01-01 14:00:00",
+          "max": "2025-07-01 12:00:00"
+        },
+        {
+          "name": "hour_start_local",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4558,
+          "min": "2025-01-01 06:00:00",
+          "max": "2025-07-01 05:00:00"
+        },
+        {
+          "name": "local_hour",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 24,
+          "min": 0,
+          "max": 23,
+          "mean": 11.502187,
+          "negative_count": 0
+        },
+        {
+          "name": "utc_offset",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "-07:00": 19173,
+            "-08:00": 11228
+          }
+        },
+        {
+          "name": "entries_count",
+          "type": "BIGINT",
+          "null_count": 153,
+          "null_pct": 0.5033,
+          "distinct_count": 424,
+          "min": 0,
+          "max": 527,
+          "mean": 87.736313,
+          "negative_count": 0
+        },
+        {
+          "name": "counter_status",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "ok": 30150,
+            "offline": 153,
+            "partial": 98
+          }
+        },
+        {
+          "name": "coverage_minutes",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 37,
+          "min": 0,
+          "max": 60,
+          "mean": 59.632808,
+          "negative_count": 0
+        },
+        {
+          "name": "recorded_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 29765,
+          "min": "2025-01-01 15:01:42",
+          "max": "2025-07-01 13:09:59"
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "entries_count",
+          "detail": "153 nulls: Counter offline; missing is not zero."
+        }
+      ]
+    },
+    {
+      "table": "events",
+      "source_path": "4_context/events.parquet",
+      "documented_grain": "event",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 8,
+      "column_count": 9,
+      "primary_key": [
+        "event_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "start_date": {
+          "min": "2025-01-07 00:00:00",
+          "max": "2025-06-09 00:00:00",
+          "distinct_days": 8
+        },
+        "end_date": {
+          "min": "2025-01-10 00:00:00",
+          "max": "2025-06-15 00:00:00",
+          "distinct_days": 8
+        }
+      },
+      "columns": [
+        {
+          "name": "event_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8,
+          "values": {
+            "EV-NAB25": 1,
+            "EV-P-TOURN": 1,
+            "EV-CC25": 1,
+            "EV-CES25": 1,
+            "EV-MM25": 1,
+            "EV-SB59": 1,
+            "EV-P-LOCALS": 1,
+            "EV-EDC25": 1
+          }
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8,
+          "values": {
+            "EDC Las Vegas festival weekend": 1,
+            "Super Bowl LIX weekend": 1,
+            "CES": 1,
+            "Gilded Ace Locals Appreciation Week": 1,
+            "NAB Show": 1,
+            "Gilded Ace Winter Slot Tournament": 1,
+            "College basketball tournament opening rounds": 1,
+            "CinemaCon": 1
+          }
+        },
+        {
+          "name": "event_type",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "convention": 3,
+            "property_promotion": 2,
+            "sports_viewing": 2,
+            "festival": 1
+          }
+        },
+        {
+          "name": "start_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8,
+          "min": "2025-01-07",
+          "max": "2025-06-09"
+        },
+        {
+          "name": "end_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8,
+          "min": "2025-01-10",
+          "max": "2025-06-15"
+        },
+        {
+          "name": "announced_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8,
+          "min": "2024-01-01",
+          "max": "2025-05-26"
+        },
+        {
+          "name": "source_type",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "organizer_listing": 4,
+            "fictional_property": 2,
+            "public_calendar": 2
+          }
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 2,
+          "null_pct": 25.0,
+          "distinct_count": 6,
+          "values": {
+            "nan": 2,
+            "https://cinemaunited.org/event/cinemacon-2025/": 1,
+            "https://www.musicfestivalwizard.com/festivals/edc-las-vegas-2025/": 1,
+            "https://en.wikipedia.org/wiki/Super_Bowl_LIX": 1,
+            "https://exhibitrentals.com/blog/conventions-happening-las-vegas/": 1,
+            "https://designweekguide.com/event/ces-las-vegas/": 1,
+            "https://en.wikipedia.org/wiki/2025_NCAA_Division_I_men%27s_basketball_tournament": 1
+          }
+        },
+        {
+          "name": "local_scope",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "citywide": 6,
+            "property": 2
+          }
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "source_url",
+          "detail": "2 nulls: Fictional property promotions have no public source."
+        }
+      ]
+    },
+    {
+      "table": "weather_daily",
+      "source_path": "4_context/real_sources/weather_daily.parquet",
+      "documented_grain": "calendar day",
+      "origin": "real_public",
+      "money_unit": "none",
+      "rows": 181,
+      "column_count": 23,
+      "primary_key": [
+        "source_date"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "source_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "station_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "USW00023169": 181
+          }
+        },
+        {
+          "name": "source_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "tmax_c",
+          "type": "DECIMAL(8,1)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 60,
+          "min": 9.4,
+          "max": 43.3,
+          "mean": 25.403315,
+          "negative_count": 0
+        },
+        {
+          "name": "tmax_mflag",
+          "type": "VARCHAR",
+          "null_count": 181,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "values": {
+            "None": 181
+          }
+        },
+        {
+          "name": "tmax_qflag",
+          "type": "VARCHAR",
+          "null_count": 181,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "values": {
+            "None": 181
+          }
+        },
+        {
+          "name": "tmax_sflag",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "W": 181
+          }
+        },
+        {
+          "name": "tmax_observation_time",
+          "type": "VARCHAR",
+          "null_count": 181,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "values": {
+            "None": 181
+          }
+        },
+        {
+          "name": "tmin_c",
+          "type": "DECIMAL(8,1)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 55,
+          "min": -1.6,
+          "max": 30.6,
+          "mean": 13.923757,
+          "negative_count": 2
+        },
+        {
+          "name": "tmin_mflag",
+          "type": "VARCHAR",
+          "null_count": 181,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "values": {
+            "None": 181
+          }
+        },
+        {
+          "name": "tmin_qflag",
+          "type": "VARCHAR",
+          "null_count": 181,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "values": {
+            "None": 181
+          }
+        },
+        {
+          "name": "tmin_sflag",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "W": 181
+          }
+        },
+        {
+          "name": "tmin_observation_time",
+          "type": "VARCHAR",
+          "null_count": 181,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "values": {
+            "None": 181
+          }
+        },
+        {
+          "name": "prcp_mm",
+          "type": "DECIMAL(8,1)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 0,
+          "max": 15.5,
+          "mean": 0.285635,
+          "negative_count": 0
+        },
+        {
+          "name": "prcp_mflag",
+          "type": "VARCHAR",
+          "null_count": 171,
+          "null_pct": 94.4751,
+          "distinct_count": 1,
+          "values": {
+            "nan": 171,
+            "T": 10
+          }
+        },
+        {
+          "name": "prcp_qflag",
+          "type": "VARCHAR",
+          "null_count": 181,
+          "null_pct": 100.0,
+          "distinct_count": 0,
+          "values": {
+            "None": 181
+          }
+        },
+        {
+          "name": "prcp_sflag",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "W": 181
+          }
+        },
+        {
+          "name": "prcp_observation_time",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "2400": 181
+          }
+        },
+        {
+          "name": "observation_period",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "Source calendar day; individual observation times/flags retained; not a gaming day": 181
+          }
+        },
+        {
+          "name": "source_revision",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "as retrieved 2026-11-04": 181
+          }
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "noaa_USW00023169_2025H1.csv": 181
+          }
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&stations=USW00023169&startDate=2025-01-01&endDate=2025-06-30&dataTypes=TMAX,TMIN,PRCP&units=metric&format=csv&includeAttributes=true": 181
+          }
+        },
+        {
+          "name": "source_sha256",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "bbc1693cd6241903af84da7274f359f225e7bd8dfbba9ec31f0a31f94bca97c6": 181
+          }
+        },
+        {
+          "name": "as_of_limitation",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "Observed daily weather; do not use future actual weather as a forecast feature": 181
+          }
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "tmax_mflag",
+          "detail": "181 nulls: NOAA convention: blank flag/time means no flag recorded."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "tmax_qflag",
+          "detail": "181 nulls: NOAA convention: blank flag/time means no flag recorded."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "tmax_observation_time",
+          "detail": "181 nulls: NOAA convention: blank flag/time means no flag recorded."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "tmin_mflag",
+          "detail": "181 nulls: NOAA convention: blank flag/time means no flag recorded."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "tmin_qflag",
+          "detail": "181 nulls: NOAA convention: blank flag/time means no flag recorded."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "tmin_observation_time",
+          "detail": "181 nulls: NOAA convention: blank flag/time means no flag recorded."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "prcp_mflag",
+          "detail": "171 nulls: NOAA convention: blank flag/time means no flag recorded."
+        },
+        {
+          "class": "expected_behavior",
+          "column": "prcp_qflag",
+          "detail": "181 nulls: NOAA convention: blank flag/time means no flag recorded."
+        }
+      ]
+    },
+    {
+      "table": "city_visitation_monthly",
+      "source_path": "4_context/real_sources/city_visitation_monthly.parquet",
+      "documented_grain": "month",
+      "origin": "real_public",
+      "money_unit": "none",
+      "rows": 6,
+      "column_count": 15,
+      "primary_key": [
+        "month"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "2025-01": 1,
+            "2025-06": 1,
+            "2025-02": 1,
+            "2025-03": 1,
+            "2025-05": 1,
+            "2025-04": 1
+          }
+        },
+        {
+          "name": "geography",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "Las Vegas": 6
+          }
+        },
+        {
+          "name": "days_in_month",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "min": 28,
+          "max": 31,
+          "mean": 30.166667,
+          "negative_count": 0
+        },
+        {
+          "name": "visitor_volume",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 2973300,
+          "max": 3418700,
+          "mean": 3258550,
+          "negative_count": 0
+        },
+        {
+          "name": "mean_visitors_per_calendar_day",
+          "type": "DECIMAL(18,6)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 103160,
+          "max": 111196.666667,
+          "mean": 107979.701741,
+          "negative_count": 0
+        },
+        {
+          "name": "visitor_yoy_ratio",
+          "type": "DECIMAL(18,10)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": -0.119,
+          "max": -0.012,
+          "mean": -0.073,
+          "negative_count": 6
+        },
+        {
+          "name": "convention_attendance",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 374600,
+          "max": 628800,
+          "mean": 539583.333333,
+          "negative_count": 0
+        },
+        {
+          "name": "hotel_occupancy_ratio",
+          "type": "DECIMAL(18,10)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 0.787,
+          "max": 0.846,
+          "mean": 0.819333,
+          "negative_count": 0
+        },
+        {
+          "name": "airport_en_deplaned_passengers",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 4012454,
+          "max": 4988872,
+          "mean": 4609389.166667,
+          "negative_count": 0
+        },
+        {
+          "name": "source_revision",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "2026-08-20": 6
+          }
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "https://assets.simpleviewcms.com/simpleview/raw/upload/v1/clients/lasvegas/Year_to_Date_Summary_for_2025_revised_cd675d1a-2e15-4a20-aeeb-e6a6d871b10a.xlsx": 6
+          }
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "lvcva_2025.xlsx": 6
+          }
+        },
+        {
+          "name": "source_sha256",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "3485f53699e7e2694680d6d6dd649ca66508ef0d915e85df4e6f439e704c8382": 6
+          }
+        },
+        {
+          "name": "source_cells",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "Las Vegas 2025!H8;H34;H9;H11;H23": 1,
+            "Las Vegas 2025!L8;L34;L9;L11;L23": 1,
+            "Las Vegas 2025!J8;J34;J9;J11;J23": 1,
+            "Las Vegas 2025!B8;B34;B9;B11;B23": 1,
+            "Las Vegas 2025!D8;D34;D9;D11;D23": 1,
+            "Las Vegas 2025!F8;F34;F9;F11;F23": 1
+          }
+        },
+        {
+          "name": "as_of_limitation",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "Retrospective revised series; not knowable during the 2025 forecast window": 6
+          }
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "benchmark_public",
+      "source_path": "4_context/real_sources/benchmark_public.parquet",
+      "documented_grain": "Missouri casino x slot category x month",
+      "origin": "real_public",
+      "money_unit": "usd",
+      "rows": 700,
+      "column_count": 16,
+      "primary_key": [
+        "property_id",
+        "category",
+        "month"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "2025-06": 118,
+            "2025-05": 118,
+            "2025-01": 117,
+            "2025-04": 116,
+            "2025-03": 116,
+            "2025-02": 115
+          }
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "missouri_2025_06.xlsx": 118,
+            "missouri_2025_05.xlsx": 118,
+            "missouri_jan2025.xlsx": 117,
+            "missouri_2025_03.xlsx": 116,
+            "missouri_2025_04.xlsx": 116,
+            "missouri_2025_02.xlsx": 115
+          }
+        },
+        {
+          "name": "source_sheet",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 19
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY26_FinReport/07_Jul/detail0625.xlsx": 118,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/06_Jun/detail0525.xlsx": 118,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/02_Feb/detail0125.xlsx": 117,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/05_May/detail0425.xlsx": 116,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/04_Apr/detail0325.xlsx": 116,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/03_Mar/detail0225.xlsx": 115
+          }
+        },
+        {
+          "name": "retrieved_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": "2026-11-03",
+          "max": "2026-11-04"
+        },
+        {
+          "name": "source_sha256",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "0e78c4741e87acd1de6d21a653e1e71db5aab4a4648ec810944d1270020a56b7": 118,
+            "e9b3797fbfd2e95fbb05f2df95946874a45e264166171ef175b638298b42a7f8": 118,
+            "b9a72f59ecd223057e6e518f7cb3ebf9076478d570fcef95ec9b88fdbcd65961": 117,
+            "5a504c611b1a70105f90d74b27b4c70e8d609f1285799da32918975c40e0fc1f": 116,
+            "7ffd332af43bc64774bdcb79cc383638a7292ff7e48ab4716a958254d28d26d4": 116,
+            "3a7a58fc5eea725e7e6ce09d559387229ecfe1a620b4c8369533deb878cffdb1": 115
+          }
+        },
+        {
+          "name": "property_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 13
+        },
+        {
+          "name": "property_name_as_reported",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 17
+        },
+        {
+          "name": "category",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 15
+        },
+        {
+          "name": "category_kind",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "game_category": 694,
+            "adjustment": 6
+          }
+        },
+        {
+          "name": "slot_units",
+          "type": "BIGINT",
+          "null_count": 11,
+          "null_pct": 1.5714,
+          "distinct_count": 130,
+          "min": 1,
+          "max": 1267,
+          "mean": 115.342525,
+          "negative_count": 0
+        },
+        {
+          "name": "handle_usd",
+          "type": "DECIMAL(24,2)",
+          "null_count": 8,
+          "null_pct": 1.1429,
+          "distinct_count": 664,
+          "min": 6519.5,
+          "max": 153719645.96,
+          "mean": 12463897.277298,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "agr_usd",
+          "type": "DECIMAL(24,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 718,
+          "min": -164900,
+          "max": 16699415.19,
+          "mean": 1186985.551429,
+          "negative_count": 31,
+          "unit": "dollars"
+        },
+        {
+          "name": "actual_payout_ratio",
+          "type": "DECIMAL(18,10)",
+          "null_count": 17,
+          "null_pct": 2.4286,
+          "distinct_count": 691,
+          "min": 0.21354,
+          "max": 1.752446,
+          "mean": 0.912663,
+          "negative_count": 0
+        },
+        {
+          "name": "derived_hold_ratio",
+          "type": "DECIMAL(18,10)",
+          "null_count": 8,
+          "null_pct": 1.1429,
+          "distinct_count": 692,
+          "min": -0.752446,
+          "max": 0.78646,
+          "mean": 0.087022,
+          "negative_count": 29
+        },
+        {
+          "name": "source_cells",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 40
+        }
+      ],
+      "findings": [
+        {
+          "class": "unverified_assumption",
+          "column": "slot_units",
+          "detail": "11 nulls (1.5714%) with no documented reason; treat as unknown, not zero"
+        },
+        {
+          "class": "unverified_assumption",
+          "column": "handle_usd",
+          "detail": "8 nulls (1.1429%) with no documented reason; treat as unknown, not zero"
+        },
+        {
+          "class": "unverified_assumption",
+          "column": "actual_payout_ratio",
+          "detail": "17 nulls (2.4286%) with no documented reason; treat as unknown, not zero"
+        },
+        {
+          "class": "unverified_assumption",
+          "column": "derived_hold_ratio",
+          "detail": "8 nulls (1.1429%) with no documented reason; treat as unknown, not zero"
+        }
+      ]
+    },
+    {
+      "table": "benchmark_property_monthly",
+      "source_path": "4_context/real_sources/benchmark_property_monthly.parquet",
+      "documented_grain": "Missouri casino x month",
+      "origin": "real_public",
+      "money_unit": "usd",
+      "rows": 78,
+      "column_count": 14,
+      "primary_key": [
+        "property_id",
+        "month"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "2025-02": 13,
+            "2025-03": 13,
+            "2025-05": 13,
+            "2025-01": 13,
+            "2025-06": 13,
+            "2025-04": 13
+          }
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "missouri_2025_05.xlsx": 13,
+            "missouri_2025_03.xlsx": 13,
+            "missouri_2025_02.xlsx": 13,
+            "missouri_jan2025.xlsx": 13,
+            "missouri_2025_06.xlsx": 13,
+            "missouri_2025_04.xlsx": 13
+          }
+        },
+        {
+          "name": "source_sheet",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 19
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/02_Feb/detail0125.xlsx": 13,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/03_Mar/detail0225.xlsx": 13,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/04_Apr/detail0325.xlsx": 13,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/05_May/detail0425.xlsx": 13,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY26_FinReport/07_Jul/detail0625.xlsx": 13,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/06_Jun/detail0525.xlsx": 13
+          }
+        },
+        {
+          "name": "retrieved_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": "2026-11-03",
+          "max": "2026-11-04"
+        },
+        {
+          "name": "source_sha256",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "3a7a58fc5eea725e7e6ce09d559387229ecfe1a620b4c8369533deb878cffdb1": 13,
+            "5a504c611b1a70105f90d74b27b4c70e8d609f1285799da32918975c40e0fc1f": 13,
+            "0e78c4741e87acd1de6d21a653e1e71db5aab4a4648ec810944d1270020a56b7": 13,
+            "e9b3797fbfd2e95fbb05f2df95946874a45e264166171ef175b638298b42a7f8": 13,
+            "7ffd332af43bc64774bdcb79cc383638a7292ff7e48ab4716a958254d28d26d4": 13,
+            "b9a72f59ecd223057e6e518f7cb3ebf9076478d570fcef95ec9b88fdbcd65961": 13
+          }
+        },
+        {
+          "name": "property_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 13
+        },
+        {
+          "name": "property_name_as_reported",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 17
+        },
+        {
+          "name": "slot_units",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 46,
+          "min": 385,
+          "max": 1797,
+          "mean": 1018.858974,
+          "negative_count": 0
+        },
+        {
+          "name": "handle_usd",
+          "type": "DECIMAL(24,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 79,
+          "min": 21681942.6,
+          "max": 242595099.1,
+          "mean": 110577139.947308,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "agr_usd",
+          "type": "DECIMAL(24,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 78,
+          "min": 2327370.22,
+          "max": 21855635.01,
+          "mean": 10652434.435897,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "actual_payout_ratio",
+          "type": "DECIMAL(18,10)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 77,
+          "min": 0.887672,
+          "max": 0.913231,
+          "mean": 0.900953,
+          "negative_count": 0
+        },
+        {
+          "name": "derived_hold_ratio",
+          "type": "DECIMAL(18,10)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 79,
+          "min": 0.086769,
+          "max": 0.112328,
+          "mean": 0.099047,
+          "negative_count": 0
+        },
+        {
+          "name": "source_cells",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10,
+          "values": {
+            "D62;E62;F62;G62": 22,
+            "D60;E60;F60;G60": 22,
+            "D61;E61;F61;G61": 21,
+            "D73;E73;F73;G73": 5,
+            "I60;J60;K60;L60": 2,
+            "I62;J62;K62;L62": 2,
+            "I73;J73;K73;L73": 1,
+            "D69;E69;F69;G69": 1,
+            "D70;E70;F70;G70": 1,
+            "I61;J61;K61;L61": 1
+          }
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "benchmark_state_monthly",
+      "source_path": "4_context/real_sources/benchmark_state_monthly.parquet",
+      "documented_grain": "month",
+      "origin": "real_public",
+      "money_unit": "usd",
+      "rows": 6,
+      "column_count": 10,
+      "primary_key": [
+        "month"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "2025-06": 1,
+            "2025-02": 1,
+            "2025-03": 1,
+            "2025-05": 1,
+            "2025-01": 1,
+            "2025-04": 1
+          }
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "missouri_2025_05.xlsx": 1,
+            "missouri_2025_04.xlsx": 1,
+            "missouri_2025_03.xlsx": 1,
+            "missouri_2025_02.xlsx": 1,
+            "missouri_jan2025.xlsx": 1,
+            "missouri_2025_06.xlsx": 1
+          }
+        },
+        {
+          "name": "source_sheet",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "STATE TOTALS": 6
+          }
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/04_Apr/detail0325.xlsx": 1,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/02_Feb/detail0125.xlsx": 1,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/06_Jun/detail0525.xlsx": 1,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/03_Mar/detail0225.xlsx": 1,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY25_FinReport/05_May/detail0425.xlsx": 1,
+            "https://www.mgc.dps.mo.gov/Casino_Gaming/rb_financials/FY26_FinReport/07_Jul/detail0625.xlsx": 1
+          }
+        },
+        {
+          "name": "retrieved_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": "2026-11-03",
+          "max": "2026-11-04"
+        },
+        {
+          "name": "source_sha256",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "3a7a58fc5eea725e7e6ce09d559387229ecfe1a620b4c8369533deb878cffdb1": 1,
+            "5a504c611b1a70105f90d74b27b4c70e8d609f1285799da32918975c40e0fc1f": 1,
+            "0e78c4741e87acd1de6d21a653e1e71db5aab4a4648ec810944d1270020a56b7": 1,
+            "e9b3797fbfd2e95fbb05f2df95946874a45e264166171ef175b638298b42a7f8": 1,
+            "7ffd332af43bc64774bdcb79cc383638a7292ff7e48ab4716a958254d28d26d4": 1,
+            "b9a72f59ecd223057e6e518f7cb3ebf9076478d570fcef95ec9b88fdbcd65961": 1
+          }
+        },
+        {
+          "name": "slot_units",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 13155,
+          "max": 13388,
+          "mean": 13245.166667,
+          "negative_count": 0
+        },
+        {
+          "name": "handle_usd",
+          "type": "DECIMAL(24,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 1259851402.58,
+          "max": 1582400673.01,
+          "mean": 1437502819.315,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "agr_usd",
+          "type": "DECIMAL(24,2)",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "min": 119473254.48,
+          "max": 153255571.11,
+          "mean": 138481647.666667,
+          "negative_count": 0,
+          "unit": "dollars"
+        },
+        {
+          "name": "source_cells",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "B16;B17;B18": 6
+          }
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "visitor_profile_summary",
+      "source_path": "4_context/real_sources/visitor_profile_summary.parquet",
+      "documented_grain": "survey metric",
+      "origin": "real_public",
+      "money_unit": "none",
+      "rows": 74,
+      "column_count": 16,
+      "primary_key": [
+        "metric_id",
+        "segment"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "source_year",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "min": 2025,
+          "max": 2025,
+          "mean": 2025,
+          "negative_count": 0
+        },
+        {
+          "name": "metric_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 71
+        },
+        {
+          "name": "section",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "VISITOR BEHAVIORS": 49,
+            "VISITOR ORIGIN": 10,
+            "HH INCOME": 8,
+            "VISITOR AGE": 7
+          }
+        },
+        {
+          "name": "metric_label",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 74
+        },
+        {
+          "name": "segment_group",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "Overall": 74
+          }
+        },
+        {
+          "name": "segment",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "All visitors": 74
+          }
+        },
+        {
+          "name": "value",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 69
+        },
+        {
+          "name": "unit",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9,
+          "values": {
+            "ratio": 50,
+            "USD": 16,
+            "count_mean": 2,
+            "reported_respondent_base": 1,
+            "days_mean": 1,
+            "years_mean": 1,
+            "USD_per_day": 1,
+            "nights_mean": 1,
+            "hours_per_day_mean": 1
+          }
+        },
+        {
+          "name": "denominator_note",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "Published metric-specific respondent base within the column segment": 69,
+            "All visitors within this segment including zero spend/budget": 2,
+            "Visitors who gambled within this segment": 2,
+            "Excludes package purchasers": 1
+          }
+        },
+        {
+          "name": "value_status",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "reported": 74
+          }
+        },
+        {
+          "name": "source_cell",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 73
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "lvcva_visitor_segments_2025.xlsx": 74
+          }
+        },
+        {
+          "name": "source_sha256",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "e4dfc65c9152c8cbc460bf996f62c615bd825863e1a511f0037d318043e4ef31": 74
+          }
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "https://assets.simpleviewcms.com/simpleview/raw/upload/v1/clients/lasvegas/2025_LasVegasVPS_Matrix_Snapshot_Excel_41461651-2aa7-464a-9b23-744c984c4e9b.xlsx": 74
+          }
+        },
+        {
+          "name": "publication_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "min": "2026-03-10",
+          "max": "2026-03-10"
+        },
+        {
+          "name": "limitation",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "Aggregate cross-tabs; overlapping segments; not individual records or a joint distribution": 74
+          }
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "visitor_profile_segments",
+      "source_path": "4_context/real_sources/visitor_profile_segments.parquet",
+      "documented_grain": "metric x segment",
+      "origin": "real_public",
+      "money_unit": "none",
+      "rows": 1406,
+      "column_count": 16,
+      "primary_key": [
+        "metric_id",
+        "segment_group",
+        "segment"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "source_year",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "min": 2025,
+          "max": 2025,
+          "mean": 2025,
+          "negative_count": 0
+        },
+        {
+          "name": "metric_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 71
+        },
+        {
+          "name": "section",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "VISITOR BEHAVIORS": 931,
+            "VISITOR ORIGIN": 190,
+            "HH INCOME": 152,
+            "VISITOR AGE": 133
+          }
+        },
+        {
+          "name": "metric_label",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 74
+        },
+        {
+          "name": "segment_group",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "GENERATION": 296,
+            "MARKET SEGMENT": 296,
+            "VISITOR ORIGIN": 222,
+            "LOCATION OF LODGING": 222,
+            "MODE OF ARRIVAL": 148,
+            "GENDER": 148,
+            "Overall": 74
+          }
+        },
+        {
+          "name": "segment",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 19
+        },
+        {
+          "name": "value",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1337
+        },
+        {
+          "name": "unit",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9,
+          "values": {
+            "ratio": 950,
+            "USD": 304,
+            "count_mean": 38,
+            "nights_mean": 19,
+            "years_mean": 19,
+            "USD_per_day": 19,
+            "hours_per_day_mean": 19,
+            "days_mean": 19,
+            "reported_respondent_base": 19
+          }
+        },
+        {
+          "name": "denominator_note",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "Published metric-specific respondent base within the column segment": 1311,
+            "All visitors within this segment including zero spend/budget": 38,
+            "Visitors who gambled within this segment": 38,
+            "Excludes package purchasers": 19
+          }
+        },
+        {
+          "name": "value_status",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "reported": 1405,
+            "not_applicable": 1
+          }
+        },
+        {
+          "name": "source_cell",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1440
+        },
+        {
+          "name": "source_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "lvcva_visitor_segments_2025.xlsx": 1406
+          }
+        },
+        {
+          "name": "source_sha256",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "e4dfc65c9152c8cbc460bf996f62c615bd825863e1a511f0037d318043e4ef31": 1406
+          }
+        },
+        {
+          "name": "source_url",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "https://assets.simpleviewcms.com/simpleview/raw/upload/v1/clients/lasvegas/2025_LasVegasVPS_Matrix_Snapshot_Excel_41461651-2aa7-464a-9b23-744c984c4e9b.xlsx": 1406
+          }
+        },
+        {
+          "name": "publication_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "min": "2026-03-10",
+          "max": "2026-03-10"
+        },
+        {
+          "name": "limitation",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "Aggregate cross-tabs; overlapping segments; not individual records or a joint distribution": 1406
+          }
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "machine_hour",
+      "source_path": "5_optional/machine_hour.parquet",
+      "documented_grain": "machine x hour",
+      "origin": "synthetic",
+      "money_unit": "cents",
+      "rows": 1321908,
+      "column_count": 17,
+      "primary_key": [
+        "machine_id",
+        "hour_start_utc"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "gaming_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 316
+        },
+        {
+          "name": "hour_start_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4548,
+          "min": "2025-01-01 14:00:00",
+          "max": "2025-07-01 12:00:00"
+        },
+        {
+          "name": "hour_start_local",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4558,
+          "min": "2025-01-01 06:00:00",
+          "max": "2025-07-01 05:00:00"
+        },
+        {
+          "name": "local_hour",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 24,
+          "min": 0,
+          "max": 23,
+          "mean": 11.502156,
+          "negative_count": 0
+        },
+        {
+          "name": "utc_offset",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "-07:00": 840708,
+            "-08:00": 481200
+          }
+        },
+        {
+          "name": "gaming_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "location_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 296
+        },
+        {
+          "name": "active",
+          "type": "BOOLEAN",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1
+        },
+        {
+          "name": "available_seconds",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1772,
+          "min": 0,
+          "max": 3600,
+          "mean": 3586.325914,
+          "negative_count": 0
+        },
+        {
+          "name": "occupied_seconds",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3554,
+          "min": 0,
+          "max": 3600,
+          "mean": 1306.518272,
+          "negative_count": 0
+        },
+        {
+          "name": "paid_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 894,
+          "min": 0,
+          "max": 900,
+          "mean": 224.841704,
+          "negative_count": 0
+        },
+        {
+          "name": "payout_positive_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 627,
+          "min": 0,
+          "max": 634,
+          "mean": 101.543503,
+          "negative_count": 0
+        },
+        {
+          "name": "coin_in_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 8306,
+          "min": 0,
+          "max": 450000,
+          "mean": 18829.239194,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "payout_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 12896,
+          "min": 0,
+          "max": 1178500,
+          "mean": 17041.054608,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "carded_coin_in_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7489,
+          "min": 0,
+          "max": 450000,
+          "mean": 12391.548402,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "carded_payout_cents",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10547,
+          "min": 0,
+          "max": 1130000,
+          "mean": 11212.535899,
+          "negative_count": 0,
+          "unit": "integer cents"
+        },
+        {
+          "name": "carded_spins",
+          "type": "BIGINT",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 894,
+          "min": 0,
+          "max": 900,
+          "mean": 153.156725,
+          "negative_count": 0
+        }
+      ],
+      "findings": []
+    },
+    {
+      "table": "security_incidents",
+      "source_path": "5_optional/security_incidents.parquet",
+      "documented_grain": "reported incident",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 3865,
+      "column_count": 11,
+      "primary_key": [
+        "incident_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "occurred_at_utc": {
+          "min": "2025-01-01 16:51:59",
+          "max": "2025-07-01 10:22:35",
+          "distinct_days": 182
+        }
+      },
+      "columns": [
+        {
+          "name": "incident_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3763
+        },
+        {
+          "name": "zone_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "Z-BAR": 1077,
+            "Z-PIT": 935,
+            "Z-ENT": 637,
+            "Z-GAR": 576,
+            "Z-HTL": 469,
+            "Z-B40": 123,
+            "Z-HL": 48
+          }
+        },
+        {
+          "name": "machine_id",
+          "type": "VARCHAR",
+          "null_count": 3785,
+          "null_pct": 97.9301,
+          "distinct_count": 66
+        },
+        {
+          "name": "occurred_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3804,
+          "min": "2025-01-01 16:51:59",
+          "max": "2025-07-01 10:22:35"
+        },
+        {
+          "name": "occurred_at_local",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3874,
+          "min": "2025-01-01 08:51:59",
+          "max": "2025-07-01 03:22:35"
+        },
+        {
+          "name": "local_hour",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 24,
+          "min": 0,
+          "max": 23,
+          "mean": 14.955239,
+          "negative_count": 0
+        },
+        {
+          "name": "utc_offset",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "values": {
+            "-07:00": 2410,
+            "-08:00": 1455
+          }
+        },
+        {
+          "name": "reported_at_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3795,
+          "min": "2025-01-01 18:12:59",
+          "max": "2025-07-01 10:47:35"
+        },
+        {
+          "name": "report_source",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "floor_staff": 1558,
+            "surveillance": 1087,
+            "patron": 927,
+            "slot_tech": 293
+          }
+        },
+        {
+          "name": "category",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "dispute": 1462,
+            "lost_property": 999,
+            "intoxication": 854,
+            "slip_fall": 308,
+            "counterfeit_bill": 162,
+            "machine_tampering_attempt": 80
+          }
+        },
+        {
+          "name": "severity",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "min": 1,
+          "max": 3,
+          "mean": 1.676067,
+          "negative_count": 0
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "machine_id",
+          "detail": "3785 nulls: Incident not tied to a machine."
+        }
+      ]
+    },
+    {
+      "table": "shift_roster",
+      "source_path": "5_optional/shift_roster.parquet",
+      "documented_grain": "staff assignment",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 10317,
+      "column_count": 9,
+      "primary_key": [
+        "assignment_id"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {
+        "gaming_date": {
+          "min": "2025-01-01 00:00:00",
+          "max": "2025-06-30 00:00:00",
+          "distinct_days": 181
+        }
+      },
+      "columns": [
+        {
+          "name": "assignment_id",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 10398
+        },
+        {
+          "name": "gaming_date",
+          "type": "DATE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 182,
+          "min": "2025-01-01",
+          "max": "2025-06-30"
+        },
+        {
+          "name": "shift",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "swing": 3439,
+            "grave": 3439,
+            "day": 3439
+          }
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 4,
+          "values": {
+            "floor_attendant": 3801,
+            "security_officer": 3801,
+            "beverage_server": 2172,
+            "slot_tech": 543
+          }
+        },
+        {
+          "name": "zone_id",
+          "type": "VARCHAR",
+          "null_count": 543,
+          "null_pct": 5.2632,
+          "distinct_count": 7,
+          "values": {
+            "Z-HL": 1629,
+            "Z-BAR": 1629,
+            "Z-PIT": 1629,
+            "Z-ENT": 1629,
+            "Z-B40": 1086,
+            "Z-HTL": 1086,
+            "Z-GAR": 1086,
+            "nan": 543
+          }
+        },
+        {
+          "name": "start_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 537,
+          "min": "2025-01-01 14:00:00",
+          "max": "2025-07-01 05:00:00"
+        },
+        {
+          "name": "end_utc",
+          "type": "TIMESTAMP",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 535,
+          "min": "2025-01-01 22:00:00",
+          "max": "2025-07-01 13:00:00"
+        },
+        {
+          "name": "planned_headcount",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 2,
+          "min": 1,
+          "max": 2,
+          "mean": 1.345837,
+          "negative_count": 0
+        },
+        {
+          "name": "actual_headcount",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "min": 0,
+          "max": 2,
+          "mean": 1.340409,
+          "negative_count": 0
+        }
+      ],
+      "findings": [
+        {
+          "class": "expected_behavior",
+          "column": "zone_id",
+          "detail": "543 nulls: Floor-wide assignment or off-floor row."
+        }
+      ]
+    },
+    {
+      "table": "visitor_profile_monthly",
+      "source_path": "5_optional/visitor_profile_monthly.parquet",
+      "documented_grain": "fictional survey metric x month",
+      "origin": "synthetic",
+      "money_unit": "none",
+      "rows": 42,
+      "column_count": 8,
+      "primary_key": [
+        "month",
+        "survey_metric"
+      ],
+      "duplicate_key_groups": 0,
+      "date_coverage": {},
+      "columns": [
+        {
+          "name": "month",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 7,
+          "values": {
+            "2025-06": 6,
+            "2025-02": 6,
+            "2025-03": 6,
+            "2025-04": 6,
+            "2025-07": 6,
+            "2025-05": 6,
+            "2025-01": 6
+          }
+        },
+        {
+          "name": "survey_metric",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 6,
+          "values": {
+            "visit_minutes": 7,
+            "lives_locally": 7,
+            "gambled_this_visit": 7,
+            "purpose_convention": 7,
+            "used_loyalty_card": 7,
+            "planned_gaming_budget_usd": 7
+          }
+        },
+        {
+          "name": "estimate",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 40,
+          "min": 0.0135,
+          "max": 183.67,
+          "mean": 39.743314,
+          "negative_count": 0
+        },
+        {
+          "name": "standard_error",
+          "type": "DOUBLE",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 37,
+          "min": 0.0077,
+          "max": 24.14,
+          "mean": 3.210564,
+          "negative_count": 0
+        },
+        {
+          "name": "sample_size",
+          "type": "INTEGER",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 9,
+          "min": 192,
+          "max": 300,
+          "mean": 281.333333,
+          "negative_count": 0
+        },
+        {
+          "name": "unit",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "share": 28,
+            "minutes": 7,
+            "usd": 7
+          }
+        },
+        {
+          "name": "eligibility",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 1,
+          "values": {
+            "adult guests intercepted at exits": 42
+          }
+        },
+        {
+          "name": "measurement_method",
+          "type": "VARCHAR",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "distinct_count": 3,
+          "values": {
+            "self-report": 28,
+            "self-report among those who gambled, rounded to $10": 7,
+            "self-report, rounded": 7
+          }
+        }
+      ],
+      "findings": []
+    }
+  ],
+  "referential_integrity": [
+    {
+      "child": "machine_day.machine_id",
+      "parent": "machines.machine_id",
+      "checked_rows": 56110,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "machine_day.config_id",
+      "parent": "game_math.config_id",
+      "checked_rows": 56110,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "machine_day.location_id",
+      "parent": "floor_locations.location_id",
+      "checked_rows": 55092,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "machine_day.gaming_date",
+      "parent": "calendar_day.gaming_date",
+      "checked_rows": 56110,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "prepared_daily_view.machine_id",
+      "parent": "machines.machine_id",
+      "checked_rows": 56110,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "placements.machine_id",
+      "parent": "machines.machine_id",
+      "checked_rows": 314,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "placements.location_id",
+      "parent": "floor_locations.location_id",
+      "checked_rows": 314,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "placements.config_id",
+      "parent": "game_math.config_id",
+      "checked_rows": 314,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "operations.machine_id",
+      "parent": "machines.machine_id",
+      "checked_rows": 1226,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "operations.location_id",
+      "parent": "floor_locations.location_id",
+      "checked_rows": 1226,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "sessions.machine_id",
+      "parent": "machines.machine_id",
+      "checked_rows": 776297,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "sessions.player_id",
+      "parent": "players.player_id",
+      "checked_rows": 776297,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "sessions.observed_visit_id",
+      "parent": "trips.observed_visit_id",
+      "checked_rows": 776297,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "trips.player_id",
+      "parent": "players.player_id",
+      "checked_rows": 351729,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "loyalty_ledger.player_id",
+      "parent": "players.player_id",
+      "checked_rows": 782773,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "loyalty_ledger.redeemed_pos_id",
+      "parent": "fnb_transactions.transaction_id",
+      "checked_rows": 59361,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "loyalty_ledger.source_segment_id",
+      "parent": "sessions.session_segment_id",
+      "checked_rows": 723412,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "fnb_transactions.player_id",
+      "parent": "players.player_id",
+      "checked_rows": 150899,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "fnb_transactions.comp_id",
+      "parent": "loyalty_ledger.loyalty_event_id",
+      "checked_rows": 59361,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "player_period.player_id",
+      "parent": "players.player_id",
+      "checked_rows": 148893,
+      "orphans": 0,
+      "status": "pass"
+    },
+    {
+      "child": "zone_traffic_hourly.zone_id",
+      "parent": "floor_locations.location_id",
+      "checked_rows": 30401,
+      "orphans": 0,
+      "status": "pass"
+    }
+  ],
+  "join_cardinality": [
+    {
+      "join": "machine_day x placements on machine_id only (ignoring interval)",
+      "left_rows": 56110,
+      "joined_rows": 56834,
+      "fan_out": 1.013,
+      "safe": false
+    },
+    {
+      "join": "active machine_day x placements on [effective_from, effective_to) interval",
+      "left_rows": 55092,
+      "joined_rows": 55092,
+      "fan_out": 1.0,
+      "safe": true
+    },
+    {
+      "join": "sessions x fnb_transactions on player_id (two fact tables)",
+      "left_rows": 776297,
+      "joined_rows": 9842971,
+      "fan_out": 12.679,
+      "safe": false
+    }
+  ]
+}

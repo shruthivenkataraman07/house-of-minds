@@ -1,0 +1,262 @@
+{
+  "snapshot_id": "SNAP-4792a8a179571d7b-991446d9be867b7c",
+  "backend": "duckdb",
+  "execution_mode": "RULE_BASED",
+  "runtime_seconds": 3.4,
+  "created_at_utc": "2026-11-08T01:43:06+00:00",
+  "council_runs": {
+    "A_NO_GOSSIP": "CR-1D5DD20637",
+    "B_WHISPER_NETWORK": "CR-340952DAF2"
+  },
+  "gossip_off": {
+    "claims_total": 10,
+    "claims_verified": 7,
+    "claims_rejected": 0,
+    "claims_inconclusive": 3,
+    "claims_blocked": 0,
+    "unsupported_claim_rate": 0.3,
+    "unresolved_hypotheses": 2,
+    "verified_decision_relevant_objections": 3,
+    "independent_decision_relevant_objections": 3,
+    "retractions": 0,
+    "messages_delivered": 0,
+    "messages_suppressed_duplicate": 0,
+    "messages_blocked": 0,
+    "messages_flagged_retracted_origin": 0,
+    "new_evidence_queries_from_gossip": 0,
+    "admissible_changes": 2,
+    "decision_changing_admissible_challenges": 1,
+    "decision_changing_verified_challenges": 1,
+    "portfolio_changes": 2,
+    "runtime_seconds": 0.314,
+    "tool_calls": 11,
+    "llm_tokens": 0,
+    "llm_cost_usd": 0.0,
+    "execution_mode": "RULE_BASED",
+    "gossip_enabled": false
+  },
+  "gossip_on": {
+    "claims_total": 13,
+    "claims_verified": 10,
+    "claims_rejected": 0,
+    "claims_inconclusive": 3,
+    "claims_blocked": 0,
+    "unsupported_claim_rate": 0.23076923076923078,
+    "unresolved_hypotheses": 1,
+    "verified_decision_relevant_objections": 4,
+    "independent_decision_relevant_objections": 3,
+    "retractions": 1,
+    "messages_delivered": 13,
+    "messages_suppressed_duplicate": 1,
+    "messages_blocked": 2,
+    "messages_flagged_retracted_origin": 4,
+    "new_evidence_queries_from_gossip": 3,
+    "admissible_changes": 2,
+    "decision_changing_admissible_challenges": 1,
+    "decision_changing_verified_challenges": 1,
+    "portfolio_changes": 2,
+    "runtime_seconds": 0.526,
+    "tool_calls": 15,
+    "llm_tokens": 0,
+    "llm_cost_usd": 0.0,
+    "execution_mode": "RULE_BASED",
+    "gossip_enabled": true
+  },
+  "hearing_on": {
+    "verified": [
+      "CLM-08DCE86D49",
+      "CLM-1403472F9E",
+      "CLM-1943012C75",
+      "CLM-5C354AAEB7",
+      "CLM-7A13B486A2",
+      "CLM-7DFCD2708C",
+      "CLM-8AB26F538B",
+      "CLM-581D5B4557",
+      "CLM-6494E4A638",
+      "CLM-BF5E90E448"
+    ],
+    "rejected": [],
+    "inconclusive": [
+      "CLM-768DF1B6B2",
+      "CLM-80A21D0DC2",
+      "CLM-AD97A3D9CD"
+    ],
+    "blocked": [],
+    "retracted": [
+      "CLM-AD97A3D9CD"
+    ],
+    "contradictions": [
+      {
+        "claims": [
+          "CLM-08DCE86D49",
+          "CLM-7DFCD2708C"
+        ],
+        "assumption": "A08_promo_excess_theo_per_day",
+        "resolution": "both kept: verifier verdicts VERIFIED/VERIFIED"
+      },
+      {
+        "claims": [
+          "CLM-768DF1B6B2",
+          "CLM-7DFCD2708C"
+        ],
+        "assumption": "A08_promo_excess_theo_per_day",
+        "resolution": "both kept: verifier verdicts INCONCLUSIVE/VERIFIED"
+      }
+    ],
+    "new_from_gossip": [
+      "CLM-581D5B4557",
+      "CLM-6494E4A638",
+      "CLM-BF5E90E448"
+    ],
+    "material_concerns": [
+      "CLM-08DCE86D49",
+      "CLM-1943012C75",
+      "CLM-7A13B486A2",
+      "CLM-581D5B4557"
+    ],
+    "admissible_revisions": [
+      "CLM-08DCE86D49",
+      "CLM-768DF1B6B2"
+    ],
+    "evidence_requests": [
+      "CLM-80A21D0DC2",
+      "CLM-AD97A3D9CD"
+    ],
+    "conclusion": [
+      "Promotion uplift evidence is decision-relevant and unresolved: the evidence-supported portfolio is conditional on it"
+    ]
+  },
+  "impacts_on": [
+    {
+      "council_run_id": "CR-340952DAF2",
+      "claim_id": "CLM-08DCE86D49",
+      "agent_id": "AG1_STATISTICIAN",
+      "assumption_set_id": "AS-E423D19A86",
+      "assumption_id": "A08_promo_excess_theo_per_day",
+      "baseline_value": 16237.041330555552,
+      "revised_value": 5015.873800000006,
+      "unit": "USD/day",
+      "mode": "evidence_supported",
+      "portfolio_before_id": "PF-47631D9B77",
+      "portfolio_before": "INV-PROMOx2",
+      "portfolio_after_id": "PF-4F53CDA18C",
+      "portfolio_after": "HOLD",
+      "net_before": 62237.36,
+      "net_after": 0.0,
+      "net_difference": -62237.36,
+      "cost_after": 0.0,
+      "portfolio_changed": true,
+      "verifier_verdict": "VERIFIED",
+      "admission_class": "VERIFIED_SCENARIO",
+      "constraint_check": "OK",
+      "action_types_after": 0
+    },
+    {
+      "council_run_id": "CR-340952DAF2",
+      "claim_id": "CLM-08DCE86D49",
+      "agent_id": "AG1_STATISTICIAN",
+      "assumption_set_id": "AS-E423D19A86",
+      "assumption_id": "A08_promo_excess_theo_per_day",
+      "baseline_value": 16237.041330555552,
+      "revised_value": 5015.873800000006,
+      "unit": "USD/day",
+      "mode": "conditional",
+      "portfolio_before_id": "PF-B1CC79852F",
+      "portfolio_before": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1;INV-PROMOx2",
+      "portfolio_after_id": "PF-1AFFB8C12A",
+      "portfolio_after": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1",
+      "net_before": 69036.12,
+      "net_after": 6798.76,
+      "net_difference": -62237.35999999999,
+      "cost_after": 4800.0,
+      "portfolio_changed": true,
+      "verifier_verdict": "VERIFIED",
+      "admission_class": "VERIFIED_SCENARIO",
+      "constraint_check": "OK",
+      "action_types_after": 2
+    },
+    {
+      "council_run_id": "CR-340952DAF2",
+      "claim_id": "CLM-768DF1B6B2",
+      "agent_id": "AG4_GUEST",
+      "assumption_set_id": "AS-29E07D7F9E",
+      "assumption_id": "A08_promo_excess_theo_per_day",
+      "baseline_value": 16237.041330555552,
+      "revised_value": 9511.309944897348,
+      "unit": "USD/day",
+      "mode": "evidence_supported",
+      "portfolio_before_id": "PF-47631D9B77",
+      "portfolio_before": "INV-PROMOx2",
+      "portfolio_after_id": "PF-47631D9B77",
+      "portfolio_after": "INV-PROMOx2",
+      "net_before": 62237.36,
+      "net_after": 24030.66,
+      "net_difference": -38206.7,
+      "cost_after": 30000.0,
+      "portfolio_changed": false,
+      "verifier_verdict": "INCONCLUSIVE",
+      "admission_class": "EXPLORATORY_SCENARIO",
+      "constraint_check": "OK",
+      "action_types_after": 1
+    },
+    {
+      "council_run_id": "CR-340952DAF2",
+      "claim_id": "CLM-768DF1B6B2",
+      "agent_id": "AG4_GUEST",
+      "assumption_set_id": "AS-29E07D7F9E",
+      "assumption_id": "A08_promo_excess_theo_per_day",
+      "baseline_value": 16237.041330555552,
+      "revised_value": 9511.309944897348,
+      "unit": "USD/day",
+      "mode": "conditional",
+      "portfolio_before_id": "PF-B1CC79852F",
+      "portfolio_before": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1;INV-PROMOx2",
+      "portfolio_after_id": "PF-B1CC79852F",
+      "portfolio_after": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1;INV-PROMOx2",
+      "net_before": 69036.12,
+      "net_after": 30829.42,
+      "net_difference": -38206.7,
+      "cost_after": 34800.0,
+      "portfolio_changed": false,
+      "verifier_verdict": "INCONCLUSIVE",
+      "admission_class": "EXPLORATORY_SCENARIO",
+      "constraint_check": "OK",
+      "action_types_after": 3
+    }
+  ],
+  "invalidation": [
+    {
+      "assumption_id": "A08_promo_excess_theo_per_day",
+      "mode": "evidence_supported",
+      "dependent_candidates": [
+        "INV-PROMO"
+      ],
+      "before": "INV-PROMOx2",
+      "after": "HOLD",
+      "decision_changed": true,
+      "blocked_candidates_still_selected": [],
+      "dependents_marked_blocked": true,
+      "status": "PASS"
+    },
+    {
+      "assumption_id": "A08_promo_excess_theo_per_day",
+      "mode": "conditional",
+      "dependent_candidates": [
+        "INV-PROMO"
+      ],
+      "before": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1;INV-PROMOx2",
+      "after": "INV-INSPECT-M1158x1;INV-MOVE-M-1154-Z-PITx1;INV-MOVE-M-1184-Z-PITx1",
+      "decision_changed": true,
+      "blocked_candidates_still_selected": [],
+      "dependents_marked_blocked": true,
+      "status": "PASS"
+    }
+  ],
+  "gates": {
+    "PASS": 61,
+    "FAIL": 0,
+    "BLOCKED": 0
+  },
+  "failed": [],
+  "same_portfolio_outcomes_on_vs_off": true
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "domain": "machine_performance",
+    "output_table": "contract_machine_performance",
+    "input_datasets": [
+      "machine_day",
+      "game_math",
+      "prepared_daily_view",
+      "machines"
+    ],
+    "grain": "machine (Jan 1 - Jun 30, 2025, active days only)",
+    "required_metrics": [
+      "house_win",
+      "theo",
+      "luck_residual",
+      "luck_z",
+      "hit_rate_z",
+      "available_hours",
+      "win_per_available_hour",
+      "theo_per_available_hour"
+    ],
+    "filters": [
+      "zone_id",
+      "manufacturer",
+      "config_id",
+      "lease_class",
+      "explanation tag"
+    ],
+    "validated_joins": [
+      "machine_day x game_math on config_id (R08)",
+      "machine_day x prepared_daily_view on (machine_id, gaming_date) (R02)"
+    ],
+    "limitations": [
+      "Rankings describe exposure-adjusted, luck-free demand, not proof of machine quality",
+      "Back Forty values include the Mar 3-Apr 6 walkway closure",
+      "Bootstrap interval covers day-to-day variation only"
+    ],
+    "evidence_ids": [
+      "EV-AF24CEC0C65F"
+    ]
+  },
+  {
+    "domain": "casino_demand",
+    "output_table": "contract_demand_day",
+    "input_datasets": [
+      "property_day",
+      "calendar_day"
+    ],
+    "grain": "gaming date",
+    "required_metrics": [
+      "coin_in",
+      "house_win",
+      "theo",
+      "observed_hold",
+      "theo_per_available_hour"
+    ],
+    "filters": [
+      "date range",
+      "weekday",
+      "event"
+    ],
+    "validated_joins": [
+      "property_day == sum(machine_day) (R03)"
+    ],
+    "limitations": [
+      "Traffic entries are sensor crossings, not people; offline hours are missing, not zero"
+    ],
+    "evidence_ids": [
+      "EV-1140782DF570"
+    ]
+  },
+  {
+    "domain": "downtime_operations",
+    "output_table": "contract_downtime_month",
+    "input_datasets": [
+      "machine_day",
+      "prepared_daily_view",
+      "operations"
+    ],
+    "grain": "month x manufacturer x zone",
+    "required_metrics": [
+      "scheduled_hours",
+      "downtime_hours",
+      "availability_rate",
+      "lost theo (estimate)",
+      "repair cost"
+    ],
+    "filters": [
+      "month",
+      "manufacturer",
+      "zone_id"
+    ],
+    "validated_joins": [
+      "meter downtime == ticket outage hours (R12)",
+      "repair cost == operations.direct_cost_cents (R11)"
+    ],
+    "limitations": [
+      "Lost theo assumes downtime would be played at the machine's average rate"
+    ],
+    "evidence_ids": [
+      "EV-151F41C5EFA9"
+    ]
+  },
+  {
+    "domain": "guest_economics",
+    "output_table": "contract_guest_month",
+    "input_datasets": [
+      "player_period"
+    ],
+    "grain": "month x opening tier (tracked players)",
+    "required_metrics": [
+      "tracked coin-in",
+      "tracked payout",
+      "player net",
+      "theo",
+      "concentration",
+      "share of players ahead"
+    ],
+    "filters": [
+      "month",
+      "opening_tier"
+    ],
+    "validated_joins": [
+      "player_period == sessions == machine_day carded (R09)"
+    ],
+    "limitations": [
+      "Carded play is 65.8% of coin-in; uncarded guests invisible",
+      "Player sign convention: net = payout - coin-in"
+    ],
+    "evidence_ids": [
+      "EV-74323194890A"
+    ]
+  },
+  {
+    "domain": "comp_economics",
+    "output_table": "contract_comp_day",
+    "input_datasets": [
+      "loyalty_ledger",
+      "property_day",
+      "machine_day",
+      "calendar_day"
+    ],
+    "grain": "gaming date",
+    "required_metrics": [
+      "comp_cost",
+      "comp face value",
+      "points per comp dollar",
+      "comp cost per carded theo"
+    ],
+    "filters": [
+      "date range",
+      "pre/post 2025-05-01 policy change"
+    ],
+    "validated_joins": [
+      "ledger economic cost == linked POS cogs (R10)",
+      "ledger events mapped to gaming dates via calendar_day (R13)"
+    ],
+    "limitations": [
+      "Face value is menu price, not cost or revenue",
+      "Comp cost is inside POS cogs; never subtract twice"
+    ],
+    "evidence_ids": [
+      "EV-9F70B24A31CA"
+    ]
+  },
+  {
+    "domain": "intervention_planning",
+    "output_table": "contract_intervention_options",
+    "input_datasets": [
+      "action_catalog",
+      "cost_rules"
+    ],
+    "grain": "action type",
+    "required_metrics": [
+      "cost in 30-day horizon",
+      "lead time",
+      "quantity limit",
+      "downtime"
+    ],
+    "filters": [
+      "action_type_id",
+      "incompatibility_group"
+    ],
+    "validated_joins": [
+      "none (reference table)"
+    ],
+    "limitations": [
+      "Catalog gives prices, not effects; benefits must be estimated with uncertainty"
+    ],
+    "evidence_ids": [
+      "EV-3F37CE1AB3B3"
+    ]
+  }
+]

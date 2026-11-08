@@ -1,0 +1,188 @@
+[
+  {
+    "table": "prepared_daily_view",
+    "bytes": 3026620,
+    "sha256": "dcf59b0a3ad7dceeff1de7ae5a86e313c42300f3f3b73c652df86cd60fd0eebb",
+    "verified": true
+  },
+  {
+    "table": "player_period",
+    "bytes": 5030595,
+    "sha256": "e7ddbbafb2ddd9a24ec8bb7b5c5a9c79a17ff0d379011a4f35054be03a0fac2f",
+    "verified": true
+  },
+  {
+    "table": "property_day",
+    "bytes": 27373,
+    "sha256": "8e3df1d0662e27cd964d72287bac224e9f2395600ad8bece9ce4f8b17f5457d5",
+    "verified": true
+  },
+  {
+    "table": "calendar_day",
+    "bytes": 5717,
+    "sha256": "b6c26f1c60fba6594d52803228e14c734088bd8fb905520ee71041d191092e19",
+    "verified": true
+  },
+  {
+    "table": "floor_locations",
+    "bytes": 6773,
+    "sha256": "47958de9cb8cfbba7cfeab41eb015f8e840e1572f1a2f3d2ed6b6d494de43c39",
+    "verified": true
+  },
+  {
+    "table": "floor_walkways",
+    "bytes": 1799,
+    "sha256": "9cdb3c0205d179dea91ef6c71948913c14dd214e95c76805aeb8624efa07854c",
+    "verified": true
+  },
+  {
+    "table": "machines",
+    "bytes": 4564,
+    "sha256": "da7f869b62161b61bc44b0fc19d266ccaab2eab94505aa279956d70a1b8047e0",
+    "verified": true
+  },
+  {
+    "table": "game_math",
+    "bytes": 3389,
+    "sha256": "b6ebc7040d7120dd20be89c5f6ba264d650be9e4bfd03530a2e0abfb3f4f931d",
+    "verified": true
+  },
+  {
+    "table": "placements",
+    "bytes": 8326,
+    "sha256": "0759516a4c8885176ac2e027b6a214f771144d4d4e3d23210d008c3eb806f810",
+    "verified": true
+  },
+  {
+    "table": "machine_day",
+    "bytes": 2063747,
+    "sha256": "8bd1ebdb1dd2f695eef8585da0d3d5b6785d7c050e29ae52b14c2123c7c33176",
+    "verified": true
+  },
+  {
+    "table": "operations",
+    "bytes": 77788,
+    "sha256": "1d08ce76f31037c95ac3f40918917afa1f4b2fab9d8500a609c7ed4e05e9ca13",
+    "verified": true
+  },
+  {
+    "table": "cost_rules",
+    "bytes": 2884,
+    "sha256": "feedcd1b0ffa965191a6e76b547ec88c981a9ed5955485820d50c5b904a0a498",
+    "verified": true
+  },
+  {
+    "table": "action_catalog",
+    "bytes": 3807,
+    "sha256": "d4583febb24d0528feb90f8fa81bb4c2910abba94def7d8c06b96897814d2842",
+    "verified": true
+  },
+  {
+    "table": "players",
+    "bytes": 1849183,
+    "sha256": "1bd2af3b338effc243dac5ce5b65a796a43d885be77f221445c1cfaa7e7c2c0b",
+    "verified": true
+  },
+  {
+    "table": "sessions",
+    "bytes": 41936289,
+    "sha256": "2557a50f213e4e8b16d0b733281bf2d7c77ecad6300a0fcc6febdbb17ed45e98",
+    "verified": true
+  },
+  {
+    "table": "trips",
+    "bytes": 9438090,
+    "sha256": "4ce086b3d08919b818f5e5474acfaab50a51c77f97f04cb1b202d674128fc031",
+    "verified": true
+  },
+  {
+    "table": "loyalty_ledger",
+    "bytes": 25105592,
+    "sha256": "f00e81ec27c36fc9d6adea0569a7b31d041f41572bef596dadfdd2ffcbe46f5e",
+    "verified": true
+  },
+  {
+    "table": "fnb_transactions",
+    "bytes": 7797653,
+    "sha256": "6021ec899dfded9241bb617e85f922045de42d12af77d6cd0a2e85cce5a1df4b",
+    "verified": true
+  },
+  {
+    "table": "zone_traffic_hourly",
+    "bytes": 316882,
+    "sha256": "5f33099b4e65115461828c0de1bde4f88244d57b9069b263601abdbc20e22e3c",
+    "verified": true
+  },
+  {
+    "table": "events",
+    "bytes": 3017,
+    "sha256": "f55b840d409bd56991ce1afe401239a67ec646d3a540217701dc7b4ad88607f8",
+    "verified": true
+  },
+  {
+    "table": "weather_daily",
+    "bytes": 8023,
+    "sha256": "97883e79568416b875168662ad577796f16f0288b797a61aa6a05eba856108a9",
+    "verified": true
+  },
+  {
+    "table": "city_visitation_monthly",
+    "bytes": 5496,
+    "sha256": "e352d813e635e836dc5421890c9b140c061c674de0cae07755e6eeb6aebaeb63",
+    "verified": true
+  },
+  {
+    "table": "benchmark_public",
+    "bytes": 23880,
+    "sha256": "43448e4f39caab30c2708a51510fc1de24ed0f9f93a40565db5c6af59f8823ac",
+    "verified": true
+  },
+  {
+    "table": "benchmark_property_monthly",
+    "bytes": 7292,
+    "sha256": "18e9c097787b64be412663743512bb8e909162697089727c4f3ea8ce5bbfc84f",
+    "verified": true
+  },
+  {
+    "table": "benchmark_state_monthly",
+    "bytes": 3492,
+    "sha256": "795e583037761ff76243dbed9abcee32e375dbe7eecae2f9f65f06e36fed58b0",
+    "verified": true
+  },
+  {
+    "table": "visitor_profile_summary",
+    "bytes": 8534,
+    "sha256": "d17a6d9ad40dc057590be58261d03e6e16def8b984a94a377006398bd779a068",
+    "verified": true
+  },
+  {
+    "table": "visitor_profile_segments",
+    "bytes": 30321,
+    "sha256": "f9abe628b2f1ad516db992f70592dad31d9b2060e831005bfa0b92bbb7f57fe4",
+    "verified": true
+  },
+  {
+    "table": "machine_hour",
+    "bytes": 15569924,
+    "sha256": "5916c0fa6b758350e8d60b188f8e4a8987868d053628a9c44bce574a6414aaf9",
+    "verified": true
+  },
+  {
+    "table": "security_incidents",
+    "bytes": 165414,
+    "sha256": "8d46b99cc61cde78940032c3947d6f9b3c9e8f21ad2b76870c018b6566a7926e",
+    "verified": true
+  },
+  {
+    "table": "shift_roster",
+    "bytes": 117768,
+    "sha256": "c688b49849c6cd1501b54cf700a9cdb811554a2fea1d402c3b3890a8602f0f4e",
+    "verified": true
+  },
+  {
+    "table": "visitor_profile_monthly",
+    "bytes": 3068,
+    "sha256": "dd598f117cfca418201efccb81cf18114a532db69a362a9514a814522b6fd65d",
+    "verified": true
+  }
+]
