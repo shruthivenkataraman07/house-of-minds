@@ -1,6 +1,6 @@
 # AI-use disclosure
 
-**Short version (for submission):** We used Claude Code (Anthropic) as a coding assistant to write, run and test the code, SQL and documentation, under human direction. The analytics use no LLMs: forecasting is a statsmodels Holt-Winters model, optimisation is an exact MILP, and the six council agents are RULE_BASED deterministic analyses with a deterministic verifier. No LLM calls were made by the product (0 tokens, $0). The Ask the House interface is not yet built.
+**Short version (for submission):** We used Claude Code (Anthropic) as a coding assistant to write, run and test the code, SQL and documentation, under human direction. The analytics use no LLMs: forecasting is a statsmodels Holt-Winters model, optimisation is an exact MILP, and the six council agents are RULE_BASED deterministic analyses with a deterministic verifier. No LLM calls were made by the product (0 tokens, $0). Ask the House is a deterministic intent router over the same API (`backend/services/ask.py`); it does not use an LLM.
 
 ## Detailed record (from `ai_usage_audit`)
 
@@ -11,5 +11,5 @@
 | C. Adversarial council | Six RULE_BASED specialist agents: deterministic analyses over allowlisted read-only tools | council_runs.execution_mode = ['RULE_BASED'] | False | NOT LLM agents |
 | D. Whisper Network | Deterministic routing, budgets, origin tracking, duplicate suppression, retraction propagation | council_whispers | False | deterministic |
 | E. LLM calls in the product | None; an adapter exists (council/llm.py) but is not called and no provider is configured | llm_tokens=0, llm_cost_usd=0.0 | False | NONE |
-| F. Natural-language interface | Ask the House semantic contract only; no chat interface exists | semantic/ask_the_house_contract.json | False | NOT YET IMPLEMENTED |
+| F. Natural-language interface | Ask the House: deterministic keyword/intent router returning grounded answers or UNSUPPORTED/REFUSED | backend/services/ask.py, semantic/ask_the_house_contract.json | False | IMPLEMENTED (no LLM) |
 | G. Human oversight | Causal promotion uplift, inspection fix probability, move transfer, cross-platform forecast metrics | claims_evidence_registry | False | requires human / experimental validation |
