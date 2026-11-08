@@ -86,8 +86,8 @@ button:not(:disabled):active { transform: translateY(0.5px); }
 @keyframes hom-pop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 @keyframes hom-slide { from { transform: translateX(var(--dx, 0)); } to { transform: none; } }
 .slide-x { animation: hom-slide 600ms var(--ease-out) both; }
-.view-enter { animation: hom-fade 180ms ease-out both; }
-.view-enter .panel { animation: hom-rise 320ms var(--ease-out) both; }
+.view-enter { animation: hom-fade 180ms ease-out backwards; }  /* no lingering stacking context: drawers stay above the header */
+.view-enter .panel { animation: hom-rise 320ms var(--ease-out) backwards; }
 .view-enter .panel:nth-child(2) { animation-delay: 40ms; }
 .view-enter .panel:nth-child(3) { animation-delay: 80ms; }
 .view-enter .panel:nth-child(n+4) { animation-delay: 120ms; }
