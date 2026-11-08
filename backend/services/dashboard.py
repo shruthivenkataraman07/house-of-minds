@@ -226,6 +226,9 @@ def machine_detail(src: DataSource, mid: str) -> dict[str, Any] | None:
         "robustness": mp["rob"].get(mid),
         "verification": mp["ver"].get(mid),
         "candidate": mp["cand"].get(mid),
+        "diagnostics": next(
+            (r for r in src.get("machine_diagnostics") if r["machine_id"] == mid), None
+        ),
         "council_claims": [
             {**c, "agent_name": AGENTS.get(c["agent_id"], (c["agent_id"],))[0]} for c in claims
         ],
@@ -332,6 +335,16 @@ def passport(src: DataSource, evidence_id: str) -> dict[str, Any] | None:
                     else "Not an economics verdict; no sensitivity applies",
                 ],
                 ["Council", f"{len(cl)} claims; verdict {m['council_verdict']}"],
+                [
+                    "Ranking stability",
+                    (
+                        lambda g: (
+                            f"In the raw bottom 10 in {g['p_raw_bottom10_sim'] * 100:.1f}% of 2,000 payout simulations "
+                            f"(rank range {g['raw_rank_p05_sim']:.0f}–{g['raw_rank_p95_sim']:.0f}); luck z {g['luck_z']:.2f}; "
+                            f"leave-one-out peer index {g['loo_peer_index']:.2f}"
+                        )
+                    )(next(r for r in src.get("machine_diagnostics") if r["machine_id"] == eid)),
+                ],
                 [
                     "Limitation",
                     f"{'Audit: ' + v['classification'] + '. ' if v else ''}"

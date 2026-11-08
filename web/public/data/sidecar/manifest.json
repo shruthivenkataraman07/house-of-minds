@@ -1,7 +1,7 @@
 {
  "snapshot_id": "chf-v1:bc5e8ccc5d88a490",
  "source": "official parquet (local) + reports/audit",
- "exported_at_utc": "2026-11-08T06:44:55+00:00",
+ "exported_at_utc": "2026-11-08T07:51:06+00:00",
  "files": [
   {
    "dataset": "floor_day",
@@ -27,6 +27,21 @@
    "dataset": "measurement_plans",
    "file": "measurement_plans.json",
    "sha256": "df616a136431cf6d9220837a4ccd136f53aae618c712fd839bcd5243bdb24427"
+  },
+  {
+   "dataset": "machine_diagnostics",
+   "file": "machine_diagnostics.json",
+   "sha256": "2a11f2944569e99f303e2e6bcdb0d1753c3a3b63febd38020b03196896dbcb7d"
+  },
+  {
+   "dataset": "diagnostics_summary",
+   "file": "diagnostics_summary.json",
+   "sha256": "5e7b1eea6807fc7e142c8fb5eee46c2305c50b7d744dda0708ae965c29ffe652"
+  },
+  {
+   "dataset": "walkway_event",
+   "file": "walkway_event.json",
+   "sha256": "d3b6dee11dee2d79797f15efa58d558c65119740dac30b85fccf7391a6022ce4"
   },
   {
    "dataset": "audit_a3_a4_verification",

@@ -62,7 +62,11 @@ export interface Claim {
 export interface MachineDetail {
   machine: Rec; zone_name: string; bank_id: string | null; investigation: Rec | null;
   robustness: Rec | null; verification: Rec | null; candidate: Rec | null; council_claims: Claim[];
+  diagnostics: Rec | null;
 }
+export interface Stability { summary: Rec; rows: Rec[] }
+export interface Events { event: string; closed_from: string; closed_to: string; unit: string; machines: string;
+  rows: { gaming_date: string; back_forty: number; rest_of_floor: number }[]; estimate: Rec }
 
 export interface Demand {
   period: { start: string; end: string }; exploratory: boolean;

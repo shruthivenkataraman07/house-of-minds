@@ -69,6 +69,8 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 "backend/services/ask.py" = ["E501"]
 "backend/services/dashboard.py" = ["E501"]
 "scripts/qa_parity.py" = ["E501"]
+"analytics/diagnostics.py" = ["E501"]
+"tests/unit/test_diagnostics.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

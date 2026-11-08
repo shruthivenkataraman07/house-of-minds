@@ -286,16 +286,28 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
         cand = next(
             (c for c in src.get("ch_replacement_candidates") if c["machine_id"] == mid), None
         )
+        diag = next((r for r in src.get("machine_diagnostics") if r["machine_id"] == mid), None)
         support = [
-            f"House win {_usd(row['house_win_usd'])} vs theo {_usd(row['theo_usd'])} (luck z "
+            f"Casino win {_usd(row['house_win_usd'])} vs expected {_usd(row['theo_usd'])} (payout luck z "
             f"{row['luck_z']:.2f}); {ZONE_NAMES.get(row['zone_id'], row['zone_id'])}, {row['config_id']}.",
-            f"Theo per available hour ${row['theo_per_available_hour']:.2f}; raw rank {row['rank_raw']}, "
-            f"vs same-game peers {row['rank_vs_peers']} of 310 (1 = weakest).",
+            f"Expected win per available hour ${row['theo_per_available_hour']:.2f}; earnings rank {row['rank_raw']}, "
+            f"vs comparable machines {row['rank_vs_peers']} of 310 (1 = weakest).",
         ]
+        if diag:
+            support.append(
+                f"In the lowest 10 by casino win in {diag['p_raw_bottom10_sim'] * 100:.0f}% of payout simulations; "
+                f"{diag['loo_peer_index']:.2f}x comparable machines (excluding itself)"
+                + (
+                    "; paying-spin frequency is a statistical anomaly (exact test)."
+                    if diag["hit_p_exact_bonferroni"] < 0.001
+                    else "."
+                )
+            )
         if inv:
+            alt = re.sub(r"^A-[A-Z-]+ \((.*)\)$", r"\1", inv["recommended_alternative"])
             conclusion = (
                 f"{mid} is #{inv['manager_rank']} on the manager's list. Verdict: "
-                f"{_verdict(inv['verdict']).capitalize()}. {inv['recommended_alternative'][:1].upper()}{inv['recommended_alternative'][1:]}."
+                f"{_verdict(inv['verdict']).capitalize()}. {alt[:1].upper()}{alt[1:]}."
             )
             if inv["lease_net_planning_usd"] is not None:
                 support.append(
@@ -372,6 +384,55 @@ def ask(question: str, src: DataSource, machine_context: str | None = None) -> d
             evidence="ch_executive_verdict",
             action=_act("open_answers", "answers"),
         )
+
+    if (
+        re.search(r"stab|monte carlo|simulat|same (10|ten)|robust rank|luck.adjusted rank", q)
+        and not ids
+    ):
+        sm = src.get("diagnostics_summary")
+        diag = {r["machine_id"]: r for r in src.get("machine_diagnostics")}
+        fragile = sorted(
+            (r for r in diag.values() if r["rank_raw"] <= 10), key=lambda r: r["p_raw_bottom10_sim"]
+        )[:2]
+        return _answer(
+            "OK",
+            "select_entity",
+            f"Across {sm['simulations']:,} payout simulations, on average {sm['manager_list_mean_overlap']:.1f} of the manager's 10 "
+            f"stay in the lowest 10 by casino win; all 10 together in {sm['manager_list_all10_share'] * 100:.1f}% of runs.",
+            support=[
+                "Least stable: "
+                + ", ".join(
+                    f"{r['machine_id']} ({r['p_raw_bottom10_sim'] * 100:.0f}%)" for r in fragile
+                )
+                + ".",
+                "The fair ranking uses expected win per available hour, so payout luck cannot change it.",
+            ],
+            evidence="machine_diagnostics · diagnostics_summary",
+            uncertainty=f"Assumes {sm['assumption']}.",
+            action=_act(
+                "select_entity",
+                "machines",
+                machine_id=fragile[0]["machine_id"] if fragile else None,
+            ),
+        )
+
+    if re.search(r"walkway|closure|renovation", q):
+        ev = src.get("walkway_event")
+        est = next(
+            (e for e in src.get("ch_demand_explanations") if "walkway" in str(e["change"]).lower()),
+            None,
+        )
+        if est:
+            return _answer(
+                "OK",
+                "set_filters",
+                f"During the walkway closure ({ev['closed_from']} to {ev['closed_to']}) Back Forty demand ran "
+                f"{float(est['observed_pct']):.1f}% vs the rest of the floor; {est['conclusion']}.",
+                support=[f"Alternative tested: {est['alternative']}.", f"Method: {est['test']}."],
+                evidence="walkway_event · ch_demand_explanations",
+                uncertainty="A single event: strong association, not proof of cause.",
+                action=_act("set_filters", "operations", tab="demand", zone_id="Z-B40"),
+            )
 
     if re.search(r"council|agent|challeng|object|statistician|cfo|whisper|debate", q):
         cr = src.get("ch_council_manager_review")

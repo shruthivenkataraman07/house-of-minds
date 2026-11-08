@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ReferenceArea, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useApi } from "@/lib/api";
 import { compact, n, num, pct, usd } from "@/lib/format";
 import { TERM } from "@/lib/terms";
-import type { BankDetail, BankList, Comps, Demand, Downtime, EvidenceList, Players } from "@/lib/types";
+import type { BankDetail, BankList, Comps, Demand, Downtime, Events, EvidenceList, Players } from "@/lib/types";
 import { OFFICIAL, useUI } from "@/lib/ui";
 
 import { CalendarHeat, CompositionBar, MatrixHeat } from "../charts";
@@ -117,6 +117,7 @@ function DemandTab() {
         </Panel>
       </div>
       {zoneSel && <ZoneDrawer zone={zoneSel} name={zname(zoneSel)} months={months} value={zval} explanations={d.explanations} onClose={() => setZoneSel(null)} />}
+      <EventPanel onZone={() => setZoneSel("Z-B40")} />
       <Panel title="What changed and why" note="Observed change first; the tested explanation is shown separately." flush>
         <Scroll><table className="tbl min-w-[620px]"><thead><tr><th>Change</th><th className="text-right">Observed</th><th>Alternative tested</th><th>Result</th></tr></thead>
           <tbody>{[e1, e2].filter(Boolean).map((e, i) => (
@@ -332,5 +333,32 @@ function ZoneDrawer({ zone, name, months, value, explanations, onClose }: {
       ) : <Loading rows={1} />}
       <div className="mt-4 border-t border-line pt-3">{claim ? <EvidenceLink id={String(claim)}>Zone demand evidence</EvidenceLink> : <span className="label">No zone evidence record.</span>}</div>
     </Drawer>
+  );
+}
+
+/** Walkway closure: Back Forty vs rest of floor on a fixed machine set (API: /operations/events). */
+function EventPanel({ onZone }: { onZone: () => void }) {
+  const { data, error, reload } = useApi<Events>("/operations/events");
+  if (error) return <ErrorLine error={error} retry={reload} />;
+  if (!data) return <Loading rows={2} />;
+  const e = data.data;
+  return (
+    <Panel title="Did the walkway closure cut Back Forty demand?" note={`${e.event}, ${e.closed_from} → ${e.closed_to} (shaded). ${e.unit}; ${e.machines}.`}
+      right={<button type="button" onClick={onZone} className="text-[12.5px] text-accent hover:underline">Back Forty detail →</button>}>
+      <div className="h-56" role="img" aria-label="Daily expected win per available hour, Back Forty versus rest of floor, with the closure period shaded">
+        <ResponsiveContainer><LineChart data={e.rows} margin={{ left: 0, right: 8, top: 4 }}>
+          <CartesianGrid stroke="var(--line)" vertical={false} />
+          <XAxis dataKey="gaming_date" {...AX} tickFormatter={(x: string) => x.slice(5)} minTickGap={28} />
+          <YAxis {...AX} width={40} tickFormatter={(v: number) => `$${v.toFixed(0)}`} />
+          <ReferenceArea x1={e.closed_from} x2={e.closed_to} fill="var(--warn)" fillOpacity={0.12} />
+          <Tooltip {...TT} formatter={(v, k) => [usd(Number(v), 2), k === "back_forty" ? "Back Forty" : "Rest of floor"]} />
+          <Legend formatter={(v) => (v === "back_forty" ? "Back Forty" : "Rest of floor")} wrapperStyle={{ fontSize: 12 }} />
+          <Line isAnimationActive={false} dataKey="rest_of_floor" stroke="var(--chart-2)" dot={false} strokeWidth={1.25} />
+          <Line isAnimationActive={false} dataKey="back_forty" stroke="var(--accent)" dot={false} strokeWidth={2} />
+        </LineChart></ResponsiveContainer>
+      </div>
+      <p className="mt-1 text-[12.5px]"><span className="font-medium">Estimate:</span> {n(e.estimate.observed_pct).toFixed(1)}% vs the rest of the floor during the closure; {String(e.estimate.conclusion)}.
+        <span className="label"> Method: {String(e.estimate.test)}. One event, so this is strong association, not proof.</span></p>
+    </Panel>
   );
 }

@@ -5,10 +5,10 @@ import { CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Toolti
 import { useApi } from "@/lib/api";
 import { n, num, pct, signed, tone, usd, verdict } from "@/lib/format";
 import { TERM, weaknessFromEarnings, weaknessFromFair } from "@/lib/terms";
-import type { BankList, MachineDetail, MachinePage } from "@/lib/types";
+import type { BankList, MachineDetail, MachinePage, Stability } from "@/lib/types";
 import { useUI } from "@/lib/ui";
 
-import { RankDumbbell } from "../charts";
+import { RankDumbbell, ValueBars } from "../charts";
 import { Drawer, ErrorLine, EvidenceLink, Kpi, Loading, PageHead, Panel, Pill, Scroll, Segmented, robustTone, verdictTone } from "../ui";
 
 const ZONES: [string, string][] = [["", "All zones"], ["Z-B40", "Back Forty"], ["Z-PIT", "Center Pit"], ["Z-ENT", "Main Entrance"],
@@ -123,7 +123,7 @@ function MachineDrawer({ id }: { id: string }) {
       {error && <ErrorLine error={error} retry={reload} />}
       {d && m && (
         <div className="space-y-5">
-          {i && <p className="text-[13px]">{String(i.recommended_alternative)}</p>}
+          {i && <p className="text-[13px]">{String(i.recommended_alternative).replace(/^A-[A-Z-]+ \((.*)\)$/, (_m, x: string) => x.charAt(0).toUpperCase() + x.slice(1))}</p>}
           <div className="grid grid-cols-2 gap-4">
             <Kpi label="Casino win (actual)" value={usd(n(m.house_win_usd))} sub={`luck z ${n(m.luck_z).toFixed(2)}`} />
             <Kpi label="Expected casino win" value={usd(n(m.theo_usd))} sub={`coin-in ${usd(n(m.coin_in_usd))}`} />
@@ -131,6 +131,8 @@ function MachineDrawer({ id }: { id: string }) {
             <Kpi label="Availability" value={pct(n(m.availability_rate))} sub={i ? `${i.active_days} active days · ${num(n(i.downtime_hours), 1)} h down` : `${num(n(m.available_hours))} available h`} />
           </div>
           {i && <p className="label">RTP {pct(n(i.rtp))} · {String(i.volatility_class)} volatility · hit-rate z {n(i.hit_rate_z).toFixed(2)} (Bonferroni p {n(i.hit_p_bonferroni) < 0.001 ? "< 0.001" : n(i.hit_p_bonferroni).toFixed(2)}){i.retire_date ? ` · retired ${String(i.retire_date).slice(0, 10)}` : ""}</p>}
+
+          {d.diagnostics && <Diagnosis g={d.diagnostics} />}
 
           {i && (
             <section>
@@ -220,6 +222,65 @@ function RankingVisuals() {
           </div>)}
         <p className="label mt-1">Colored points are the manager’s 10 (color = verdict, also named in the table). Select a point for detail.</p>
       </Panel>
+      <StabilityPanel />
     </div>
+  );
+}
+
+/** Payout Monte Carlo of the raw earnings ranking (API: /machines/stability). */
+function StabilityPanel() {
+  const ui = useUI();
+  const { data, error, reload } = useApi<Stability>("/machines/stability");
+  if (error) return <div className="xl:col-span-2"><ErrorLine error={error} retry={reload} /></div>;
+  if (!data) return <div className="xl:col-span-2"><Loading rows={3} /></div>;
+  const s = data.data.summary;
+  return (
+    <Panel className="xl:col-span-2" title="Would the same 10 machines be lowest again?"
+      note={`${num(n(s.simulations))} payout simulations (seed ${String(s.seed)}): only payout luck varies; floor time, bets and game math stay fixed.`}>
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
+        <div className="min-w-0 max-w-[760px]"><ValueBars label="Probability of falling in the lowest 10 by casino win" format={(v) => `${v.toFixed(0)}%`} selected={ui.machineId}
+          rows={data.data.rows.filter((r, i) => n(r.rank_raw) <= 10 || i < 14).map((r) => ({ key: String(r.machine_id), label: `${String(r.machine_id)}${n(r.rank_raw) <= 10 ? ` · manager #${String(r.rank_raw)}` : ""}`,
+            value: Math.round(n(r.p_raw_bottom10_sim) * 1000) / 10, tone: n(r.rank_raw) <= 10 ? (n(r.p_raw_bottom10_sim) < 0.5 ? "warn" : "accent") : "muted",
+            note: `rank ${n(r.raw_rank_p05_sim).toFixed(0)}–${n(r.raw_rank_p95_sim).toFixed(0)}`, onClick: () => ui.set({ machineId: String(r.machine_id) }) }))} /></div>
+        <dl className="space-y-3 text-[12.5px]">
+          <div><dt className="label">Manager’s 10 still lowest (average)</dt><dd className="num text-[18px] font-semibold">{n(s.manager_list_mean_overlap).toFixed(1)} of 10</dd></div>
+          <div><dt className="label">All 10 lowest together</dt><dd className="num text-[18px] font-semibold">{pct(n(s.manager_list_all10_share), 1)}</dd><dd className="label">of simulations</dd></div>
+          <div><dt className="label">Fair ranking</dt><dd>{String(s.fair_ranking_note)}.</dd></div>
+          <div><dt className="label">Assumption</dt><dd className="text-muted">{String(s.assumption)}.</dd></div>
+        </dl>
+      </div>
+      <p className="label mt-1">Rank = 5th–95th percentile of simulated earnings rank. Amber = a manager-list machine in the lowest 10 less than half the time (its position depends on payout luck). Select a bar.</p>
+    </Panel>
+  );
+}
+
+/** Statistical diagnosis for one machine; every value comes from the diagnostics export. */
+function Diagnosis({ g }: { g: Record<string, string | number | boolean | null> }) {
+  const z = n(g.luck_z), hitP = n(g.hit_p_exact_bonferroni), pB = n(g.p_raw_bottom10_sim);
+  const flags: { t: string; tone: "warn" | "accent" | "muted" | "pos" }[] = [];
+  if (hitP < 0.001) flags.push({ t: "Possible payout anomaly (statistical, not proven fault)", tone: "accent" });
+  if (z <= -1.96 && hitP >= 0.001) flags.push({ t: "Unfavorable payout luck", tone: "warn" });
+  if (z <= -1.96 && hitP < 0.001) flags.push({ t: "Shortfall consistent with the payout anomaly, not luck", tone: "warn" });
+  if (z >= 1.96) flags.push({ t: "Favorable payout luck", tone: "muted" });
+  if (n(g.loo_peer_index) < 0.95) flags.push({ t: "Below comparable machines", tone: "warn" });
+  if (n(g.loo_peer_index) >= 1.05) flags.push({ t: "Above comparable machines", tone: "pos" });
+  if (!flags.length) flags.push({ t: "No distinct statistical signal", tone: "muted" });
+  return (
+    <section>
+      <h3 className="mb-2 text-[12.5px] font-semibold">Statistical diagnosis</h3>
+      <div className="mb-2 flex flex-wrap gap-1.5">{flags.map((f) => <Pill key={f.t} tone={f.tone}>{f.t}</Pill>)}</div>
+      <table className="tbl"><tbody>
+        <tr><td>Payout luck (casino win − expected)</td><td className="num text-right">{signed(n(g.luck_residual_usd))}</td></tr>
+        <tr><td>Luck spread (1 standard deviation)</td><td className="num text-right">{usd(n(g.luck_residual_sd_usd))}</td></tr>
+        <tr><td>Luck z-score <span className="label">(Bonferroni p {n(g.luck_p_bonferroni) < 0.001 ? "< 0.001" : n(g.luck_p_bonferroni).toFixed(3)})</span></td><td className="num text-right">{z.toFixed(2)}</td></tr>
+        <tr><td>Paying spins: observed vs game math</td><td className="num text-right">{pct(n(g.observed_hit_rate), 2)} vs {pct(n(g.expected_hit_probability), 2)}</td></tr>
+        <tr><td>Exact binomial test <span className="label">({num(n(g.paid_spins))} spins, Bonferroni)</span></td><td className="num text-right">{hitP < 0.001 ? "p < 0.001" : `p = ${hitP.toFixed(2)}`}</td></tr>
+        <tr><td>In lowest 10 by casino win <span className="label">(payout simulations)</span></td><td className="num text-right">{pct(pB, 1)}</td></tr>
+        <tr><td>Simulated earnings rank (5th–95th pct)</td><td className="num text-right">{n(g.raw_rank_p05_sim).toFixed(0)}–{n(g.raw_rank_p95_sim).toFixed(0)}</td></tr>
+        <tr><td>Vs comparable machines, excluding itself <span className="label">({String(g.loo_peer_basis)}, {String(g.loo_peer_n)} peers)</span></td><td className="num text-right">{n(g.loo_peer_index).toFixed(2)}×</td></tr>
+      </tbody></table>
+      <p className="label mt-2">Luck spread = √(Σ bet² × payout-multiplier variance), assuming independent spins. A statistical anomaly is not proof of a paytable fault; inspection confirms it.</p>
+      <p className="label mt-1">Gap factors below sum to the total gap within {usd(Math.abs(n(g.decomposition_error_usd)), 2)}: an exact sequential accounting identity, not a causal split.</p>
+    </section>
   );
 }

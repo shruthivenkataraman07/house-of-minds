@@ -19,6 +19,7 @@ from backend.schemas.api import (
     Demand,
     Downtime,
     Envelope,
+    Events,
     EvidenceList,
     EvidencePassport,
     Executive,
@@ -31,6 +32,7 @@ from backend.schemas.api import (
     Players,
     Portfolios,
     Scenarios,
+    Stability,
 )
 from backend.services import dashboard as d
 from backend.services.ask import ask as route_question
@@ -212,6 +214,36 @@ def machines(
             "limit": limit,
             "rows": rows[offset : offset + limit],
         },
+    }
+
+
+@router.get("/machines/stability", response_model=Envelope[Stability])
+def stability(resp: Response) -> Any:
+    """Payout Monte Carlo of the raw earnings ranking (manager's 10 plus any machine >=5%)."""
+    src = get_source()
+    diag = src.get("machine_diagnostics")
+    rows = sorted(
+        (r for r in diag if r["rank_raw"] <= 10 or r["p_raw_bottom10_sim"] >= 0.05),
+        key=lambda r: (-r["p_raw_bottom10_sim"], r["rank_raw"]),
+    )
+    _cached(resp)
+    return {
+        "meta": _meta(src, ["machine_diagnostics", "diagnostics_summary"], "official window"),
+        "data": {"summary": src.get("diagnostics_summary"), "rows": rows},
+    }
+
+
+@router.get("/operations/events", response_model=Envelope[Events])
+def events(resp: Response) -> Any:
+    src = get_source()
+    ev = src.get("walkway_event")
+    est: dict[str, Any] = next(
+        (e for e in src.get("ch_demand_explanations") if "walkway" in str(e["change"]).lower()), {}
+    )
+    _cached(resp)
+    return {
+        "meta": _meta(src, ["walkway_event", "ch_demand_explanations"], "official window"),
+        "data": {**ev, "estimate": est},
     }
 
 

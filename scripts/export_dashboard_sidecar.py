@@ -85,6 +85,14 @@ def main() -> int:
         f"uncertainty, baseline_kpi, observation_period, comparison_method, feasibility, "
         f"confounders, success_threshold, stop_or_revise, unit_cost, total_cost, status "
         f"FROM '{mp}'").df().to_dict(orient="records")
+    from analytics.diagnostics import machine_diagnostics, walkway_event_series
+    from pipelines.ingestion.loader import open_local_repository
+
+    repo = open_local_repository()
+    diag, diag_summary = machine_diagnostics(repo)
+    payloads["machine_diagnostics"] = json.loads(diag.to_json(orient="records"))
+    payloads["diagnostics_summary"] = diag_summary
+    payloads["walkway_event"] = walkway_event_series(repo)
     for name in ("a3_a4_verification", "b4_robustness_matrix", "c_promotion_portfolio",
                  "b_inputs"):
         payloads[f"audit_{name}"] = json.loads(

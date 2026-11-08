@@ -153,6 +153,22 @@ class MachineDetail(BaseModel):
     verification: Record | None
     candidate: Record | None
     council_claims: list[Record]
+    diagnostics: Record | None = None
+
+
+class Stability(BaseModel):
+    summary: Record
+    rows: list[Record]
+
+
+class Events(BaseModel):
+    event: str
+    closed_from: str
+    closed_to: str
+    unit: str
+    machines: str
+    rows: list[Record]
+    estimate: Record
 
 
 class Demand(BaseModel):

@@ -4,7 +4,7 @@ import { Bar, BarChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 
 import { useApi } from "@/lib/api";
 import { allocation, compact, n, pct, signed, tone, usd, verdict } from "@/lib/format";
-import type { Comps, Demand, Downtime, EvidenceList, Executive, Players, Portfolios } from "@/lib/types";
+import type { Comps, Demand, Downtime, EvidenceList, Executive, Players, Portfolios, Stability } from "@/lib/types";
 import { type ViewId, useUI } from "@/lib/ui";
 
 import { type ChartTone, CompositionBar } from "../charts";
@@ -23,10 +23,12 @@ export function Answers() {
   const cp = useApi<Comps>("/loyalty/comps");
   const pf = useApi<Portfolios>("/portfolios");
   const ev = useApi<EvidenceList>("/evidence?limit=200");
-  const all = [ex, dm, dt, pl, cp, pf, ev];
+  const st = useApi<Stability>("/machines/stability");
+  const all = [ex, dm, dt, pl, cp, pf, ev, st];
   const err = all.find((x) => x.error)?.error;
   if (err) return <ErrorLine error={err} retry={() => all.forEach((x) => x.reload())} />;
-  if (!ex.data || !dm.data || !dt.data || !pl.data || !cp.data || !pf.data || !ev.data) return <Loading rows={8} />;
+  if (!ex.data || !dm.data || !dt.data || !pl.data || !cp.data || !pf.data || !ev.data || !st.data) return <Loading rows={8} />;
+  const stab = st.data.data.summary;
 
   const x = ex.data.data, v = x.verdict;
   const claimFor = (cat: string) => ev.data!.data.claims.find((c) => c.category === cat)?.claim_id as string | undefined;
@@ -62,7 +64,7 @@ export function Answers() {
             <>None of the manager’s 10 should be replaced: {v.replacement_justified} of {v.machines_reviewed} replacements are justified.</>,
             <>{v.retired_already} already left the floor, {v.inspect_instead} has a payout fault{fault ? ` (${fault.machine_id})` : ""}, and {v.not_economic} lose money on a July lease even with the zone’s best title.</>,
             <>Low totals mostly reflect floor time and location: {betterHalf} of 10 rank in the better half of comparable machines; {shortFloor} had under 150 days on the floor.</>,
-            <>Uncertain: {insuff ? `${insuff.machine_id} is borderline (best-case lease ${signed(insuff.lease_net_best_case_usd)})` : "no borderline machine"}; longer-term replacement value is unmeasured.</>,
+            <>The list itself is partly luck: in {Number(stab.simulations).toLocaleString("en-US")} payout simulations only {n(stab.manager_list_mean_overlap).toFixed(1)} of the 10 stay lowest on average. {insuff ? `${insuff.machine_id} is borderline (best-case lease ${signed(insuff.lease_net_best_case_usd)}).` : ""}</>,
           ]}
           chart={<CompositionBar label="Manager's 10 by verdict" segments={Object.entries(counts).map(([k, c]) => ({ key: k, label: verdict(k), value: c, tone: VTONE[k] ?? "muted" }))} />} />
 
