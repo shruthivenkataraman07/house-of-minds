@@ -2,19 +2,19 @@
 
 | Requirement | Status | Note |
 |---|---|---|
-| Public interactive dashboard | FINAL DASHBOARD PHASE | data contracts + exports ready (Step 7) |
-| Video walkthrough (<=2 min) | PARTIALLY READY | storyboard below; not recorded |
+| Public interactive dashboard | READY | https://house-of-minds.onrender.com |
+| Video walkthrough (<=2 min) | READY | https://www.youtube.com/watch?v=U_LJSQov1i4 |
 | Written summary (<=400 words) | READY | draft below (247 words) |
 | ML/time-series vs baseline on holdout, informing a decision | READY | Holt-Winters vs weekday mean, May-Jun holdout, linked to A08 |
-| All code and transformations | READY | repo + REPRODUCIBILITY_GUIDE.md (no git commits yet; must be pushed/published before submission) |
+| All code and transformations | READY | public repo https://github.com/shruthivenkataraman07/house-of-minds + REPRODUCIBILITY_GUIDE.md |
 | Up to 3 priced action types | READY | A-PROMO (evidence); + A-INSPECT, A-MOVE-MACHINE (conditional); costs, effects, uncertainty, measurement |
 | AI-use disclosure | READY | AI_USE_DISCLOSURE.md |
 | Claims & Evidence appendix | READY | 83 claims |
+| Devpost entry | READY | https://devpost.com/software/house-of-minds |
 
 ## Blockers
 
-- Public dashboard and recorded video: Step 7.
-- Repository has no commits: code must be committed and published (needs your approval).
+- None for submission: dashboard, video, public repository and Devpost entry are published.
 - Causal promotion uplift, inspection fix probability and move transfer remain unmeasured (planning assumptions).
 
 ## Written summary draft (247 words)

@@ -10,9 +10,9 @@
 | Claims and evidence appendix | Done (83 claims) | [CLAIMS_AND_EVIDENCE_APPENDIX.md](../docs/CLAIMS_AND_EVIDENCE_APPENDIX.md) |
 | AI-use disclosure | Done | [AI_USE_DISCLOSURE.md](../docs/AI_USE_DISCLOSURE.md) |
 | Four judge interactions | Done, browser-tested | [Judge guide](../docs/JUDGE_GUIDE.md) |
-| **Walkthrough video, 2 minutes or less** | **OUTSTANDING: must be recorded by the team** | Suggested path in the [Judge guide](../docs/JUDGE_GUIDE.md#suggested-two-minute-path) |
-| Devpost entry | **OUTSTANDING: manual** | |
+| Walkthrough video, 2 minutes or less | Done | https://www.youtube.com/watch?v=U_LJSQov1i4 |
+| Devpost entry | Done | https://devpost.com/software/house-of-minds |
 | Dataset attribution and terms | Noted in the README; check the challenge's terms before redistributing any data | |
 | Project license | **Not chosen**: add a LICENSE file if you want to grant reuse | |
 
-The submission is **not complete** until the video and the Devpost entry are done.
+All required submission items are done. A project license is optional.

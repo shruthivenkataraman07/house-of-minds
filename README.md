@@ -5,6 +5,8 @@
 House of Minds answers one management question for The Gilded Ace casino: *should we replace our ten lowest-earning slot machines?* It builds the analysis on Databricks: reconciled tables in Unity Catalog, statistical forensics, a validated forecast and an exact budget optimizer. Six rule-based specialist agents then challenge every finding, and a dashboard lets a manager trace each number back to the table and query behind it.
 
 **Live dashboard:** https://house-of-minds.onrender.com (no account needed; the free host can take about a minute to wake)
+**Video walkthrough:** https://www.youtube.com/watch?v=U_LJSQov1i4
+**Devpost:** https://devpost.com/software/house-of-minds
 **Challenge:** TAMU Datathon 2026 · Dashboard Royale ([guide](https://github.com/tamu-datathon-org/dashboard-royale/blob/main/GUIDE.md))
 **Data window:** January 1 – June 30, 2025 (181 gaming days, 6 a.m. to 6 a.m.) · **Decision horizon:** July 1–30, 2025 · **Budget:** $100,000, at most three action types
 **Stack:** Databricks (Unity Catalog, serverless Jobs, SQL warehouse) · Python 3.12 · statsmodels · FastAPI · React 19 / Next.js static export · KaTeX · Render (Docker)
@@ -146,6 +148,7 @@ A full rerun needs a Databricks workspace, a SQL warehouse and serverless job co
 
 ## Submission documents
 
+- [Devpost entry](https://devpost.com/software/house-of-minds) · [Video walkthrough](https://www.youtube.com/watch?v=U_LJSQov1i4)
 - [Write-up (≤ 400 words)](submission/WRITEUP.md)
 - [Claims and evidence appendix](docs/CLAIMS_AND_EVIDENCE_APPENDIX.md) (83 claims, generated from `claims_evidence_registry`)
 - [AI-use disclosure](docs/AI_USE_DISCLOSURE.md) · [AI-use log](docs/AI_USE_LOG.md)
