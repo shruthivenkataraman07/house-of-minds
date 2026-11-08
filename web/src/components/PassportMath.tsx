@@ -26,10 +26,28 @@ function MachineMath({ id }: { id: string }) {
   return <>{specs.map((s) => <Formula key={s.title} spec={s} />)}</>;
 }
 
+/** Numbers quoted inside a recorded claim, matched by fixed patterns only (never evaluated as code). */
+const money = (s: string | undefined) => (s === undefined ? undefined : Number(s.replace(/,/g, "")));
+
+function ClaimMath({ p }: { p: Passport }) {
+  const text = p.title;
+  const flip = text.match(/^If A08_promo_excess_theo_per_day = ([\d,.]+) USD\/day, the evidence portfolio becomes HOLD \(was INV-PROMOx2; -([\d,.]+) USD modeled\)/);
+  if (flip) return <Formula spec={F.decisionFlip(money(flip[1]), money(flip[2]))} />;
+  const noise = text.match(/excess \(\$([\d,.]+)\/day\) is ([\d.]+) SD of ordinary Fri-Sun variation \(SD \$([\d,.]+)\/day\)/);
+  if (noise) {
+    const x = money(noise[1]), z = Number(noise[2]), s = money(noise[3]);
+    // Show the substitution only if the recorded numbers reproduce the recorded ratio.
+    const ok = x !== undefined && s !== undefined && Math.abs(x / s - z) < 0.01;
+    return <Formula spec={F.noiseRatio(ok ? x : undefined, ok ? s : undefined, ok ? z : undefined)} />;
+  }
+  return <p className="rounded-md border border-dashed border-line px-3 py-2 text-[13px] text-muted">No formula is recorded for this claim. Its recorded result and the checks applied to it are listed below.</p>;
+}
+
 export function PassportMath({ p }: { p: Passport }) {
   const v = p.values ?? {};
   let body: React.ReactNode = null;
   if (p.kind === "machine") body = <MachineMath id={p.id} />;
+  else if (p.kind === "claim") body = <ClaimMath p={p} />;
   else if (p.kind === "passport") {
     body = <>
       <Formula spec={F.actionNet(num(v.quantity), num(v.unit_cost), num(v.modeled_incremental_effect), num(v.modeled_net_contribution))} />

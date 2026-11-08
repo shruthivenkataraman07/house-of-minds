@@ -5,6 +5,7 @@ import { postJSON, useApi } from "@/lib/api";
 import type { AskAnswer, Metadata, Passport } from "@/lib/types";
 import { OFFICIAL, VIEWS, type ViewId, useUI } from "@/lib/ui";
 
+import { signed, usd } from "@/lib/format";
 import { PassportMath } from "./PassportMath";
 import { GlossaryDrawer } from "./explain";
 import { Drawer, EvidenceLink, ErrorLine, Loading, Pill } from "./ui";
@@ -125,6 +126,33 @@ function useMetadata(): Metadata | null {
   return m;
 }
 
+const REC_LABEL: Record<string, string> = { numeric: "Recorded result", unit: "Unit", agent: "Agent", action: "Council action", relevance: "Relevance" };
+const AGENT_NAME: Record<string, string> = { AG1_STATISTICIAN: "Statistician", AG2_DEMAND: "Demand Strategist", AG3_OPERATIONS: "Operations Chief",
+  AG4_GUEST: "Guest Analyst", AG5_LOYALTY: "Loyalty Strategist", AG6_CFO: "CFO" };
+
+/** Recorded metadata stays available, but as labelled values, never as raw JSON. */
+function FieldValue({ v }: { v: string }) {
+  let rec: unknown = null;
+  if (/^\s*[[{]/.test(v)) { try { rec = JSON.parse(v); } catch { rec = null; } }
+  if (!rec || typeof rec !== "object") return <>{v}</>;
+  const entries = Array.isArray(rec) ? rec.map((x, i) => [String(i + 1), x] as const) : Object.entries(rec as Record<string, unknown>);
+  const r = rec as Record<string, unknown>;
+  const head = !Array.isArray(rec) && typeof r.numeric === "number"
+    ? `${r.unit === "USD" ? signed(r.numeric) : r.unit === "USD/day" ? `${usd(r.numeric)}/day` : r.numeric.toLocaleString("en-US", { maximumFractionDigits: 2 })}${r.unit && r.unit !== "USD" && r.unit !== "USD/day" ? ` ${String(r.unit)}` : ""}`
+    : `${entries.length} recorded values`;
+  const show = (x: unknown) => typeof x === "number" ? x.toLocaleString("en-US", { maximumFractionDigits: 4 })
+    : typeof x === "string" ? (AGENT_NAME[x] ?? x.replaceAll("_", " ").toLowerCase()) : JSON.stringify(x);
+  return (
+    <>
+      <span className="num font-medium">{head}</span>
+      <details className="mt-1"><summary className="cursor-pointer text-[12px] text-accent">Technical details</summary>
+        <dl className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0.5 text-[12px]">
+          {entries.map(([k, x]) => <div key={k} className="contents"><dt className="text-muted">{REC_LABEL[k] ?? k.replaceAll("_", " ")}</dt><dd className="num [overflow-wrap:anywhere]">{show(x)}</dd></div>)}
+        </dl></details>
+    </>
+  );
+}
+
 function EvidenceDrawer({ id }: { id: string }) {
   const ui = useUI();
   const { data, error, loading, reload } = useApi<Passport>(`/evidence/${encodeURIComponent(id)}`);
@@ -136,11 +164,11 @@ function EvidenceDrawer({ id }: { id: string }) {
       {p && (
         <>
           <PassportMath p={p} />
-          {(p.kind === "machine" || p.kind === "passport" || p.kind === "portfolio") && <h3 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-muted">Recorded evidence</h3>}
+          {(p.kind === "machine" || p.kind === "passport" || p.kind === "portfolio" || p.kind === "claim") && <h3 className="mb-2 text-[13px] font-semibold uppercase tracking-wide text-muted">Recorded evidence</h3>}
           <dl className="grid grid-cols-[minmax(0,1fr)] gap-x-4 gap-y-2.5 sm:grid-cols-[110px_minmax(0,1fr)]">
             {p.fields.map(([k, v], i) => (
               <div key={i} className="contents"><dt className="label pt-px">{k}</dt>
-                <dd className={`text-[13px] [overflow-wrap:anywhere] ${v.includes("not recorded") ? "italic text-muted" : ""}`}>{v}</dd></div>
+                <dd className={`text-[13px] [overflow-wrap:anywhere] ${v.includes("not recorded") ? "italic text-muted" : ""}`}><FieldValue v={v} /></dd></div>
             ))}
           </dl>
           {p.links.length > 0 && <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1 border-t border-line pt-3"><span className="label">Linked</span>{p.links.map((l) => <EvidenceLink key={l} id={l}>{l}</EvidenceLink>)}</div>}

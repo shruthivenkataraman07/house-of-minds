@@ -168,6 +168,22 @@ export const F = {
     meaning: "Comparing with the rest of the floor on the same days removes seasons and weekends; it is an estimate, not proof of cause.",
     fallback: "Effect = how much Back Forty fell relative to the rest of the floor while the walkway was closed.",
   }),
+  decisionFlip: (u?: number, before?: number, breakEven?: number): FormulaSpec => ({
+    title: "Effect of the assumption on the recommended plan",
+    tex: String.raw`\begin{gathered}\Delta N=N_{\text{after}}-N_{\text{before}}\\ \text{promotions pay only if } u\ge u^{*}\end{gathered}`,
+    vars: [["u", "promotion uplift tested (extra expected win per promotion day)"], ["u^{*}", "break-even uplift"], ["N_{\\text{before}}", "modeled July net of the plan with two promotion weekends"], ["N_{\\text{after}}", "modeled net of the plan chosen instead (hold: no spend, $0)"]],
+    calc: has(u, before) ? String.raw`\begin{gathered}u=${usd(u)}/\text{day}${has(breakEven) ? String.raw`\;<\;u^{*}=${usd(breakEven)}/\text{day}` : ""}\\ \Delta N=\$0-${usd(before)}=${usd(-before!)}\end{gathered}` : null,
+    meaning: "Below break-even the weekends would lose money, so the optimizer holds the budget instead; the plan’s modeled net falls by the full promotion value.",
+    fallback: "Change in modeled net = net of the plan chosen instead − net of the promotion plan.",
+  }),
+  noiseRatio: (x?: number, sd?: number, z?: number): FormulaSpec => ({
+    title: "Promotion uplift compared with ordinary weekend noise",
+    tex: String.raw`z=\frac{x}{s}`,
+    vars: [["x", "excess expected win per day at the weaker promotion event"], ["s", "standard deviation of ordinary Fri–Sun days (non-event weekends)"]],
+    calc: has(x, sd, z) ? String.raw`z=\frac{${usd(x)}}{${usd(sd)}}=${tn(z, 2)}` : null,
+    meaning: "About one ordinary swing: a single event this size cannot be told apart from normal weekend variation.",
+    fallback: "Excess per day ÷ ordinary weekend standard deviation.",
+  }),
   netBenefit: (): FormulaSpec => ({
     title: "Estimated net benefit of a plan",
     tex: String.raw`\begin{gathered}N=\sum_{a\in\text{plan}}\Bigl(q_a\,g_a\,c-q_a\,k_a\Bigr)\\ \sum_a q_a k_a\le\$100{,}000,\quad \text{at most 3 kinds of action}\end{gathered}`,

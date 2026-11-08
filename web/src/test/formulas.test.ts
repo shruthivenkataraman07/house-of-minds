@@ -8,7 +8,7 @@ const withValues = [
   F.casinoWin(), F.expectedWin(), F.perHour(1000, 10, 100), F.luckZ(15796, 51961, 7913, -4.57), F.payingSpins(260144, 674454, 0.31544, 0),
   F.peerIndex(1.088, 9), F.decomposition(-62810.6, [-36164.75, 181.4, -27987.8, -2623.4, 3783.95]), F.simulation(0.014),
   F.leaseNet(-2720, -1993, 3380), F.promotion(5800, 5281), F.downtime(1234, 5678), F.comps(), F.gini(0.81),
-  F.forecastErrors(5552, 7316, 1459, 0.689, 61), F.improvement(6699, 5552, 17.1), F.netBenefit(), F.eventStudy(-31.2),
+  F.forecastErrors(5552, 7316, 1459, 0.689, 61), F.improvement(6699, 5552, 17.1), F.netBenefit(), F.eventStudy(-31.2), F.decisionFlip(5015.87, 62237.36), F.noiseRatio(5015.87, 4649, 1.08),
 ];
 
 describe("formula templates", () => {
